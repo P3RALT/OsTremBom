@@ -13,13 +13,12 @@
   <header class="navbar">
     <div class="logo">⚡ OS TREM DE BH</div>
     <nav class="nav-links">
-      <a href="#">Início</a>
-      <a href="#">Locais</a>
-      <a href="#">Semanal</a>
-      <a href="#">Perfil</a>
+      <a href="index.html">Início</a>
+      <a href="page/locais.html">Locais</a>
+      <a href="page/semanal.html">Semanal</a>
+      <a href="page/perfil.html">Perfil</a>
     </nav>
     <div class="nav-actions">
-      <button class="btn-login">Entrar</button>
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
   </header>
@@ -31,11 +30,10 @@
       <div class="sidebar-logo">OS TREM DE BH</div>
     </div>
     <nav class="sidebar-nav">
-      <a href="#">🏠 Início</a>
-      <a href="#">📍 Locais</a>
-      <a href="#">📅 Semanal</a>
-      <a href="#">👤 Perfil</a>
-      <a href="#">⚙️ Configurações</a>
+      <a href="index.html">Início</a>
+      <a href="page/locais.html">Locais</a>
+      <a href="page/semanal.html">Semanal</a>
+      <a href="page/perfil.html">Perfil</a>
     </nav>
     <div class="sidebar-footer">
       <button class="btn-logout">Sair</button>
@@ -123,33 +121,7 @@
     </section>
   </main>
 
-  <script>
-    // Função para toggle do menu mobile
-    function toggleMenu() {
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlay");
-      sidebar.classList.toggle("active");
-      overlay.classList.toggle("active");
-    }
-
-    // Scroll reveal
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px"
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll('.Sessao01, .Sessao02, .Sessao03, .Sessao04').forEach(el => {
-      observer.observe(el);
-    });
+  <script src="script/semanal.js"></script>
   </script>
 </body>
 </html>
