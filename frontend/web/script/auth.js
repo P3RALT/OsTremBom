@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Elementos da interface
+    // Elementos da interface - PEGA DE QUALQUER PÁGINA
     const btnLoginHeader = document.getElementById('btnLoginHeader');
     const btnPerfilHeader = document.getElementById('btnPerfilHeader');
     const linkPerfil = document.getElementById('linkPerfil');
@@ -28,15 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnPerfilHeader.textContent = `👤 ${AuthService.getNomeCurto()}`;
             }
             if (btnLogoutSidebar) btnLogoutSidebar.style.display = 'block';
-            if (linkPerfil) linkPerfil.href = 'perfil.html';
-            if (sidebarLinkPerfil) sidebarLinkPerfil.href = 'perfil.html';
+            if (linkPerfil) linkPerfil.href = '../page/perfil.html';
+            if (sidebarLinkPerfil) sidebarLinkPerfil.href = '../page/perfil.html';
         } else {
             // Usuário deslogado
             if (btnLoginHeader) btnLoginHeader.style.display = 'block';
             if (btnPerfilHeader) btnPerfilHeader.style.display = 'none';
             if (btnLogoutSidebar) btnLogoutSidebar.style.display = 'none';
-            if (linkPerfil) linkPerfil.href = 'login.html';
-            if (sidebarLinkPerfil) sidebarLinkPerfil.href = 'login.html';
+            if (linkPerfil) linkPerfil.href = '../page/login.html';
+            if (sidebarLinkPerfil) sidebarLinkPerfil.href = '../page/login.html';
         }
     }
     
@@ -44,14 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // REDIRECIONAMENTOS
     // =============================================
     function redirecionarParaLogin() {
-        window.location.href = 'login.html';
+        window.location.href = '../page/login.html';
     }
     
     function redirecionarParaPerfil() {
         if (AuthService.isAuthenticated()) {
-            window.location.href = 'perfil.html';
+            window.location.href = '../page/perfil.html';
         } else {
-            window.location.href = 'login.html';
+            window.location.href = '../page/login.html';
         }
     }
     
@@ -61,23 +61,27 @@ document.addEventListener('DOMContentLoaded', function() {
             atualizarInterface();
             
             const paginaAtual = window.location.pathname;
-            if (paginaAtual.includes('perfil.html')) {
-                window.location.href = 'login.html';
+            if (paginaAtual.includes('../page/perfil.html')) {
+                window.location.href = '../page/login.html';
             }
         }
     }
     
     // =============================================
-    // EVENT LISTENERS
+    // EVENT LISTENERS - AQUI ESTÁ O IMPORTANTE!
     // =============================================
+    
+    // Botão "Entrar" na navbar
     if (btnLoginHeader) {
         btnLoginHeader.addEventListener('click', redirecionarParaLogin);
     }
     
+    // Botão "Perfil" na navbar
     if (btnPerfilHeader) {
         btnPerfilHeader.addEventListener('click', redirecionarParaPerfil);
     }
     
+    // Link "Perfil" na navbar
     if (linkPerfil) {
         linkPerfil.addEventListener('click', function(e) {
             e.preventDefault();
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Link "Perfil" na sidebar
     if (sidebarLinkPerfil) {
         sidebarLinkPerfil.addEventListener('click', function(e) {
             e.preventDefault();
@@ -92,19 +97,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Botão "Sair" na sidebar
     if (btnLogoutSidebar) {
         btnLogoutSidebar.addEventListener('click', fazerLogout);
     }
     
+    // Botão "Explorar locais"
     if (btnExplorarLocais) {
         btnExplorarLocais.addEventListener('click', function() {
-            window.location.href = 'locais.html';
+            window.location.href = '../page/locais.html';
         });
     }
     
+    // Botão "Explorar costumes"
     if (btnExplorarCostumes) {
         btnExplorarCostumes.addEventListener('click', function() {
-            window.location.href = 'semanal.html';
+            window.location.href = '../page/semanal.html';
         });
     }
     

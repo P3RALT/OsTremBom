@@ -343,7 +343,7 @@ function fecharFotoModal() {
 function toggleModalPublicacao() {
     if (!AuthService.isAuthenticated()) {
         mostrarToast('Faça login para publicar', 'erro');
-        window.location.href = 'login.html';
+        window.location.href = '../page/login.html';
         return;
     }
     
@@ -358,7 +358,7 @@ function toggleModalPublicacao() {
 
 function irParaPerfil(userId) {
     if (userId) {
-        window.location.href = `perfil.html?id=${userId}`;
+        window.location.href = `../page/perfil.html?id=${userId}`;
     }
 }
 
