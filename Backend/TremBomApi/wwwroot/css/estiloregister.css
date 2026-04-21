@@ -15,10 +15,12 @@ body {
   height: 100%; 
   width: 25%;
   border-radius: 0;
-  text-align: top;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+#btn-register {
+    width: 100%;
 }
 .btn-voltar {
   width: 40px;
@@ -82,4 +84,54 @@ h2 {
   font-size: 17px;
   color: black;
   margin: 12px 0 4px;
+}
+
+@media (max-width: 900px) {
+
+  body {
+    align-items: flex-start; 
+    padding: 20px;
+  }
+
+  .register-box {
+    width: 100%;     
+    min-height: auto;  
+    height: auto;
+    margin: 0;
+    border-radius: 12px;
+    padding: 20px;
+    justify-content: flex-start;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  #subtitulo-p {
+    font-size: 14px;
+  }
+
+  .input-row {
+    flex-direction: column; 
+    gap: 10px;
+  }
+
+  .input-row input {
+    width: 100%;
+  }
+
+  .btn-login,
+  #btn-register {
+    width: 100%;
+  }
+
+  .btn-voltar {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .subtitulo {
+    font-size: 15px;
+  }
 }
