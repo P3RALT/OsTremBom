@@ -98,16 +98,16 @@ if (app.Environment.IsDevelopment())
 */
 builder.Services.AddDirectoryBrowser();
 var app = builder.Build();
-
 app.UseHttpsRedirection();
-app.UseStaticFiles(); 
-app.UseRouting();   
+
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseCors("AllowFrontend");
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("/index.html");
+app.MapFallbackToFile("index.html");
+
 app.Run();

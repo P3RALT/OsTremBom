@@ -20,7 +20,6 @@
 /* BODY */
 body {
     padding-top: 80px;
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-blue) 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     position: relative;
@@ -57,19 +56,23 @@ body::before {
   transition: all 0.3s ease;
 }
 
-/* LOGO */
-.logo {
-  font-weight: 700;
-  font-size: 24px;
-  background: linear-gradient(135deg, #069E6E 0%, #00BAB4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: -0.5px;
-  transition: transform 0.3s ease;
+.btn-login {
+  background: var(--primary-teal);
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+}
+.btn-login:hover  {
+  background: var(--primary-dark-blue);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.logo:hover {
+.logo:hover  {
   transform: scale(1.05);
 }
 
