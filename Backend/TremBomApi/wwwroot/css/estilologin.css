@@ -28,7 +28,7 @@ body {
     background-color: var(--primary-blue);
     color: white;
     border: none;
-    margin-top: 100px;
+    margin-top: 30%;
     border-radius: 100px;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -76,7 +76,7 @@ body {
 }
 
 .input:focus {
-  border-color: #1877f2;
+  border-color: var(--primary-teal);
   box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
 }
 
@@ -125,4 +125,55 @@ input {
   border: 1px solid #dddfe2;
   border-radius: 6px;
   box-sizing: border-box; 
+}
+
+
+@media (max-width: 768px) {
+  
+  .login-container {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .content-left {
+    min-height: 200px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .content-left h1 {
+    font-size: 22px;
+    margin: 20px;
+  }
+
+  .form-right {
+    flex: none;
+    width: 100%;
+  }
+
+  .card-login {
+    height: auto;
+    padding: 24px 16px;
+    box-shadow: none; 
+  }
+
+  #titulo-login {
+    font-size: 20px;
+    text-align: left;
+  }
+
+  .input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  #btn-new {
+    margin-top: 20px;
+    padding: 12px;
+  }
+
+  #esqueceu-senha {
+    font-size: 13px;
+  }
 }
