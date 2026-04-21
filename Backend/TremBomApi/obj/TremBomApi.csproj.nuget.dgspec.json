@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\suporteti\\Documents\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj": {}
+    "D:\\cnpj-project\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\suporteti\\Documents\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj": {
+    "D:\\cnpj-project\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\suporteti\\Documents\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj",
+        "projectUniqueName": "D:\\cnpj-project\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj",
         "projectName": "TremBomApi",
-        "projectPath": "C:\\Users\\suporteti\\Documents\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj",
-        "packagesPath": "C:\\Users\\suporteti\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\suporteti\\Documents\\OsTremBom\\Backend\\TremBomApi\\obj\\",
+        "projectPath": "D:\\cnpj-project\\OsTremBom\\Backend\\TremBomApi\\TremBomApi.csproj",
+        "packagesPath": "C:\\Users\\SSD\\.nuget\\packages\\",
+        "outputPath": "D:\\cnpj-project\\OsTremBom\\Backend\\TremBomApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\suporteti\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\SSD\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -44,9 +44,27 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[10.0.6, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.6, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.6, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[10.0.6, )"
             }
           },
           "imports": [
