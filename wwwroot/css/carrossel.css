@@ -1,0 +1,191 @@
+.titulo-seccao {
+    font-size: 36px;         /* Tamanho de destaque */
+    font-weight: 800;        /* Bem negrito */
+    color: var(--primary-dark);
+    letter-spacing: -1px;    /* Letras levemente mais juntas (estilo moderno) */
+    margin-bottom: 12px;     /* Espaço para a descrição embaixo */
+    font-family: 'Inter', sans-serif;
+}
+
+.descricao-seccao {
+    font-size: 16px;         /* Tamanho de leitura agradável */
+    color: #718096;          /* Cinza azulado suave */
+    max-width: 600px;        /* Limita a largura para o texto não ficar gigante */
+    margin: 0 auto;          /* Centraliza o bloco do parágrafo */
+    line-height: 1.6;        /* Espaçamento entre linhas */
+}
+
+.cabecalho-seccao {
+    text-align: center;      /* Centraliza o texto */
+    margin-bottom: 50px;     /* Espaço generoso antes de começar os cards */
+    padding: 0 20px;
+}
+
+/* ==========================================================================
+   5. SESSÃO 03 - CARROSSEL DE POINTS (DADOS DINÂMICOS)
+   ========================================================================== */
+.Sessao03 {
+    width: 100%;
+    background: #ffffff;
+    padding: 60px 24px;
+    overflow: hidden; /* Evita que o carrossel quebre a página */
+}
+
+/* CONTAINER PAI - ESSENCIAL PARA FUNCIONAR */
+.Carrossel {
+    display: flex; /* Alinha os cards lado a lado */
+    gap: 20px;
+    overflow-x: auto; /* Habilita o scroll horizontal */
+    padding: 20px 5px 40px 5px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Esconde a barra de rolagem (opcional para estética) */
+.Carrossel::-webkit-scrollbar {
+    display: none;
+}
+
+/* O CARD - ESTRUTURA FIXA */
+.Card {
+    min-width: 260px; /* Largura mínima no mobile */
+    max-width: 280px; /* Largura máxima no PC */
+    flex-shrink: 0;   /* IMPEDE O CARD DE ESTICAR OU ENCOLHER */
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* CONTAINER DA IMAGEM QUADRADA */
+.card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* SEMPRE QUADRADA IGUAL À SUA REFERÊNCIA */
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.Card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+/* BOTÃO DE FAVORITO SOBRE A FOTO */
+.btn-favorito {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 5;
+    cursor: pointer;
+    font-size: 18px;
+    color: #2D2E47;
+}
+
+/* CONTEÚDO DO TEXTO */
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #069E6E; /* Cor das bolinhas de rating */
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.card-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2D2E47;
+    margin: 0;
+    /* Corta o texto se for muito longo */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-category {
+    font-size: 14px;
+    color: #718096;
+}
+
+/* BOTÃO RESERVAR (BOTÃO VERDE IGUAL À REF) */
+.btn-reservar {
+    margin-top: 8px;
+    background: #00BAB4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    align-self: flex-end; /* Joga para o lado direito */
+    transition: background 0.3s;
+}
+
+.btn-reservar:hover {
+    background: #069E6E;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================================================== */
+
+/* TABLETS */
+@media (max-width: 1024px) {
+    .Carrossel {
+        gap: 15px;
+    }
+    .Card {
+        min-width: 240px;
+    }
+}
+
+/* CELULARES */
+@media (max-width: 768px) {
+    .Sessao03 {
+        padding: 40px 16px;
+    }
+    .section-header h2 {
+        font-size: 24px;
+    }
+    .Card {
+        min-width: 220px; /* Cards menores no celular */
+    }
+    .card-image {
+        border-radius: 12px;
+    }
+}
+
+/* Ajuste Responsivo para Celular */
+@media (max-width: 768px) {
+    .titulo-seccao {
+        font-size: 28px;
+    }
+    .descricao-seccao {
+        font-size: 14px;
+    }
+}
