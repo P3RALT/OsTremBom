@@ -632,3 +632,4 @@ C:\Users\Windows\Documents\Estudos\OsTremBom\Backend\TremBomApi\obj\Debug\net10.
 C:\Users\Windows\Documents\Estudos\OsTremBom\Backend\TremBomApi\obj\Debug\net10.0\compressed\pyjbeyqj23-{0}-2j1b9jp7sm-2j1b9jp7sm.gz
 C:\Users\Windows\Documents\Estudos\OsTremBom\Backend\TremBomApi\obj\Debug\net10.0\compressed\92pnizz4ur-{0}-wocmovo0x9-wocmovo0x9.gz
 C:\Users\Windows\Documents\Estudos\OsTremBom\Backend\TremBomApi\obj\Debug\net10.0\compressed\4budzt94k6-{0}-vd4k1uide2-vd4k1uide2.gz
+C:\Users\Windows\Documents\Estudos\OsTremBom\Backend\TremBomApi\obj\Debug\net10.0\TremBomApi.sourcelink.json
