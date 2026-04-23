@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("nome"),
     document.getElementById("sobrenome"),
     document.getElementById("email"),
-    document.getElementById("senha"),
-    document.getElementById("conf-senha")
   ];
 
   function validar() {
@@ -29,11 +27,8 @@ document.getElementById("registro-form").addEventListener("submit", function (e)
   const sobrenome= sobrenomeInput.value.trim();
   const emailInput = document.getElementById("email");
   const email = emailInput.value.trim();
-  const senhaInput = document.getElementById("senha");
-  const senha = senhaInput.value.trim();
-  const confirmarSenhaInput = document.getElementById("conf-senha");
-  const confirmarSenha = confirmarSenhaInput.value.trim();
   const error = document.getElementById("error");
+  const genero = document.getElementById("genero").value;
   const day = parseInt(document.getElementById("day").value);
   const month = parseInt(document.getElementById("month").value);
   const year = parseInt(document.getElementById("year").value);
@@ -69,19 +64,14 @@ document.getElementById("registro-form").addEventListener("submit", function (e)
     return;
   }
 
-  else if (senha.length < 6) {
-    error.textContent = "Senha precisa ter pelo menos 6 caracteres";
-    senhaInput.classList.add('input-erro')
-    error.style.display = 'block';
-    return;
-  }
-  else if (senha != confirmarSenha){
-    error.textContent = "As senhas não coincidem."
-    confirmarSenhaInput.classList.add('input-erro')
-    error.style.display = 'block';
-    return;
-  }
+  // dados em cache
   error.style.display = 'none';
-
+  const nomeCompleto = `${nome} ${sobrenome}`;
+  localStorage.setItem("dadosRegistro", JSON.stringify({
+    nomeCompleto,
+    email,
+    genero,
+    nascimento,
+  }));
   window.location.href = "/page/register2.html";
 });
