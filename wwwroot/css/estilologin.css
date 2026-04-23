@@ -47,7 +47,7 @@ body {
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .teal {
-    color: var(--primary-teal);
+    color: var(--primary-green);
 }
 #titulo-login {
     font-size: 24px;
@@ -77,7 +77,7 @@ body {
 }
 
 .input:focus {
-  border-color: var(--primary-teal);
+  border-color: var(--primary-green);
   box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
 }
 

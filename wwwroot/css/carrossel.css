@@ -134,7 +134,7 @@
 /* BOTÃO RESERVAR (BOTÃO VERDE IGUAL À REF) */
 .btn-reservar {
     margin-top: 8px;
-    background: #00BAB4;
+    background: var(--primary-green);
     color: white;
     border: none;
     padding: 10px 20px;
