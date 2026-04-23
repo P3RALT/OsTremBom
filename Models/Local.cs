@@ -6,44 +6,56 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TremBomApi.Models
 {
     [Table("locais")]
-    public class Local
-    {
-        [Key]
-        [Column("id")]
-        public int Id { get; set; }
+public class Local
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
 
-        [Required]
-        [MaxLength(255)]
-        [Column("nome")]
-        public string Nome { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(255)]
+    [Column("nome")]
+    public string Nome { get; set; } = string.Empty;
 
-        [MaxLength(100)]
-        [Column("categoria")]
-        public string? Categoria { get; set; }
+    [MaxLength(100)]
+    [Column("categoria")]
+    public string? Categoria { get; set; }
 
-        [Column("descricao")]
-        public string? Descricao { get; set; }
+    [Column("descricao")]
+    public string? Descricao { get; set; }
 
-        [MaxLength(500)]
-        [Column("imagem_url")]
-        public string? ImagemUrl { get; set; }
+    // Mantemos este para não quebrar o seu código atual
+    [MaxLength(500)]
+    [Column("imagem_url")]
+    public string? ImagemUrl { get; set; }
 
-        [Column("total_likes")]
-        public int TotalLikes { get; set; }
+    // NOVOS CAMPOS PARA O LAYOUT DE DETALHES
+    [MaxLength(500)]
+    [Column("imagem_url_2")]
+    public string? ImagemUrl2 { get; set; }
 
-        [Column("total_comentarios")]
-        public int TotalComentarios { get; set; }
+    [MaxLength(500)]
+    [Column("imagem_url_3")]
+    public string? ImagemUrl3 { get; set; }
 
-        [Column("data_cadastro")]
-        public DateTime DataCadastro { get; set; } = DateTime.Now;
+    [Column("avaliacao_nota")]
+    public double AvaliacaoNota { get; set; } // Ex: 3.8
 
-        [Column("ativo")]
-        public bool Ativo { get; set; } = true;
+    [Column("horario_texto")]
+    public string? HorarioTexto { get; set; } // Ex: "Quinta-feira 8:00 - 18:00"
 
-        
+    // CAMPOS DE ENGAJAMENTO
+    [Column("total_likes")]
+    public int TotalLikes { get; set; }
 
+    [Column("total_comentarios")]
+    public int TotalComentarios { get; set; }
 
-        // Relacionamentos
-        public virtual ICollection<Publicacao> Publicacoes { get; set; } = new List<Publicacao>();
-    }
-}
+    [Column("data_cadastro")]
+    public DateTime DataCadastro { get; set; } = DateTime.Now;
+
+    [Column("ativo")]
+    public bool Ativo { get; set; } = true;
+
+    public virtual ICollection<Publicacao> Publicacoes { get; set; } = new List<Publicacao>();
+}  }

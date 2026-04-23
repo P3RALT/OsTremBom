@@ -29,7 +29,7 @@
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
   </header>
-
+<body>
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -38,7 +38,7 @@
     </div>
     <nav class="sidebar-nav">
       <a href="../index.html">Início</a>
-      <a href="locais.html">Locais</a>
+      <a href="../page/locais.html">Locais</a>
       <a href="../page/semanal.html">Semanal</a>
       <a href="../page/login.html" id="sidebarLinkPerfil">Perfil</a>
     </nav>
@@ -49,3 +49,44 @@
 
   <!-- OVERLAY -->
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+  <!-- FOTOS -->
+  <section class="galeria-mosaico">
+    <div class="Foto_Principal" id="fotoPrincipal"></div>
+    <div class="Fotos_Laterais" id="fotosLaterais"></div>
+  </section>
+  <!-- CONTEUDO -->
+  <div class="conteudo-flex">
+    <section class="informacoes">
+        <h3 id="nomeLocal">Carregando...</h3>
+        <div class="card-texto" id="descricaoLocal"></div>
+    </section>
+
+    <<aside class="horarios-card">
+            <div class="mapa-container" style="margin-top: 2rem;">
+            <h3>📍 Localização no Mapa</h3>
+            <iframe 
+            id="mapaIframe"
+            width="100%" 
+            height="300" 
+            style="border:0; border-radius: 12px; margin-top: 1rem;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade"
+            src=""> </iframe>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <strong>Horário de funcionamento</strong>
+                <div class="horarios-corpo">
+                    <span class="status-aberto" id="statusAberto">Aberto agora</span>
+                    <p id="horarioTexto"></p>
+                </div>
+            </div>
+        </aside>
+<script src="../script/Detalhes.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=TUA_API_KEY"></script>
+
+
+
+</body>
+</html>

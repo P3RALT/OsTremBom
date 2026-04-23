@@ -15,6 +15,7 @@ async function inicializarGaleria() {
                 // Loop para construir cada card
                 dados.forEach(item => {
                     const template = `
+                        <a href="../page/detalhes.html?id=${item.id}" class="card-link">
                         <article class="card-container">
                             <img class="card-imagem" src="${item.imagemUrl || 'https://via.placeholder.com/400x250'}" alt="${item.nome}">
                             
@@ -28,6 +29,7 @@ async function inicializarGaleria() {
                                 </div>
                             </div>
                         </article>
+                        </a>
                     `;
                     container.innerHTML += template;
                 });

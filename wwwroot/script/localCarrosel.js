@@ -20,7 +20,7 @@ async function carregarLocaisCarrossel() {
     card.innerHTML = `
         <div class="card-image">
             <button class="btn-favorito" onclick="favoritar(${local.id}, event)">♡</button>
-            <img src="${local.imagemUrl || 'img/default-bh.jpg'}" alt="${local.nome}">
+            <img src="${local.imagemUrl || '../img/default-bh.jpg'}" alt="${local.nome}">
         </div>
         <div class="card-content">
             <div class="card-rating">
@@ -51,5 +51,5 @@ document.addEventListener('DOMContentLoaded', carregarLocaisCarrossel);
 
 // Função extra para o botão (exemplo)
 function verDetalhes(id) {
-    window.location.href = `page/detalhes.html?id=${id}`;
+    window.location.href = `../page/detalhes.html?id=${id}`;
 }

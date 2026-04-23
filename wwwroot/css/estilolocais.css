@@ -65,7 +65,9 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
         }
-
+        .card-link{
+    text-decoration: none; /* Remove sublinhado */
+        }
         /* Efeito de "levante" ao passar o mouse */
         .card-container:hover {
             transform: translateY(-4px);
