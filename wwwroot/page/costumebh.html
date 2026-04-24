@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
   <link rel="manifest" href="../img/site.webmanifest">
   <link rel="stylesheet" href="../css/Navbar.css">
-  <link rel="stylesheet" href="../css/estilodetalhes.css">
+  <link rel="stylesheet" href="../css/estilolocais.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -29,7 +29,7 @@
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
   </header>
-<body>
+
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -38,7 +38,7 @@
     </div>
     <nav class="sidebar-nav">
       <a href="../index.html">Início</a>
-      <a href="../page/locais.html">Locais</a>
+      <a href="locais.html">Locais</a>
       <a href="../page/semanal.html">Semanal</a>
       <a href="../page/login.html" id="sidebarLinkPerfil">Perfil</a>
     </nav>
@@ -49,54 +49,7 @@
 
   <!-- OVERLAY -->
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-  <!-- FOTOS -->
-  <section class="galeria-mosaico">
-    <div class="Foto_Principal" id="fotoPrincipal"></div>
-    <div class="Fotos_Laterais" id="fotosLaterais"></div>
-  </section>
-  <!-- CONTEUDO -->
-  <div class="conteudo-flex">
-    <section class="informacoes">
-        <h1 id="nomeLocal">Carregando...</h1>
-        
-        <div class="endereco-container">
-            <span class="icon">📍</span>
-            <span id="enderecoLocal"></span>
-        </div>
 
-        <div class="card-texto" id="descricaoLocal"></div>
-
-        <div class="detalhes-extras">
-            <div class="secao-extra">
-                <h4>✨ O que fazer</h4>
-                <p id="oqFazer"></p>
-            </div>
-            
-            <div class="secao-extra">
-                <h4>💡 Dicas</h4>
-                <p id="dicas"></p>
-            </div>
-
-            <div class="secao-extra">
-                <h4>🚩 Por que visitar?</h4>
-                <p id="pqVisitar"></p>
-            </div>
-        </div>
-    </section>
-
-    <aside class="horarios-card">
-        <div>
-            <strong>Horário de funcionamento</strong>
-            <div class="horarios-corpo">
-                <span class="status-aberto" id="statusAberto">Aberto agora</span>
-                <p id="horarioTexto"></p>
-            </div>
-        </div>
-    </aside>
-</div>
-<script src="../script/Detalhes.js"></script>
-
-
-
-</body>
-</html>
+  <body class="pagina-corpo">
+  </body>
+  </html>
