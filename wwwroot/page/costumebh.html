@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
   <link rel="manifest" href="../img/site.webmanifest">
   <link rel="stylesheet" href="../css/Navbar.css">
-  <link rel="stylesheet" href="../css/estilolocais.css">
+  <link rel="stylesheet" href="../css/estilocostumes.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -50,6 +50,45 @@
   <!-- OVERLAY -->
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-  <body class="pagina-corpo">
-  </body>
+  <!-- CONTEÚDO PRINCIPAL -->
+   <div class="conteudo">
+    <div class="main-layout">
+        <aside class="sidebar-fixa">
+            <h3>Coisas importantes <br><span>de BH</span></h3>
+            <nav id="side-menu">
+                <a href="#pirulito" class="active">🍭 História do Pirulito</a>
+                <a href="#carnaval">🎭 Carnaval de BH</a>
+                <a href="#pontos">🏛️ Pontos Históricos</a>
+                <a href="#parques">🌳 Parques e Natureza</a>
+                <a href="#cultura">🎨 Cultura e Museus</a>
+                <a href="#gastronomia">🍴 Gastronomia</a>
+            </nav>
+        </aside>
+
+        <main class="conteudo-rolavel">
+            <section class="hero">
+                <h1>Belo Horizonte, uma cidade de histórias...</h1>
+                <p>Descubra os encantos e tradições que tornam BH única.</p>
+            </section>
+
+            <section id="pirulito" class="page-section">
+                <h2>🍭 História do Pirulito</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <img src="../img/pirulito.jpg" alt="Pirulito">
+                        <h4>História do Pirulito</h4>
+                        <p>Criado nos anos 30...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="carnaval" class="page-section">
+                <h2>🎭 Carnaval de BH</h2>
+                <p>Conteúdo do carnaval aqui...</p>
+            </section>
+        </main>
+    </div>
+</div>
+<script src="../script/costume.js"></script>
+</body>
   </html>
