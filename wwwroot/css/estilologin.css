@@ -6,6 +6,8 @@ body {
   background-position: center;
   flex: 1;
   display: flex;
+  border: 0.2px solid #dddfe283;
+  background-color: white;
   flex-direction: column;
   justify-content: end;
 }
