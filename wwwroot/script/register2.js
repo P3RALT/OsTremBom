@@ -84,7 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(finalUser);
 
     // para limpar --> localStorage.clear()
+    window.location.href = "/index";
   });
 
-  btn.disabled = true;
+
 });

@@ -1,74 +1,71 @@
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("btn-register");
+  const form = document.getElementById("registro-form");
+  const errorElement = document.getElementById("error");
 
-  const inputs = [
+  const inputsObrigatorios = [
     document.getElementById("nome"),
     document.getElementById("sobrenome"),
     document.getElementById("email"),
   ];
 
-  function validar() {
-    const todosPreenchidos = inputs.every(el => el && el.value.trim() !== "");
-    btn.disabled = !todosPreenchidos;
+  function validarCamposVazios() {
+    const textosOk = inputsObrigatorios.every(el => el.value.trim() !== "");
+    btn.disabled = !textosOk;
   }
 
-  inputs.forEach(el => el.addEventListener("input", validar));
-  btn.disabled = true;
+  inputsObrigatorios.forEach(el => el.addEventListener("input", validarCamposVazios));
 
-  document.getElementById("registro-form").addEventListener("submit", function (e) {
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const nomeInput = document.getElementById("nome");
-    const nome = nomeInput.value.trim();
-    const sobrenomeInput = document.getElementById("sobrenome");
-    const sobrenome = sobrenomeInput.value.trim();
-    const emailInput = document.getElementById("email");
-    const email = emailInput.value.trim();
-    const error = document.getElementById("error");
+    const nome = document.getElementById("nome").value.trim();
+    const sobrenome = document.getElementById("sobrenome").value.trim();
+    const email = document.getElementById("email").value.trim();
     const genero = document.getElementById("genero").value;
-    const day = parseInt(document.getElementById("day").value);
-    const month = parseInt(document.getElementById("month").value);
-    const year = parseInt(document.getElementById("year").value);
+    
+    const d = parseInt(document.getElementById("day").value);
+    const m = parseInt(document.getElementById("month").value);
+    const y = parseInt(document.getElementById("year").value);
 
-    if (!day || !month || !year) {
-      error.textContent = "Selecione uma data completa.";
+    if (!d || !m || !y) {
+      errorElement.textContent = "Selecione uma data completa.";
+      errorElement.style.display = 'block';
       return;
     }
 
     const hoje = new Date();
-    const nascimento = new Date(year, month - 1, day);
-
+    const nascimento = new Date(y, m - 1, d);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
-    const mes = hoje.getMonth() - nascimento.getMonth();
+    const difMes = hoje.getMonth() - nascimento.getMonth();
 
-    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+    if (difMes < 0 || (difMes === 0 && hoje.getDate() < nascimento.getDate())) {
       idade--;
     }
 
     if (idade < 13) {
-      error.textContent = "Você precisa ter pelo menos 13 anos.";
-      error.style.display = 'block';
+      errorElement.textContent = "Você precisa ter pelo menos 13 anos.";
+      errorElement.style.display = 'block';
       return;
     }
 
     if (nome.length < 3 || sobrenome.length < 2) {
-      error.textContent = "Por favor, digite um nome válido.";
-      error.style.display = 'block';
-      nomeInput.classList.add('input-erro');
-      sobrenomeInput.classList.add('input-erro');
+      errorElement.textContent = "Por favor, digite um nome válido.";
+      errorElement.style.display = 'block';
       return;
     }
 
-    error.style.display = 'none';
+    errorElement.style.display = 'none';
 
-    const nomeCompleto = `${nome} ${sobrenome}`;
-    localStorage.setItem("dadosRegistro", JSON.stringify({
-      nomeCompleto,
+    const dados = {
+      nomeCompleto: `${nome} ${sobrenome}`,
       email,
       genero,
-      nascimento,
-    }));
+      nascimento: nascimento.toISOString(),
+    };
 
+    localStorage.setItem("dadosRegistro", JSON.stringify(dados));
+    
     window.location.href = "/page/register2.html";
   });
 });
