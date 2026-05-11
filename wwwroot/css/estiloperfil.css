@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #fafafa;
+    color: #262626;
+}
+
+.container {
+    max-width: 935px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 44px;
+}
+
+.profile-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #dbdbdb;
+    padding: 2px;
+}
+
+.profile-info {
+    flex: 2;
+}
+
+.profile-user-settings {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.username {
+    font-size: 28px;
+    font-weight: 300;
+}
+
+.btn-edit {
+    background-color: transparent;
+    border: 1px solid #dbdbdb;
+    padding: 5px 9px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
+    list-style: none;
+}
+
+.profile-stats li {
+    font-size: 16px;
+}
+
+.profile-stats span {
+    font-weight: 600;
+}
+
+.profile-bio {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.profile-bio .full-name {
+    font-weight: 600;
+    display: block;
+}
+
+.tabs {
+    border-top: 1px solid #dbdbdb;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #8e8e8e;
+}
+
+.tab-item {
+    padding: 15px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab-item.active {
+    border-top: 1px solid #069E6E;
+    color: #069E6E;
+    margin-top: -1px;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 20px;
+}
+
+.photo-item {
+    position: relative;
+    border-radius: 10px;
+    aspect-ratio: 1 / 1;
+    background-color: #efefef;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s ease;
+}
+
+.photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    gap: 20px;
+    font-weight: 600;
+}
+
+.photo-item:hover .photo-overlay {
+    opacity: 1;
+}
+
+@media (max-width: 735px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .profile-image {
+        margin-bottom: 20px;
+    }
+
+    .profile-stats {
+        gap: 20px;
+    }
+
+    .photo-grid {
+        gap: 3px;
+    }
+}

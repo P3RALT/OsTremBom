@@ -28,8 +28,8 @@ body {
     width: 100%;
     padding: 14px 16px;
     background-color: white;
-    color: var(--primary-blue);
-    border: 1px solid var(--primary-blue);
+    color: var(--primary-green);
+    border: 1px solid var(--primary-green);
     margin-top: 30%;
     border-radius: 100px;
     font-size: 15px;
@@ -38,7 +38,7 @@ body {
     transition: background-color 0.2s ease;
 }
 #btn-new:hover {
-    background-color: var(--primary-dark-blue);
+    background-color: var(--primary-blue);
     color: white;
 }
 
@@ -57,7 +57,18 @@ body {
     text-align: left;
 }
 .btn-login {
+  width: 100%;
   margin-top: 14px;
+}
+.btn-login:disabled {
+    background-color: RGB(211, 211, 211);
+    border-color: RGB(211, 211, 211);
+    color: white;
+    cursor: not-allowed;
+}
+.btn-login:disabled:hover {
+    background-color: RGB(211, 211, 211);
+    cursor: not-allowed;
 }
 .input {
   width: 100%;

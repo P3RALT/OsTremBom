@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="../css/Navbar.css">
 </head>
 <body>
+  <style>
+    body {
+      overflow: hidden;
+    }
+  </style>
     <header class="navbar">
         <div class="logo">
             <a href="../index.html"><img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo"></a>
@@ -28,15 +33,21 @@
 
   <div class="form-right">
     <div class="card-login">
-      <h3 id="titulo-login">Entrar em sua conta</h3>
-      <input class="input" type="text" placeholder="E-mail">
-      <input class="input" type="password" placeholder="Senha">
-      <button class="btn-login">Entrar</button>
-      <a href="#" id="esqueceu-senha">Esqueceu a senha?</a>
-      <hr id="divisor">
-      <button id="btn-new" onclick="window.location.href='../page/register.html'">Criar nova conta</button>
+        <h3 id="titulo-login">Entrar em sua conta</h3>
+        <p id="error" style="color: #ff4d4d; font-size: 14px; margin-bottom: 10px; display: none;"></p>
+        
+        <form id="login-form">
+          <input class="input" type="email" id="email" placeholder="E-mail" required>
+          <input class="input" type="password" id="senha" placeholder="Senha" required>
+          
+          <button class="btn-login" id="btn-entrar" type="submit">Entrar</button>
+        </form>
+        <a href="#" id="esqueceu-senha">Esqueceu a senha?</a>
+        <hr id="divisor">
+        <button id="btn-new" onclick="window.location.href='../page/register.html'">Criar nova conta</button>
     </div>
   </div>
 </div>
+<script src="/script/login.js"></script>
 </body>
 </html>
