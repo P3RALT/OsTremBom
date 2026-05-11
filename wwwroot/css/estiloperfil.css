@@ -8,15 +8,80 @@
 body {
     background-color: #fafafa;
     color: #262626;
+    display: flex;
 }
+.sidebar {
+    width: 245px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #dbdbdb;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+
+
+
+.main-wrapper {
+    margin-left: 245px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    max-width: 935px;
+    width: 100%;
+    padding: 30px 20px;
+}
+
+
+
+.nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            text-decoration: none;
+            color: #262626;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: background 0.2s;
+}
+.nav-item:hover { background-color: #f2f2f2; }
+.nav-item i { width: 30px; font-size: 22px; margin-right: 15px; }
+.nav-item.active { font-weight: bold; }
+
 
 .container {
     max-width: 935px;
     margin: 0 auto;
     padding: 30px 20px;
 }
+.btn-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #262626;
+    transition: 0.2s;
+}
 
+.btn-back:hover {
+    color: #555;
+}
 header {
+    background: #069e6e1f;
+    padding: 20px;
+    border-radius: 20px;
+    position: relative;
     display: flex;
     align-items: center;
     margin-bottom: 44px;
@@ -54,10 +119,11 @@ header {
 }
 
 .btn-edit {
-    background-color: transparent;
+    background-color: #069e6e;
     border: 1px solid #dbdbdb;
     padding: 5px 9px;
-    border-radius: 4px;
+    color: white;
+    border-radius: 20px;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
@@ -106,6 +172,20 @@ header {
     align-items: center;
     gap: 6px;
 }
+.sidebar-logo {
+    display: flex;      
+    align-items: center;  
+    gap: 10px;         
+    padding: 10px 12px 35px;
+    font-size: 18px;   
+    font-weight: bold;
+}
+
+.sidebar-logo img {
+    width: 40px; 
+    height: 40px;
+    object-fit: contain;
+}
 
 .tab-item.active {
     border-top: 1px solid #069E6E;
@@ -116,7 +196,7 @@ header {
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
+    gap: 12px;
     margin-top: 20px;
 }
 
@@ -156,22 +236,117 @@ header {
 .photo-item:hover .photo-overlay {
     opacity: 1;
 }
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    background: #069E6E;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+.mobile-menu-btn.hidden {
+    display: none !important;
+}
+
+@media (max-width: 1200px) {
+    .sidebar { 
+        width: 72px; 
+        padding: 20px 0;
+        align-items: center; 
+    }
+
+    .sidebar-logo span, 
+    .nav-item span { 
+        display: none; 
+    }
+
+    .sidebar-logo {
+        padding: 10px 0 30px;
+        justify-content: center; 
+        width: 100%;
+    }
+
+    .nav-item {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .nav-item i { 
+        margin-right: 0;
+    }
+
+    .main-wrapper { 
+        margin-left: 72px;
+    }
+}
 
 @media (max-width: 735px) {
-    header {
-        flex-direction: column;
+    .mobile-menu-btn { 
+        display: block; 
+    }
+
+    .sidebar {
+        width: 260px; 
+        transform: translateX(-100%); 
+        transition: transform 0.3s ease;
+        padding: 20px 12px;
         align-items: flex-start;
     }
-    
-    .profile-image {
-        margin-bottom: 20px;
+
+    .sidebar.active {
+        transform: translateX(0);
+        box-shadow: 10px 0 15px rgba(0,0,0,0.1);
     }
 
-    .profile-stats {
-        gap: 20px;
+    .sidebar.active span {
+        display: inline-block !important; 
     }
 
-    .photo-grid {
-        gap: 3px;
+    .sidebar.active .nav-item {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .sidebar.active .nav-item i {
+        margin-right: 15px; 
+    }
+
+    .sidebar.active .sidebar-logo {
+        justify-content: flex-start;
+        padding-left: 12px;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .main-wrapper { 
+        margin-left: 0 !important; 
+        padding-top: 60px; 
+    }
+
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-user-settings {
+        flex-direction: column;
+        gap: 10px;
     }
 }

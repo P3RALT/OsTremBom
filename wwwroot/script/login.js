@@ -36,16 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (senha.length < 6) {
-      errorElement.textContent = "A senha deve ter pelo menos 6 caracteres.";
-      errorElement.style.display = 'block';
-      return;
-    }
 
     errorElement.style.display = 'none';
     console.log("Tentativa de login com:", email);
 
 
-    // window.location.href = "../dashboard.html";
+    window.location.href = "/page/profile.html";
   });
 });

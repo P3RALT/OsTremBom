@@ -2,101 +2,112 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Os Trem de BH</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - Os Trem de BH</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/estiloperfil.css">
+    <style>
+
+       
+    </style>
 </head>
 <body>
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="/img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+           <span>Os Trem de BH</span></div>
+        <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="#" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="#" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+            <a href="#" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
+            <a href="#" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+            <a href="#" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+        </nav>
+    </aside>
 
-    <div class="container">
-        <header>
-            <div class="profile-image">
-                <img src="/img/default-avatar.jpg" alt="Foto de Perfil">
-            </div>
-
-            <div class="profile-info">
-                <div class="profile-user-settings">
-                    <h1 class="username">ostremdebh</h1>
-                    <button class="btn-edit">Editar perfil</button>
-                    <i class="fa-solid fa-gear" style="cursor: pointer;"></i>
+    <main class="main-wrapper">
+        <div class="container">
+            
+            <header>
+                <div class="profile-image">
+                    <img src="/img/default-avatar.jpg" alt="Foto de Perfil">
                 </div>
 
-                <ul class="profile-stats">
-                    <li><span>128</span> publicações</li>
-                    <li><span>15.4k</span> seguidores</li>
-                    <li><span>450</span> seguindo</li>
-                </ul>
+                <div class="profile-info">
+                    <div class="profile-user-settings">
+                        <h1 class="username">ostremdebh</h1>
+                        <button class="btn-edit">Editar perfil</button>
+                    </div>
 
-                <div class="profile-bio">
-                    <span class="full-name">Os Trem de BH 🔺</span>
-                    <p>Explorando o melhor de Belo Horizonte. <br>
-                    Dicas, cultura e gastronomia mineira! ☕🧀<br>
-                    <a href="#" style="color: #00376b; text-decoration: none; font-weight: 600;">vidadebh.com.br</a></p>
+                    <ul class="profile-stats">
+                        <li><span>128</span> publicações</li>
+                        <li><span>15.4k</span> seguidores</li>
+                        <li><span>450</span> seguindo</li>
+                    </ul>
+
+                    <div class="profile-bio">
+                        <span class="full-name">Os Trem de BH 🔺</span>
+                        <p>Explorando o melhor de Belo Horizonte. <br>
+                        Dicas, cultura e gastronomia mineira! ☕🧀<br>
+                        <a href="#" style="color: #00376b; text-decoration: none; font-weight: 600;">vidadebh.com.br</a></p>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <div class="tabs">
-            <div class="tab-item active">
-                <i class="fa-solid fa-table-cells"></i> Publicações
+            <div class="tabs">
+                <div class="tab-item active"><i class="fa-solid fa-table-cells"></i> Publicações</div>
+                <div class="tab-item"><i class="fa fa-heart"></i> Curtidos</div>
+                <!-- <div class="tab-item"><i class="fa-regular fa-id-badge"></i> Marcados</div> -->
             </div>
-            <div class="tab-item">
-                <i class="fa fa-heart"></i> Curtidos
-            </div>
-            <div class="tab-item">
-                <i class="fa-regular fa-id-badge"></i> Marcados
-            </div>
+
+            <main class="photo-grid">
+                <div class="photo-item">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=500" alt="Post">
+                    <div class="photo-overlay">
+                        <span><i class="fas fa-heart"></i> 1.2k</span>
+                        <span><i class="fas fa-comment"></i> 45</span>
+                    </div>
+                </div>
+                <div class="photo-item">
+                    <img src="https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&q=80&w=500" alt="Post">
+                    <div class="photo-overlay">
+                        <span><i class="fas fa-heart"></i> 850</span>
+                        <span><i class="fas fa-comment"></i> 12</span>
+                    </div>
+                </div>
+                <div class="photo-item">
+                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=500" alt="Post">
+                    <div class="photo-overlay">
+                        <span><i class="fas fa-heart"></i> 2.5k</span>
+                        <span><i class="fas fa-comment"></i> 89</span>
+                    </div>
+                </div>
+                </main>
         </div>
-
-        <main class="photo-grid">
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 1.2k</span>
-                    <span><i class="fas fa-comment"></i> 45</span>
-                </div>
-            </div>
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1493770348161-369560ae357d?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 850</span>
-                    <span><i class="fas fa-comment"></i> 12</span>
-                </div>
-            </div>
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 2.5k</span>
-                    <span><i class="fas fa-comment"></i> 89</span>
-                </div>
-            </div>
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 3k</span>
-                    <span><i class="fas fa-comment"></i> 110</span>
-                </div>
-            </div>
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 1.8k</span>
-                    <span><i class="fas fa-comment"></i> 34</span>
-                </div>
-            </div>
-            <div class="photo-item">
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=500" alt="Post">
-                <div class="photo-overlay">
-                    <span><i class="fas fa-heart"></i> 900</span>
-                    <span><i class="fas fa-comment"></i> 22</span>
-                </div>
-            </div>
-        </main>
-    </div>
-
+    </main>
+    <script>
+      function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const btn = document.getElementById('menu-button');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('active')) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
