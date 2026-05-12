@@ -95,19 +95,6 @@
                 </main>
         </div>
     </main>
-    <script>
-      function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            const btn = document.getElementById('menu-button');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            if (sidebar.classList.contains('active')) {
-                btn.classList.add('hidden');
-            } else {
-                btn.classList.remove('hidden');
-            }
-        }
-    </script>
+    <script src="/script/toggleMenu.js"></script>
 </body>
 </html>

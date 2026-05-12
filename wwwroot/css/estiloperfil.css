@@ -262,7 +262,11 @@ header {
     display: none !important;
 }
 
+
 @media (max-width: 1200px) {
+    .mobile-menu-btn.hidden {
+    display: none !important;
+}
     .sidebar { 
         width: 72px; 
         padding: 20px 0;
@@ -294,7 +298,7 @@ header {
     }
 }
 
-@media (max-width: 735px) {
+@media (max-width: 800px) {
     .mobile-menu-btn { 
         display: block; 
     }
