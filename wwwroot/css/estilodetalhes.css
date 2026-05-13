@@ -153,12 +153,10 @@ body {
     transition: 0.2s;
 }
 
-.post-actions i:hover {
-    transform: scale(1.15);
-}
+
 
 .fa-heart:hover {
-    color: #e1306c;
+    color: #069e6e;
 }
 
 .fa-comment:hover {
