@@ -254,6 +254,8 @@ body {
     height: 100%;
     overflow: hidden;
 }
+.likes { font-weight: 600; font-size: 14px; margin: 10px 0; display: block; }
+
 .Fotos_Laterais img {
     width: 100%;
     height: 100%;

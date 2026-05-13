@@ -12,52 +12,76 @@ function toggleMenu() {
         btn.style.display = 'block';
     }
 }
+function createMiniMap(id, coords) {
+    const element = document.getElementById(id);
 
-const coords1 = [-19.9320, -43.9380];
-let fullMap;
+    if (!element) return;
 
+    const map = L.map(id, {
+        zoomControl: false,
+        attributionControl: false
+    }).setView(coords, 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        .addTo(map);
+
+    L.circleMarker(coords, {
+        radius: 10,
+        fillColor: "#069E6E",
+        color: "#fff",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+    }).addTo(map);
+}
+const fullMaps = {};
 document.addEventListener("DOMContentLoaded", () => {
-    const miniMapElement = document.getElementById('mini-map-post1');
-    if (miniMapElement) {
-        const miniMap = L.map('mini-map-post1', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView(coords1, 15);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
-        L.circleMarker(coords1, {
-            radius: 10,     
-            fillColor: "#069E6E", 
-            color: "#fff",       
-            weight: 2,           
-            opacity: 1,
-            fillOpacity: 0.8     
-        }).addTo(miniMap);
-            }
+    createMiniMap('mini-map-post1', [-19.9320, -43.9380]);
+    createMiniMap('mini-map-post2', [-19.9320, -43.9380]);
 });
 
 function expandMap(postId, lat, lng) {
     const container = document.getElementById(`expanded-map-${postId}`);
+
     container.style.display = 'block';
 
-    if (!fullMap) {
-        fullMap = L.map(`full-map-${postId}`).setView([lat, lng], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(fullMap);
+    if (!fullMaps[postId]) {
+
+        const map = L.map(`full-map-${postId}`)
+            .setView([lat, lng], 16);
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: '© OpenStreetMap'
+            }
+        ).addTo(map);
+
         L.circleMarker([lat, lng], {
-            radius: 10,     
-            fillColor: "#069E6E", 
-            color: "#fff",       
-            weight: 2,           
+            radius: 10,
+            fillColor: "#069E6E",
+            color: "#fff",
+            weight: 2,
             opacity: 1,
-            fillOpacity: 0.8     
-        }).addTo(fullMap);
+            fillOpacity: 0.8
+        }).addTo(map);
+
+        fullMaps[postId] = map;
+
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+
     } else {
-        fullMap.invalidateSize();
+
+        setTimeout(() => {
+            fullMaps[postId].invalidateSize();
+        }, 100);
+
     }
 }
-
 function closeMap(postId) {
-    document.getElementById(`expanded-map-${postId}`).style.display = 'none';
+    document.getElementById(
+        `expanded-map-${postId}`
+    ).style.display = 'none';
 }
