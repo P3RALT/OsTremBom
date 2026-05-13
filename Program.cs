@@ -30,16 +30,12 @@ var app = builder.Build();
 // Primeiro o CORS para liberar os pedidos
 app.UseCors("AllowFrontend");
 
-if (app.Environment.IsDevelopment())
-{
-    // Se estiver usando Swagger/OpenAPI
-}
 
 app.UseStaticFiles(); // Para servir seu HTML, CSS, JS da wwwroot
 app.UseRouting();
 app.UseAuthorization(); 
 app.MapControllers();
-// Faz o fallback para o index caso a rota não exista na API
-app.MapFallbackToFile("index.html");
+// Faz o fallback para o feed caso a rota não exista na API
+app.MapFallbackToFile("/page/feed.html");
 
 app.Run();

@@ -163,4 +163,7 @@ a {
 
 @media (max-width: 1000px) {
     .main-content { justify-content: center; }
+    .post-card{
+        margin: 20px;
+    }
 }
