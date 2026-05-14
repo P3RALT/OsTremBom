@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514153501_AjustesTabela2")]
+    partial class AjustesTabela2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -138,8 +141,8 @@ namespace TremBomApi.Migrations
                             Dicas = "Vá cedo nos finais de semana para evitar multidões e não deixe de visitar a loja de queijos do Mário.",
                             HorarioTexto = "Segunda a Sábado: 07:00 - 18:00",
                             ImagemUrl = "https://viajenaweb.com/wp-content/uploads/2016/12/O-que-fazer-no-Mercado-Central-de-Belo-Horizonte-768x432.jpg.webp",
-                            Latitude = -19.922800800000001,
-                            Longitude = -43.9430665,
+                            Latitude = -19.9231932,
+                            Longitude = -43.942367400000002,
                             Nome = "Mercado Central",
                             Numero = 744,
                             OqFazer = "Comprar queijos, doces, artesanatos e provar o famoso fígado com jiló.",
@@ -154,7 +157,7 @@ namespace TremBomApi.Migrations
                             Ativo = true,
                             AvaliacaoNota = 3.7999999999999998,
                             Bairro = "Centro",
-                            CEP = 29264,
+                            CEP = 30119,
                             Categoria = "Edifício Gastronômico",
                             Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -164,13 +167,13 @@ namespace TremBomApi.Migrations
                             ImagemUrl = "https://www.hojeemdia.com.br/image/policy:1.992457.1702919772:1702919772/image.jpg?f=2x1&w=1200",
                             ImagemUrl2 = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/3f/e2/0d/mercado-novo.jpg",
                             ImagemUrl3 = "https://bhaz.com.br/wp-content/uploads/2019/07/mercado-novo-bh-1.jpg",
-                            Latitude = -19.9205766,
-                            Longitude = -43.945760100000001,
+                            Latitude = -19.919608799999999,
+                            Longitude = -43.943818200000003,
                             Nome = "Mercado Novo",
-                            Numero = 499,
+                            Numero = 600,
                             OqFazer = "Visitar bares de cerveja artesanal, destilarias e comer comida de raiz.",
                             PqVisitar = "Um espaço que une o retrô industrial com o que há de mais moderno na gastronomia de BH.",
-                            Rua = "Rua Rio Grande do Sul",
+                            Rua = "Rua Rio de Janeiro",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -188,8 +191,8 @@ namespace TremBomApi.Migrations
                             Dicas = "A Cantina do Lucas é patrimônio histórico e fica no térreo.",
                             HorarioTexto = "Terça a Domingo: 11:00 - 00:00",
                             ImagemUrl = "https://resize.casapino.com.br/?u=https://cms-bomgourmet.s3.amazonaws.com/bomgourmet/2018/10/201810/maletta-belo-horizonte-varanda-20f288a0.jpg&w=661",
-                            Latitude = -19.924856900000002,
-                            Longitude = -43.937781899999997,
+                            Latitude = -19.926608000000002,
+                            Longitude = -43.938341800000003,
                             Nome = "Edifício Maletta",
                             Numero = 1148,
                             OqFazer = "Tomar um café, visitar sebos e curtir a noite nas varandas do segundo andar.",
@@ -212,8 +215,8 @@ namespace TremBomApi.Migrations
                             Dicas = "Chegue antes do pôr do sol para garantir uma mesa na calçada.",
                             HorarioTexto = "Todos os dias: 09:00 - 22:00",
                             ImagemUrl = "https://folhadesetelagoas.com.br/images/noticias/190/9f40c1539471322fcf360b2a9be33a36.jpeg",
-                            Latitude = -19.916283700000001,
-                            Longitude = -43.910841400000002,
+                            Latitude = -19.9163104,
+                            Longitude = -43.915745800000003,
                             Nome = "Bar do Orlando",
                             Numero = 460,
                             OqFazer = "Tomar cerveja gelada no copo americano e comer o petisco de linguiça.",
@@ -236,8 +239,8 @@ namespace TremBomApi.Migrations
                             Dicas = "O local é pequeno e a galera fica na rua, o clima é super descontraído.",
                             HorarioTexto = "Quarta a Domingo: 17:00 - 23:00",
                             ImagemUrl = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/04/71/ad/img-20181005-wa0018-largejpg.jpg?w=1000&h=-1&s=1",
-                            Latitude = -19.916995100000001,
-                            Longitude = -43.903569699999998,
+                            Latitude = -19.917058399999998,
+                            Longitude = -43.908458199999998,
                             Nome = "Juramento 202",
                             Numero = 202,
                             OqFazer = "Degustar chopes artesanais da Viela e ouvir música brasileira.",
@@ -260,8 +263,8 @@ namespace TremBomApi.Migrations
                             Dicas = "Tente pegar um lugar na varanda para ver as luzes de BH à noite.",
                             HorarioTexto = "Terça a Domingo: 18:00 - 23:30",
                             ImagemUrl = "https://andadireito.com.br/wp-content/uploads/2025/12/Forno-da-Saudade-5.png",
-                            Latitude = -19.9164776,
-                            Longitude = -43.949180200000001,
+                            Latitude = -19.916480199999999,
+                            Longitude = -43.951761400000002,
                             Nome = "Forno da Saudade",
                             Numero = 1,
                             OqFazer = "Comer pizzas individuais de longa fermentação com vista para a cidade.",

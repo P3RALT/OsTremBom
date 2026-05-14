@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514150529_AjustesTabela")]
+    partial class AjustesTabela
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -32,22 +35,10 @@ namespace TremBomApi.Migrations
                         .HasColumnType("REAL")
                         .HasColumnName("avaliacao_nota");
 
-                    b.Property<string>("Bairro")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("bairro");
-
-                    b.Property<int?>("CEP")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("CEP");
-
                     b.Property<string>("Categoria")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
                         .HasColumnName("categoria");
-
-                    b.Property<string>("Cidade")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("Cidade");
 
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("TEXT")
@@ -60,6 +51,11 @@ namespace TremBomApi.Migrations
                     b.Property<string>("Dicas")
                         .HasColumnType("TEXT")
                         .HasColumnName("dicas");
+
+                    b.Property<string>("Endereco")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("endereco");
 
                     b.Property<string>("HorarioTexto")
                         .HasColumnType("TEXT")
@@ -81,22 +77,16 @@ namespace TremBomApi.Migrations
                         .HasColumnName("imagem_url_3");
 
                     b.Property<double>("Latitude")
-                        .HasColumnType("REAL")
-                        .HasColumnName("latitude");
+                        .HasColumnType("REAL");
 
                     b.Property<double>("Longitude")
-                        .HasColumnType("REAL")
-                        .HasColumnName("longitude");
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT")
                         .HasColumnName("nome");
-
-                    b.Property<int?>("Numero")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("numero");
 
                     b.Property<string>("OqFazer")
                         .HasColumnType("TEXT")
@@ -105,11 +95,6 @@ namespace TremBomApi.Migrations
                     b.Property<string>("PqVisitar")
                         .HasColumnType("TEXT")
                         .HasColumnName("pq_visitar");
-
-                    b.Property<string>("Rua")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("rua");
 
                     b.Property<int>("TotalComentarios")
                         .HasColumnType("INTEGER")
@@ -129,22 +114,18 @@ namespace TremBomApi.Migrations
                             Id = 101,
                             Ativo = true,
                             AvaliacaoNota = 4.7999999999999998,
-                            Bairro = "Centro",
-                            CEP = 30184,
                             Categoria = "Edifício Gastronômico",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "O clássico: fígado com jiló, queijos premiados e o melhor doce de leite.",
                             Dicas = "Vá cedo nos finais de semana para evitar multidões e não deixe de visitar a loja de queijos do Mário.",
+                            Endereco = "Av. Augusto de Lima, 744 - Centro, Belo Horizonte",
                             HorarioTexto = "Segunda a Sábado: 07:00 - 18:00",
                             ImagemUrl = "https://viajenaweb.com/wp-content/uploads/2016/12/O-que-fazer-no-Mercado-Central-de-Belo-Horizonte-768x432.jpg.webp",
-                            Latitude = -19.922800800000001,
-                            Longitude = -43.9430665,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Mercado Central",
-                            Numero = 744,
                             OqFazer = "Comprar queijos, doces, artesanatos e provar o famoso fígado com jiló.",
                             PqVisitar = "É considerado um dos melhores mercados do mundo e a alma da cultura mineira.",
-                            Rua = "Av. Augusto de Lima",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -153,24 +134,20 @@ namespace TremBomApi.Migrations
                             Id = 102,
                             Ativo = true,
                             AvaliacaoNota = 3.7999999999999998,
-                            Bairro = "Centro",
-                            CEP = 29264,
                             Categoria = "Edifício Gastronômico",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Cozinha de raiz, bares artesanais e um ambiente retrô industrial incrível.",
                             Dicas = "O segundo andar é onde a 'magia' acontece. Experimente o Gin da Lamparina.",
+                            Endereco = "Rua Rio de Janeiro, 600 - Centro, Belo Horizonte",
                             HorarioTexto = "Quinta-feira: 08:00 - 18:00",
                             ImagemUrl = "https://www.hojeemdia.com.br/image/policy:1.992457.1702919772:1702919772/image.jpg?f=2x1&w=1200",
                             ImagemUrl2 = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/3f/e2/0d/mercado-novo.jpg",
                             ImagemUrl3 = "https://bhaz.com.br/wp-content/uploads/2019/07/mercado-novo-bh-1.jpg",
-                            Latitude = -19.9205766,
-                            Longitude = -43.945760100000001,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Mercado Novo",
-                            Numero = 499,
                             OqFazer = "Visitar bares de cerveja artesanal, destilarias e comer comida de raiz.",
                             PqVisitar = "Um espaço que une o retrô industrial com o que há de mais moderno na gastronomia de BH.",
-                            Rua = "Rua Rio Grande do Sul",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -179,22 +156,18 @@ namespace TremBomApi.Migrations
                             Id = 103,
                             Ativo = true,
                             AvaliacaoNota = 4.5,
-                            Bairro = "Centro",
-                            CEP = 30149,
                             Categoria = "Edifício Gastronômico",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Varandas icônicas e bares históricos no centro de BH.",
                             Dicas = "A Cantina do Lucas é patrimônio histórico e fica no térreo.",
+                            Endereco = "Rua da Bahia, 1148 - Centro, Belo Horizonte",
                             HorarioTexto = "Terça a Domingo: 11:00 - 00:00",
                             ImagemUrl = "https://resize.casapino.com.br/?u=https://cms-bomgourmet.s3.amazonaws.com/bomgourmet/2018/10/201810/maletta-belo-horizonte-varanda-20f288a0.jpg&w=661",
-                            Latitude = -19.924856900000002,
-                            Longitude = -43.937781899999997,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Edifício Maletta",
-                            Numero = 1148,
                             OqFazer = "Tomar um café, visitar sebos e curtir a noite nas varandas do segundo andar.",
                             PqVisitar = "Ponto de encontro boêmio histórico de intelectuais e artistas de Minas.",
-                            Rua = "Rua da Bahia",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -203,22 +176,18 @@ namespace TremBomApi.Migrations
                             Id = 104,
                             Ativo = true,
                             AvaliacaoNota = 4.9000000000000004,
-                            Bairro = "Santa Tereza",
-                            CEP = 30670,
                             Categoria = "Bar",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "O bar mais antigo de BH, patrimônio do bairro Santa Tereza.",
                             Dicas = "Chegue antes do pôr do sol para garantir uma mesa na calçada.",
+                            Endereco = "Rua Almeida Castro, 161 - Santa Tereza, Belo Horizonte",
                             HorarioTexto = "Todos os dias: 09:00 - 22:00",
                             ImagemUrl = "https://folhadesetelagoas.com.br/images/noticias/190/9f40c1539471322fcf360b2a9be33a36.jpeg",
-                            Latitude = -19.916283700000001,
-                            Longitude = -43.910841400000002,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Bar do Orlando",
-                            Numero = 460,
                             OqFazer = "Tomar cerveja gelada no copo americano e comer o petisco de linguiça.",
                             PqVisitar = "Fundado em 1919, é o bar mais antigo em funcionamento contínuo de BH.",
-                            Rua = "Rua Alvinópolis",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -227,22 +196,18 @@ namespace TremBomApi.Migrations
                             Id = 105,
                             Ativo = true,
                             AvaliacaoNota = 4.7000000000000002,
-                            Bairro = "Pompéia",
-                            CEP = 30168,
                             Categoria = "Bar",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Cervejaria local com clima de calçada e muita mineiridade.",
                             Dicas = "O local é pequeno e a galera fica na rua, o clima é super descontraído.",
+                            Endereco = "Rua Juramento, 202 - Pompeia, Belo Horizonte",
                             HorarioTexto = "Quarta a Domingo: 17:00 - 23:00",
                             ImagemUrl = "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/04/71/ad/img-20181005-wa0018-largejpg.jpg?w=1000&h=-1&s=1",
-                            Latitude = -19.916995100000001,
-                            Longitude = -43.903569699999998,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Juramento 202",
-                            Numero = 202,
                             OqFazer = "Degustar chopes artesanais da Viela e ouvir música brasileira.",
                             PqVisitar = "Representa o renascimento dos bares de bairro com foco em qualidade artesanal.",
-                            Rua = "R. Juramento",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         },
@@ -251,22 +216,18 @@ namespace TremBomApi.Migrations
                             Id = 106,
                             Ativo = true,
                             AvaliacaoNota = 4.5999999999999996,
-                            Bairro = "Carlos Prates",
-                            CEP = 30570,
                             Categoria = "Pizzaria",
-                            Cidade = "Belo Horizonte",
                             DataCadastro = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Pizzaria charmosa em um casarão dos anos 30 com vista panorâmica.",
                             Dicas = "Tente pegar um lugar na varanda para ver as luzes de BH à noite.",
+                            Endereco = "Rua Patrocínio, 1 - Carlos Prates, Belo Horizonte",
                             HorarioTexto = "Terça a Domingo: 18:00 - 23:30",
                             ImagemUrl = "https://andadireito.com.br/wp-content/uploads/2025/12/Forno-da-Saudade-5.png",
-                            Latitude = -19.9164776,
-                            Longitude = -43.949180200000001,
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Nome = "Forno da Saudade",
-                            Numero = 1,
                             OqFazer = "Comer pizzas individuais de longa fermentação com vista para a cidade.",
                             PqVisitar = "A localização em um casarão antigo no alto de uma colina proporciona uma experiência única.",
-                            Rua = "R. Patrocínio",
                             TotalComentarios = 0,
                             TotalLikes = 0
                         });

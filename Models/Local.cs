@@ -24,11 +24,28 @@ namespace TremBomApi.Models
         [Column("descricao")]
         public string? Descricao { get; set; }
 
-        // --- NOVOS CAMPOS DE INFORMAÇÃO ---
         
         [MaxLength(500)]
-        [Column("endereco")]
-        public string? Endereco { get; set; }
+        [Column("rua")]
+        public string? Rua { get; set; }
+
+        [Column("numero")]
+        public int? Numero { get; set; }
+
+        [Column("bairro")]
+        public string? Bairro { get; set; }
+
+        [Column("CEP")]
+        public int? CEP { get; set; }
+
+        [Column("Cidade")]
+        public string? Cidade { get; set; }
+
+        [Column("latitude")]
+        public double Latitude { get; set; }
+
+        [Column("longitude")]
+        public double Longitude { get; set; }
 
         [Column("oq_fazer")]
         public string? OqFazer { get; set; }
@@ -39,7 +56,6 @@ namespace TremBomApi.Models
         [Column("pq_visitar")]
         public string? PqVisitar { get; set; }
 
-        // ----------------------------------
 
         [MaxLength(500)]
         [Column("imagem_url")]

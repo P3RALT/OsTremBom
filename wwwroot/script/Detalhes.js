@@ -38,8 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         elementos.dicas.innerText = local.dicas || local.Dicas || "Sem dicas no momento.";
         elementos.statusIcon.color = ativo ? "#2e7d32" : "#c1351d";
         elementos.categoria.innerText = local.categoria || local.Categoria || "Categoria desconhecida";
-        elementos.endereco.innerText = local.endereco || local.Endereco || "Endereço não informado";
-        console.log("Local recebido:", local);
+        elementos.endereco.innerText = `${local.rua || local.Rua} ${local.numero || local.Numero}, ${local.bairro || local.Bairro} - ${local.cidade || local.Cidade}` || "Endereço não informado";
         elementos.likesCount.innerText = `${local.totalLikes} likes`;
 
         /*
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const latitude = local.latitude || local.Latitude || -19.932;
         const longitude = local.longitude || local.Longitude || -43.937;
 
-        const map = L.map("full-map").setView([latitude, longitude], 15);
+        const map = L.map("full-map").setView([latitude, longitude], 17);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
