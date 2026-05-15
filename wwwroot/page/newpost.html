@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar post - Os Trem de BH</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="manifest" href="/img/site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/estiloregister.css">
+    <link rel="stylesheet" href="/css/estilologin.css">
+    <link rel="stylesheet" href="/css/estilopage.css">
+    <link rel="stylesheet" href="/css/estilonewpost.css">
+</head>
+<body>
+    <div class="register-box">
+        <button class="btn-voltar" onclick=window.history.back()>&lt;</button>
+        <img src="/img/android-chrome-192x192.png" id="logo" alt="OS TREM DE BH - Logo" class="logo-register">
+        <h2>Criar postagem</h2>
+        <p id="subtitulo-p">Preencha alguns detalhes abaixo e finaliza a criação da sua <span class="teal">conta</span>.</p>
+        <p id="error"></p>
+        <p class="subtitulo">Fotos da postagem</p>
+        <form id="registro-form">
+            <div class="photo-upload">
+                <div class="main-preview-container">
+                    <button type="button" class="nav-arrow prev" id="prev-photo">&#10094;</button>
+                    
+                    <label for="foto-input">
+                        <img id="preview" src="/img/default-avatar.jpg" alt="Preview da postagem">
+                    </label>
+                    
+                    <button type="button" class="nav-arrow next" id="next-photo">&#10095;</button>
+                </div>
+
+                <input type="file" id="foto-input" accept="image/png, image/jpeg" multiple>
+
+                <div class="thumbnail-carousel" id="thumbnail-container">
+                    </div>
+            </div>
+            <div class="interesses">
+            <p class="subtitulo">Interesses</p>
+
+            <div class="tags">
+                <button type="button" class="tag">Gastronomia</button>
+                <button type="button" class="tag">Bar</button>
+                <button type="button" class="tag">Tecnologia</button>
+                <button type="button" class="tag">Animais</button>
+                <button type="button" class="tag">Religião</button>
+                <button type="button" class="tag">Familia</button>
+                <button type="button" class="tag">Festas</button>
+            </div>
+            <p class="subtitulo">Endereço/Nome do estabelecimento</p>
+            <input type="text" class='input' id="nome-estabelecimento" placeholder="Nome do estabelecimento">
+            <div id="resultados"></div>
+            <p class="subtitulo">Descrição</p>
+            <input type="text" class='input' id="descricao" placeholder="Descreva sua postagem">
+            <button class="btn-login" id="btn-postar" type="submit" disabled>Postar</button>
+        </form>
+    </div>
+    <script src="/script/newPost.js"></script>
+</body>
+</html>

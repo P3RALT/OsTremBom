@@ -16,6 +16,22 @@ namespace TremBomApi.Controllers
             _context = context;
         }
 
+        [HttpGet("buscar-criar-post")]
+        public async Task<IActionResult> Buscar([FromQuery] string termo)
+        {
+        if (string.IsNullOrWhiteSpace(termo))
+            return BadRequest();
+
+        var resultados = await _context.Locais
+            .Where(l =>
+                l.Nome.ToLower().Contains(termo.ToLower()) ||
+                l.Rua!.ToLower().Contains(termo.ToLower()))
+            .Take(10)
+            .ToListAsync();
+
+        return Ok(resultados);
+        }
+
         // GET: api/locais
         [HttpGet]
         public async Task<IActionResult> ListarTodos()
