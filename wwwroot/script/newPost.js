@@ -130,7 +130,8 @@ buscaInput.addEventListener("input", async () => {
                 <p>
                     ${local.rua || local.Rua} 
                     ${local.numero || local.Numero},
-                    ${local.bairro || local.Bairro}
+                    ${local.bairro || local.Bairro} -
+                    ${local.cidade || local.Cidade}
                 </p>
             `;
 

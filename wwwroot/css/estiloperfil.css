@@ -261,9 +261,13 @@ header {
 .mobile-menu-btn.hidden {
     display: none !important;
 }
+@media (max-width: 1340px){
+    .sidebar2 {
+        display: none;
+    }
+}
 
-
-@media (max-width: 1200px) {
+@media (max-width: 1260px) {
     .mobile-menu-btn.hidden {
     display: none !important;
 }

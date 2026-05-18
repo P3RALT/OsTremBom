@@ -5,11 +5,67 @@
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 }
+.sidebar2 {
+    position: fixed;
 
+    top: 0;
+    right: 0;
+
+    width: 300px;
+    height: 100vh;
+
+    background: white;
+
+    border-left: 1px solid #dbdbdb;
+
+    padding: 30px 20px;
+
+    overflow-y: auto;
+
+    z-index: 100;
+}
+* {
+    --primary-green: #069E6E;
+}
 body {
     background-color: #fafafa;
     color: #262626;
     padding-top: 20px;
+}
+#trending-title{
+    font-size: 14px;
+    font-weight: 600;
+}
+.search-input-fix {
+    width: 100% !important;
+}
+
+.search-btn-fix {
+    background: #069E6E;
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.search-btn-fix:hover {
+    background: #047A55;
+}
+#sidebar2 {
+    position: absolute;
+}
+.trending-item:hover{
+    background-color: #069e6e1f;
+}
+#trending-category{
+    color: #666; font-size: 14px; line-height: 1.2; margin-top: 2px;
 }
 .leaflet-tile-container {
     filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
