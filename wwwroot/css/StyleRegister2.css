@@ -1,0 +1,52 @@
+            .tags {
+                margin-top: 20px;
+                margin-bottom: 20px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                }
+
+            .tag {
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 2px solid #069E6E;
+                background: transparent;
+                color: #069E6E;
+                cursor: pointer;
+                transition: 0.2s;
+                font-weight: 500;
+                }
+
+            .tag:hover {
+                background: #069E6E;
+                color: white;
+                }
+
+            .tag.selected {
+                background: #069E6E;
+                color: white;
+                box-shadow: 0 0 8px rgba(6, 158, 110, 0.5);
+                }
+            .photo-upload {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                }
+
+            .photo-upload img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                cursor: pointer;
+                border: 1px solid var(--primary-green);
+                transition: 0.3s;
+                }
+
+            .photo-upload img:hover {
+                opacity: 0.8;
+                }
+            #foto-input {
+                display: none;
+                }
