@@ -5,6 +5,7 @@ using TremBomApi.Data; // <-- 1. Adicionado para reconhecer o teu AppDbContext
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using Models;
 
 namespace TremBomApi.Controllers
 {
@@ -66,5 +67,58 @@ namespace TremBomApi.Controllers
                 nomeCompleto = novoUsuario.NomeCompleto
             });
         }
+
+        // --------------------
+        // LOGIN 
+        // --------------------
+        
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UsuarioLoginDto dto)
+        {
+        // Procura o utilizador na base de dados pelo E-mail
+        // Usamos Include(u => u.Sessoes) caso queiras manipular a lista de sessões diretamente
+        var usuario = await _context.Usuarios
+            .Include(u => u.Sessoes)
+            .FirstOrDefaultAsync(u => u.Email == dto.Email);
+        
+        if (usuario == null)
+            {
+                return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
+
+            }
+
+        // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
+        bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.SenhaHash);
+        
+        if (!senhaCorreta)
+            {
+                return BadRequest(new { message = "E-mail ou senha incorretos." }); 
+
+            }
+        // Utiliza dados do usuario 
+        usuario.UltimoLogin = DateTime.Now;
+        //inicia a sessao
+        var novaSessao = new Sessao
+        {
+        UsuarioId = usuario.Id,
+        Token = Guid.NewGuid().ToString(), 
+        DataCriacao = DateTime.Now,
+        DataExpiracao = DateTime.Now.AddDays(7) 
+        };
+        usuario.Sessoes.Add(novaSessao);
+        // Salvar no Banco de Dados
+        await _context.SaveChangesAsync();
+
+        return Ok(new 
+    {
+        Mensagem = "Login realizado com sucesso!",
+        tokenSessao = novaSessao.Token,
+        UsuarioId = usuario.Id,
+        NomeCompleto = usuario.NomeCompleto,
+        Email = usuario.Email,
+        FotoPerfilUrl = usuario.FotoPerfilUrl
+    });
+
+
     }
-}
+} }
