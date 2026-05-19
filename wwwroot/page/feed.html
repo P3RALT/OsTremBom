@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed - Os Trem de BH</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
+    <link rel="stylesheet" href="/css/estiloperfil.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/estilofeed.css">   
@@ -15,17 +16,16 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
 </head>
 <body>
-    <!-- MENU -->
    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
         <i class="fa-solid fa-bars"></i>
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <img src="/img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
            <span>Os Trem de BH</span></div>
         <nav class="sidebar-nav">
-            <a href="/page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="/page/feed.html" class="nav-item active" id="btn-nav-inicio"><i class="fas fa-home"></i> <span>Início</span></a>
             <a href="javascript:void(0)" class="nav-item" id="btn-nav-pesquisar"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
             <a href="/page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
             <a href="/page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
@@ -34,7 +34,6 @@
             <a href="/page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
-    <!-- CONTEÚDO PRINCIPAL -->
 
     
     <div class="main-content">
@@ -42,9 +41,10 @@
         <div class="search-container" style="padding: 20px;">
             <h2>Pesquisar</h2>
             <div class="search-bar-wrapper" style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
-                <input class="input search-input-fix" type="text" placeholder="Locais, tags ou pessoas...">
-                <button class="search-btn-fix"><i class="fas fa-search"></i></button>
+                <input class="input search-input-fix" id="input-search" type="text" required placeholder="Locais, tags ou pessoas...">
+                <button class="search-btn-fix" id="search-button"><i class="fas fa-search"></i></button>
             </div>
+            <span id="input-search-error" style="color: red; display: none; font-size: 0.9em;"></span>
             <div class="search-results" style="margin-top: 30px; color: #8a8d91;">
                 <p>Digite algo para começar a <span class="teal">minerar</span> seus resultados...</p>
             </div>
@@ -53,16 +53,16 @@
         <section class="feed tab-content active" id="tab-feed">
             <article class="post-card">
                 <div class="post-header">
-                    <a href="../page/profile.html">
+                    <a href="/page/profile.html">
                     <div class="post-user">
-                        <img src="../img/default-avatar.jpg" alt="User">
+                        <img src="/img/default-avatar.jpg" alt="User">
                         <span>@ostremdebh</span>
                     </div>
                     </a>
                     <i class="fa-solid fa-ellipsis"></i>
                 </div>
                 <div class="post-img">
-                    <img src="../img/imagemcentropage.jpg" alt="Praça da Liberdade">
+                    <img src="/img/imagemcentropage.jpg" alt="Praça da Liberdade">
                     <div class="map-balloon-wrapper" id="wrapper-post1">
                         <div id="mini-map-post1" class="mini-map"></div>
                         <div class="map-overlay-click" onclick="expandMap('post1', -19.9320, -43.9380)"></div>
@@ -72,7 +72,7 @@
                         <button class="close-map" onclick="closeMap('post1')">×</button>
                         <div id="full-map-post1" class="full-map"></div>
                     </div>
-                     <a href="../page/detalhes.html?id=102"> 
+                     <a href="/page/detalhes.html?id=102"> 
                             <div class="location-tag" style="display: flex; align-items: center;">
                                 <i class="fa-solid fa-location-dot"></i>
                                 <span>Praça da Liberdade, BH</span>
@@ -115,7 +115,7 @@
                         <button class="close-map" onclick="closeMap('post2')">×</button>
                         <div id="full-map-post2" class="full-map"></div>
                     </div>
-                     <a href="../page/detalhes.html?id=102"> 
+                     <a href="/page/detalhes.html?id=102"> 
                             <div class="location-tag" style="display: flex; align-items: center;">
                                 <i class="fa-solid fa-location-dot"></i>
                                 <span>Praça da Liberdade, BH</span>
