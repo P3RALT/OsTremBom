@@ -124,9 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultado = await resposta.json();
       
       if (resposta.ok) {
-
+       window.location.replace(`/page/login.html?lat=${encodeURIComponent(finalUser.lat)}&lon=${encodeURIComponent(finalUser.lon)}&ip=${encodeURIComponent(finalUser.ip)}`);
        localStorage.clear();
-       window.location.replace({}, "", `/page/login.html?lat=${encodeURIComponent(finalUser.lat)}&lon=${encodeURIComponent(finalUser.lon)}&ip=${encodeURIComponent(finalUser.ip)}`);
       } else {
         // Exibe o erro retornado pela API
         error.textContent = resultado.mensagem || "Erro ao registrar usuário.";

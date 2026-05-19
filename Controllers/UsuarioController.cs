@@ -63,6 +63,7 @@ namespace TremBomApi.Controllers
                 IpRegistro = dto.ip,
                 Aniversario = dto.Aniversario,
                 DataCadastro = DateTime.Now,
+                UltimoLogin = DateTime.Now
             };
 
             // Preferências: Loop para adicionar cada interesse selecionado ao utilizador
