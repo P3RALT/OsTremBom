@@ -6,6 +6,10 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace TremBomApi.Controllers
 {
@@ -14,24 +18,33 @@ namespace TremBomApi.Controllers
     public class UsuarioController : ControllerBase
     {
         // 2. Usando o contexto real: AppDbContext
+        
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
         // 3. O construtor recebe o AppDbContext por injeção
-        public UsuarioController(AppDbContext context)
+        public UsuarioController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] UsuarioRegisterDto dto)
         {
             // Validação: Verifica se o e-mail inserido já existe na tabela de Usuários
-            var emailExistente = await _context.Usuarios.AnyAsync(u => u.Email == dto.Email);
-            if (emailExistente)
-            {
-                return BadRequest(new { mensagem = "Email já registrado." });
-            }
 
+            // vou mudar essa verificação pra ser feita no JavaScript também
+            var usuarioExistente = await _context.Usuarios
+            .FirstOrDefaultAsync(u => u.Email == dto.Email || u.Nickname == dto.Nickname);
+            if (usuarioExistente != null)
+            {
+                if (usuarioExistente.Email == dto.Email)
+                    return BadRequest(new { mensagem = "Email já registrado." });
+                    
+                if (usuarioExistente.Nickname == dto.Nickname)
+                    return BadRequest(new { mensagem = "Nickname já registrado." });
+            }
             // Segurança: Transforma a senha em texto limpo num Hash seguro usando o BCrypt
             // Segurança²:  Usa um "pepper" (uma string secreta fixa) para adicionar uma camada extra de proteção contra ataques de força bruta
 
@@ -46,6 +59,8 @@ namespace TremBomApi.Controllers
                 Email = dto.Email,
                 SenhaHash = senhaCriptografada,
                 FotoPerfilUrl = dto.FotoPerfilUrl ?? "../images/default-profile.png",
+                Genero = dto.Genero,
+                IpRegistro = dto.ip,
                 Aniversario = dto.Aniversario,
                 DataCadastro = DateTime.Now,
             };
@@ -59,27 +74,55 @@ namespace TremBomApi.Controllers
             // Adiciona o novo utilizador ao DbSet correto e salva no Banco de Dados
             _context.Usuarios.Add(novoUsuario);
             await _context.SaveChangesAsync();
-
-            // Resposta de Sucesso que o teu JavaScript vai ler e mostrar o Alert!
-            return Ok(new
-            {
-                mensagem = "Usuário registrado com sucesso!",
-                usuarioId = novoUsuario.Id,
-                nickname = novoUsuario.Nickname,
-            });
+            
+            // GERAR O JWT LOGO APÓS SALVAR
+            
+            // Retorna o sucesso. O navegador já vai guardar o cookie automaticamente
+            return Created(string.Empty, new
+            {});
         }
-
-        // --------------------
-        // LOGIN 
-        // --------------------
         
+
+        // LOGIN 
         [HttpPost("login")]
+        /*//!
+        var tokenHandler = new JwtSecurityTokenHandler();
+            var chaveSecreta = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, novoUsuario.Id.ToString()),
+                    // ADICIONANDO AS COORDENADAS DENTRO DO JWT
+                    new Claim("latitude", dto.lat.ToString()??""),
+                    new Claim("longitude", dto.lon.ToString()??""),
+                    new Claim(ClaimTypes.Email, novoUsuario.Email)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
+            };
+            
+            var tokenObj = tokenHandler.CreateToken(tokenDescriptor);
+            string jwtToken = tokenHandler.WriteToken(tokenObj);
+
+            // EMITE O COOKIE HTTPONLY
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("JwtToken", jwtToken, cookieOptions);
+
+        */
         public async Task<IActionResult> Login([FromBody] UsuarioLoginDto dto)
         {
         // Procura o utilizador na base de dados pelo E-mail
         // Usamos Include(u => u.Sessoes) caso queiras manipular a lista de sessões diretamente
         var usuario = await _context.Usuarios
-            .Include(u => u.Sessoes)
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
         
         if (usuario == null)
@@ -98,22 +141,13 @@ namespace TremBomApi.Controllers
             }
         // Utiliza dados do usuario 
         usuario.UltimoLogin = DateTime.Now;
-        //inicia a sessao
-        var novaSessao = new Sessao
-        {
-        UsuarioId = usuario.Id,
-        Token = Guid.NewGuid().ToString(), 
-        DataCriacao = DateTime.Now,
-        DataExpiracao = DateTime.Now.AddDays(7) 
-        };
-        usuario.Sessoes.Add(novaSessao);
         // Salvar no Banco de Dados
         await _context.SaveChangesAsync();
 
         return Ok(new 
     {
         Mensagem = "Login realizado com sucesso!",
-        tokenSessao = novaSessao.Token,
+        //tokenSessao = novaSessao.Token,
         UsuarioId = usuario.Id,
     });
 

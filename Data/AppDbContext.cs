@@ -10,5 +10,4 @@ namespace TremBomApi.Data
         
         public DbSet<Local> Locais { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<Sessao> Sessoes { get; set; }
     } }

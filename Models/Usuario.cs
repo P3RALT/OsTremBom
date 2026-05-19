@@ -32,11 +32,17 @@ namespace TremBomApi.Models
         [Column("aniversario")]
         public DateTime Aniversario { get; set; }
 
+        [Column("genero")]
+        public required string Genero { get; set; }
+
         [Column("foto_perfil_url")]
         public string? FotoPerfilUrl { get; set; }
 
         [Column("data_cadastro")]
         public DateTime DataCadastro { get; set; } = DateTime.Now;
+
+        [Column("ip")]
+        public string? IpRegistro { get; set; }
 
         [Column("ultimo_login")]
         public DateTime? UltimoLogin { get; set; }
@@ -44,6 +50,5 @@ namespace TremBomApi.Models
         [Column("preferencias")]
         public List<string> Preferencias { get; set; } = new List<string>();
 
-        public virtual ICollection<Sessao> Sessoes { get; set; } = new List<Sessao>();
     }
 }

@@ -76,7 +76,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Mudamos para async para podermos usar o await no fetch da API
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
-
+    btn.classList.add("loading");
+    btn.disabled = true;
+    btn.querySelector(".btn-text").style.display = "none";
+    btn.querySelector(".btn-loading").style.display = "flex";
     const senhaFinal = senhaInput.value.trim();
 
     const preferenciasLimpas = [...document.querySelectorAll(".tag.selected")].map(t => {
@@ -109,13 +112,11 @@ document.addEventListener("DOMContentLoaded", () => {
       lon: final_lon,
       ip: final_ip
     };
-    console.log("Dados finais a serem enviados para a API:", finalUser);
-/*
     try {
       const resposta = await fetch('http://localhost:5207/api/usuario/registrar', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
     },
     body: JSON.stringify(finalUser)
 });
@@ -123,10 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultado = await resposta.json();
       
       if (resposta.ok) {
-        // Limpa o localStorage para que um próximo registo comece do zero
-        localStorage.clear();
 
-        window.location.href = "../feed.html";
+       localStorage.clear();
+       window.location.replace({}, "", `/page/login.html?lat=${encodeURIComponent(finalUser.lat)}&lon=${encodeURIComponent(finalUser.lon)}&ip=${encodeURIComponent(finalUser.ip)}`);
       } else {
         // Exibe o erro retornado pela API
         error.textContent = resultado.mensagem || "Erro ao registrar usuário.";
@@ -136,5 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro na requisição:", err);
       error.textContent = "Não foi possível conectar ao servidor.";
       error.style.display = "block";
-    }*/
+    }finally{
+        btn.classList.remove("loading");
+        btn.disabled = false;
+        btn.querySelector(".btn-text").style.display = "block";
+        btn.querySelector(".btn-loading").style.display = "none";
+    }
 })});
+

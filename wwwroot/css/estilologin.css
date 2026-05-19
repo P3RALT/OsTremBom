@@ -58,7 +58,16 @@ body {
 }
 .btn-login {
   width: 100%;
-  margin-top: 14px;
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-login.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
 }
 .btn-login:disabled {
     background-color: RGB(211, 211, 211);

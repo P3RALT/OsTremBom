@@ -2,7 +2,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnEntrar = document.getElementById("btn-entrar");
   const form = document.getElementById("login-form");
   const errorElement = document.getElementById("error");
-
+  try{
+  const params = new URLSearchParams(window.location.search);
+  const data = params.get("ip");
+  if (data != null || data != ""){
+    errorElement.textContent = "Conta registrada com sucesso! Faça o login para continuar.";
+    errorElement.style.display = 'block';
+    errorElement.style.color = "green";
+    errorElement.style.backgroundColor = "#069e6e1f";
+    errorElement.style.borderRadius = "20px";
+    errorElement.style.padding = "10px";
+  }
+  }catch(e){}
   const inputs = [
     document.getElementById("email"),
     document.getElementById("senha")
