@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const m = parseInt(document.getElementById("month").value);
     const y = parseInt(document.getElementById("year").value);
 
-    if (!d || !m || !y) {
+    // Validação aprimorada para garantir que são números válidos escolhidos nos selects
+    if (isNaN(d) || isNaN(m) || isNaN(y)) {
       errorElement.textContent = "Selecione uma data completa.";
       errorElement.style.display = 'block';
       return;
@@ -57,15 +58,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     errorElement.style.display = 'none';
 
+    // --- AJUSTE AQUI: Guardamos Nome e Sobrenome separados para bater certinho com o DTO do C# ---
     const dados = {
-      nomeCompleto: `${nome} ${sobrenome}`,
-      email,
-      genero,
+      nome: nome,
+      sobrenome: sobrenome,
+      email: email,
+      genero: genero,
       nascimento: nascimento.toISOString(),
     };
 
+    // Guarda o objeto estruturado em formato string no navegador
     localStorage.setItem("dadosRegistro", JSON.stringify(dados));
     
-    window.location.href = "/page/register2.html";
+    window.location.href = "../page/register2.html";
   });
 });

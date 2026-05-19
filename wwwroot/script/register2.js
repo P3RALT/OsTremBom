@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmarSenhaInput = document.getElementById("conf-senha");
   const error = document.getElementById("error");
 
+  // Recupera o objeto com nome, sobrenome, email, genero e nascimento da página 1
   const user = JSON.parse(localStorage.getItem("dadosRegistro")) || {};
 
   input.addEventListener("change", () => {
@@ -69,23 +70,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  btn.addEventListener("click", (e) => {
+  // Mudamos para async para podermos usar o await no fetch da API
+  btn.addEventListener("click", async (e) => {
     e.preventDefault();
 
     const senhaFinal = senhaInput.value.trim();
-    // uso da imagem de perfil em breve, necessitamos de um servidor na nuvem para isso.
 
-    // objeto final pronto para ser enviado ao backend
+    // Mapeia as tags selecionadas e limpa os emojis (mantém apenas letras e espaços)
+    const preferenciasLimpas = [...document.querySelectorAll(".tag.selected")].map(t => {
+      return t.textContent.replace(/[^\w\sÀ-ÿ]/g, '').trim();
+    });
+
+    // --- AJUSTE: Monta o objeto exatamente igual ao UsuarioRegisterDto do C# ---
     const finalUser = {
-      ...user,
+      nome: user.nome,
+      sobrenome: user.sobrenome,
+      email: user.email,
       senha: senhaFinal,
-      interesses: [...document.querySelectorAll(".tag.selected")].map(t => t.textContent)
+      fotoPerfilUrl: null, // Brevemente integrado com servidor de média
+      preferencias: preferenciasLimpas // Mapeado para bater com o C#
     };
-    console.log(finalUser);
 
-    // para limpar --> localStorage.clear()
-    window.location.href = "/index";
+    try {
+      // Altera a porta (ex: 7123) para a porta real onde a tua API do VS está a rodar
+      const resposta = await fetch('http://localhost:5207/api/usuario/registrar', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(finalUser)
+});
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok) {
+        // Limpa o localStorage para que um próximo registo comece do zero
+        localStorage.clear();
+
+        // Alerta solicitado que avisa o sucesso do registo
+        alert(resultado.mensagem);
+
+        // Redireciona para o index ou ecrã de login
+        window.location.href = "../index.html";
+      } else {
+        // Exibe o erro retornado pela API (Ex: "Email já registrado.")
+        error.textContent = resultado.mensagem || "Erro ao registrar usuário.";
+        error.style.display = "block";
+      }
+
+    } catch (err) {
+      console.error("Erro na requisição:", err);
+      error.textContent = "Não foi possível conectar ao servidor.";
+      error.style.display = "block";
+    }
   });
-
-
 });
