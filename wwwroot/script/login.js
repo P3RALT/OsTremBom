@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnEntrar = document.getElementById("btn-entrar");
   const form = document.getElementById("login-form");
   const errorElement = document.getElementById("error");
+  var lat = null;
+  var lon = null;
+  var ip = null;
   try{
   const params = new URLSearchParams(window.location.search);
   const data = params.get("ip");
@@ -12,6 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
     errorElement.style.backgroundColor = "#069e6e1f";
     errorElement.style.borderRadius = "20px";
     errorElement.style.padding = "10px";
+    var lat = params.get("lat");
+    var lon = params.get("lon");
+    var ip = data;
   }
   }catch(e){}
   const inputs = [
@@ -36,7 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Transformamos a função em 'async' para podermos usar o 'await' no fetch
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
-
+    errorElement.style.display = 'none';
+    errorElement.style.color = "#ff4d4d";
+    errorElement.style.backgroundColor = "#ff4d4d4f";
     const email = document.getElementById("email").value.trim();
     const senha = document.getElementById("senha").value;
 
@@ -57,6 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
+        btn.disabled = true;
+        btn.querySelector(".btn-text").style.display = "none";
+        btn.querySelector(".btn-loading").style.display = "block";
       // 2. Fazer o disparo para o teu servidor local na porta 5207
       const resposta = await fetch('http://localhost:5207/api/usuario/login', {
         method: 'POST',
@@ -65,31 +76,22 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(dadosLogin)
       });
-
-      const resultado = await resposta.json();
-
-      if (resposta.ok) {
-        // 3. SE DEU CERTO: Iniciamos a sessão guardando os dados no navegador
-        localStorage.setItem("token_sessao", resultado.tokenSessao);
-        localStorage.setItem("user_id", resultado.usuarioId);
-        localStorage.setItem("user_nome", resultado.nomeCompleto);
-        localStorage.setItem("user_foto", resultado.fotoPerfilUrl);
-
-        // Alerta opcional de sucesso
-        alert(resultado.mensagem);
-
-        // 4. Redirecionar para a página de perfil já com a sessão criada!
-        window.location.href = "../page/profile.html";
+      if (resposta.status === 200) {
+        window.location.href = "../page/feed.html";
       } else {
         // Se o C# responder com BadRequest (E-mail ou senha errados)
         errorElement.textContent = resultado.mensagem || "Erro ao realizar o login.";
         errorElement.style.display = 'block';
       }
-
     } catch (erro) {
       console.error("Erro na conexão com a API:", erro);
       errorElement.textContent = "Não foi possível conectar ao servidor.";
       errorElement.style.display = 'block';
+    }
+    finally{
+        btn.disabled = false;
+        btn.querySelector(".btn-text").style.display = "block";
+        btn.querySelector(".btn-loading").style.display = "none";
     }
   });
 });

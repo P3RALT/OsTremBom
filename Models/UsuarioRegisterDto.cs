@@ -18,9 +18,6 @@ namespace TremBomApi.Models
 
         [Required]
         public DateTime Aniversario { get; set; }
-
-        public double? lat { get; set; }
-        public double? lon { get; set; }
         public required string Genero { get; set; }
         public string? FotoPerfilUrl { get; set; }
         public string? ip { get; set; }

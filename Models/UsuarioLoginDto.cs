@@ -10,5 +10,8 @@ namespace Models
 
         [Required(ErrorMessage = "A senha é obrigatória")]
         public string Senha { get; set; } = string.Empty;
+        public string? ip { get; set; }
+        public string? lat { get; set; }
+        public string? lon { get; set; }
     }
 }
