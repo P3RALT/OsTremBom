@@ -5,6 +5,19 @@
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 }
+.search-bar-wrapper .icon {
+    position: absolute;
+    left: 10px;
+    top: 55%;
+    transform: translateY(-50%);
+    color: #888;
+}
+.search-bar-wrapper input {
+    padding-left: 35px;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
 .sidebar2 {
     position: fixed;
 
@@ -38,25 +51,6 @@ body {
 }
 .search-input-fix {
     width: 100% !important;
-}
-
-.search-btn-fix {
-    background: #069E6E;
-    color: white;
-    border: none;
-    padding: 16px 24px;
-    border-radius: 20px;
-    cursor: pointer;
-    
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s ease;
-}
-
-.search-btn-fix:hover {
-    background: #047A55;
 }
 #sidebar2 {
     position: absolute;

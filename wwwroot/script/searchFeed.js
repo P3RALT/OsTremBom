@@ -3,44 +3,90 @@ window.addEventListener('DOMContentLoaded', () => {
     const btnPesquisar = document.getElementById('btn-nav-pesquisar');
     const tabFeed = document.getElementById('tab-feed');
     const tabSearch = document.getElementById('tab-search');
+    const buscaInput = document.getElementById("input-search");
+    const resultadosDiv = document.getElementById("resultados");
+    const defaultSearchText = document.getElementById("default-search-text");
 
     function alternarAba(abaParaMostrar, abaParaEsconder, botaoAtivo, botaoInativo) {
         abaParaEsconder.style.display = 'none';
         abaParaMostrar.style.display = 'block';
-        botaoInativo.classList.remove('active');
-        botaoAtivo.classList.add('active');
     }
     // Configuração da "aba" de pesquisa
     btnPesquisar.addEventListener('click', () => {
         alternarAba(tabSearch, tabFeed, btnPesquisar, btnInicio);
-        const inputSearch = document.getElementById('input-search');
-        inputSearch.setCustomValidity("");
-        const buttonSearch = document.getElementById('search-button');
-        inputSearch.focus();
-        const errorSpan = document.getElementById('input-search-error');
-        buttonSearch.addEventListener('click', () => {
-            const query = inputSearch.value.trim();
-            if (!query) {
-                inputSearch.classList.add('erro');
-                errorSpan.textContent = 'Por favor, digite algo para pesquisar.';
-                errorSpan.style.display = 'block';
-            } else {
-                inputSearch.classList.remove('erro');
-                inputSearch.setCustomValidity('');
-                errorSpan.textContent = '';
-                errorSpan.style.display = 'none';
-            }
-            });
-        
-            inputSearch.addEventListener('input', function() {
-                this.setCustomValidity("");
-                inputSearch.classList.remove('erro');
-                errorSpan.style.display = 'none';
-            });
         });
-        
-
     btnInicio.addEventListener('click', () => {
         alternarAba(tabFeed, tabSearch, btnInicio, btnPesquisar);
     });
-});
+
+// Sistema de busca
+buscaInput.addEventListener("input", async () => {
+
+    const termo = buscaInput.value.trim();
+
+    if (termo.length < 2) {
+        resultadosDiv.innerHTML = "";
+        resultadosDiv.style.display = "none";
+        defaultSearchText.style.display = "block";
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `/api/locais/buscar-criar-post?termo=${encodeURIComponent(termo)}`
+        );
+
+        const locais = await resposta.json();
+
+        resultadosDiv.innerHTML = "";
+
+        if (locais.length === 0) {
+            resultadosDiv.style.display = "none";
+            defaultSearchText.style.display = "block";
+            return;
+        }
+        defaultSearchText.style.display = "none";
+        locais.forEach(local => {
+
+            const item = document.createElement("div");
+
+            item.classList.add("resultado-item");
+
+            item.innerHTML = `
+                <strong>${local.nome}</strong>
+                <p>
+                    ${local.rua || local.Rua} 
+                    ${local.numero || local.Numero},
+                    ${local.bairro || local.Bairro} -
+                    ${local.cidade || local.Cidade}
+                </p>
+            `;
+
+            item.addEventListener("click", () => {
+
+                buscaInput.value = local.nome;
+
+                resultadosDiv.innerHTML = "";
+                resultadosDiv.style.display = "none";
+
+                console.log("Selecionado:", local);
+            });
+
+            resultadosDiv.appendChild(item);
+        });
+
+        resultadosDiv.style.display = "block";
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest("#nome-estabelecimento") &&
+                !e.target.closest("#resultados")) {
+
+                resultadosDiv.style.display = "none";
+            }
+
+        });
+
+    } catch (erro) {
+        console.error(erro);
+    }
+})});

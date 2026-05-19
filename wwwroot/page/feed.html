@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/estilofeed.css">   
     <link rel="stylesheet" href="/css/estilologin.css">   
+    <link rel="stylesheet" href="/css/estilonewpost.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
 </head>
 <body>
@@ -35,18 +36,18 @@
         </nav>
     </aside>
 
-    
     <div class="main-content">
    <section class="search-page tab-content" id="tab-search" style="display: none;">
-        <div class="search-container" style="padding: 20px;">
+        <div class="search-container" style="padding: 20px; width: 100%; width: 450px; margin: 0 auto;">
             <h2>Pesquisar</h2>
-            <div class="search-bar-wrapper" style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
+            <div class="search-bar-wrapper" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; position:relative;">
+                <i class="fa fa-search icon"></i>
                 <input class="input search-input-fix" id="input-search" type="text" required placeholder="Locais, tags ou pessoas...">
-                <button class="search-btn-fix" id="search-button"><i class="fas fa-search"></i></button>
             </div>
             <span id="input-search-error" style="color: red; display: none; font-size: 0.9em;"></span>
-            <div class="search-results" style="margin-top: 30px; color: #8a8d91;">
-                <p>Digite algo para começar a <span class="teal">minerar</span> seus resultados...</p>
+            <div class="search-results" >
+                <div id="resultados"></div>
+                <p style="margin-top: 30px; color: #8a8d91;" id="default-search-text">Digite algo para começar a <span class="teal">minerar</span> seus resultados...</p>
             </div>
         </div>
     </section>
