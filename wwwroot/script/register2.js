@@ -6,8 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const senhaInput = document.getElementById("senha");
   const confirmarSenhaInput = document.getElementById("conf-senha");
   const error = document.getElementById("error");
+  var final_ip = null;
+  var final_lat = null;
+  var final_lon = null;
 
-  // Recupera o objeto com nome, sobrenome, email, genero e nascimento da página 1
+  // Recupera o objeto com nickname, email, genero e nascimento da página 1
   const user = JSON.parse(localStorage.getItem("dadosRegistro")) || {};
 
   input.addEventListener("change", () => {
@@ -76,23 +79,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const senhaFinal = senhaInput.value.trim();
 
-    // Mapeia as tags selecionadas e limpa os emojis (mantém apenas letras e espaços)
     const preferenciasLimpas = [...document.querySelectorAll(".tag.selected")].map(t => {
       return t.textContent.replace(/[^\w\sÀ-ÿ]/g, '').trim();
     });
 
+    // Busca a localização do usuário via IP usando a API do ipinfo.io (Vou usar isso pra identificar a cidade do usuário)
+    try {
+      const response = await fetch('https://ipinfo.io/json');
+      const data = await response.json();
+      final_ip = data.ip;
+      if (data.loc) {
+        const [latitude, longitude] = data.loc.split(',');
+        final_lat = parseFloat(latitude);
+        final_lon = parseFloat(longitude);
+      }
+    } catch (error) {
+      console.error("Error fetching IP/Location:", error);
+    }
     // --- AJUSTE: Monta o objeto exatamente igual ao UsuarioRegisterDto do C# ---
     const finalUser = {
-      nome: user.nome,
-      sobrenome: user.sobrenome,
+      nickname: user.nickname,
       email: user.email,
       senha: senhaFinal,
-      fotoPerfilUrl: null, // Brevemente integrado com servidor de média
-      preferencias: preferenciasLimpas // Mapeado para bater com o C#
+      fotoPerfilUrl: null,
+      preferencias: preferenciasLimpas,
+      genero: user.genero,
+      aniversario: user.nascimento,
+      lat: final_lat,
+      lon: final_lon,
+      ip: final_ip
     };
-
+    console.log("Dados finais a serem enviados para a API:", finalUser);
+/*
     try {
-      // Altera a porta (ex: 7123) para a porta real onde a tua API do VS está a rodar
       const resposta = await fetch('http://localhost:5207/api/usuario/registrar', {
     method: 'POST',
     headers: {
@@ -102,26 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
       const resultado = await resposta.json();
-
+      
       if (resposta.ok) {
         // Limpa o localStorage para que um próximo registo comece do zero
         localStorage.clear();
 
-        // Alerta solicitado que avisa o sucesso do registo
-        alert(resultado.mensagem);
-
-        // Redireciona para o index ou ecrã de login
-        window.location.href = "../index.html";
+        window.location.href = "../feed.html";
       } else {
-        // Exibe o erro retornado pela API (Ex: "Email já registrado.")
+        // Exibe o erro retornado pela API
         error.textContent = resultado.mensagem || "Erro ao registrar usuário.";
         error.style.display = "block";
       }
-
     } catch (err) {
       console.error("Erro na requisição:", err);
       error.textContent = "Não foi possível conectar ao servidor.";
       error.style.display = "block";
-    }
-  });
-});
+    }*/
+})});

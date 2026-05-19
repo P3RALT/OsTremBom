@@ -20,17 +20,22 @@ namespace TremBomApi.Models
         [Column("token")]
         public string Token { get; set; } = string.Empty;
 
-        [MaxLength(255)]
-        [Column("token_lembrar")]
-        public string? TokenLembrar { get; set; }
-
         [Column("data_criacao")]
         public DateTime DataCriacao { get; set; } = DateTime.Now;
 
         [Column("data_expiracao")]
         public DateTime? DataExpiracao { get; set; }
 
-        [ForeignKey("UsuarioId")]
+        [Column("ip")]
+        public string? Ip { get; set; }
+
+        [Column("Latitude")]
+        public double? latitude { get; set; }
+
+        [Column("Longitude")]
+        public double? longitude { get; set; }
+
+        [ForeignKey(nameof(UsuarioId))] 
         public virtual Usuario? Usuario { get; set; }
     }
 }

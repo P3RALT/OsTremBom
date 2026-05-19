@@ -20,18 +20,15 @@
 <body>
     <!-- MENU-->
     <div class="register-box">
-        <button class="btn-voltar" onclick="window.location.href='../index.html'">&lt;</button>
+        <button class="btn-voltar" onclick="window.location.href='../'">&lt;</button>
         <img src="../img/android-chrome-192x192.png" id="logo" alt="OS TREM DE BH - Logo" class="logo-register">
     <!-- FORMULARIO CRIACAO DE CONTA -->
         <h2>Criar Nova Conta</h2>
         <p id="subtitulo-p">Crie uma conta e comece a se <span class="teal">conectar</span> e <span class="teal">compartilhar</span> suas experiências, fotos e avaliações hoje mesmo!</p>
         <p id="error"></p>
-        <p class="subtitulo">Nome</p>
+        <p class="subtitulo">Apelido</p>
         <form id="registro-form">
-            <div class="input-row">
-                <input type="text" class="input" id="nome" placeholder="Nome">
-                <input type="text" class="input" id="sobrenome" placeholder="Sobrenome">
-            </div>
+                <input type="text" class="input" id="nickname" placeholder="Apelido">
             <p class="subtitulo">Data de Nascimento</p>
             <div class="input-row">
             <select id="day" class="input"></select>
@@ -66,7 +63,7 @@
         </form>
     </div>
     <!-- Função que estava no HTML-->
-    <script src="../script/FuncaoPage.js"></script>
+    <script src="../script/FuncaoAniversario.js"></script>
     <script src="../script/register.js"></script>
 </body>
 </html>

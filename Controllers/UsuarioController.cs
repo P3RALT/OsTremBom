@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TremBomApi.Models;
-using TremBomApi.Data; // <-- 1. Adicionado para reconhecer o teu AppDbContext
+using TremBomApi.Data; // <-- 1. Adicionado para reconhecer o AppDbContext
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -13,10 +13,10 @@ namespace TremBomApi.Controllers
     [Route("api/[controller]")] 
     public class UsuarioController : ControllerBase
     {
-        // 2. Usando o teu contexto real: AppDbContext
+        // 2. Usando o contexto real: AppDbContext
         private readonly AppDbContext _context;
 
-        // 3. O construtor recebe o teu AppDbContext por injeção
+        // 3. O construtor recebe o AppDbContext por injeção
         public UsuarioController(AppDbContext context)
         {
             _context = context;
@@ -33,26 +33,27 @@ namespace TremBomApi.Controllers
             }
 
             // Segurança: Transforma a senha em texto limpo num Hash seguro usando o BCrypt
-            string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(dto.Senha);
+            // Segurança²:  Usa um "pepper" (uma string secreta fixa) para adicionar uma camada extra de proteção contra ataques de força bruta
+
+            string pepper  = "PePpErSeCrEto123!@#"; // ((Em produção a gente esconde isso, mas já q é um trabalho, a gente releva))
+
+            string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(dto.Senha + pepper);
 
             // Mapeamento: Cria a entidade Usuario com os dados recebidos do formulário
             var novoUsuario = new Usuario
             {
-                NomeCompleto = $"{dto.Nome} {dto.Sobrenome}".Trim(), 
+                Nickname = dto.Nickname,
                 Email = dto.Email,
                 SenhaHash = senhaCriptografada,
                 FotoPerfilUrl = dto.FotoPerfilUrl ?? "../images/default-profile.png",
+                Aniversario = dto.Aniversario,
                 DataCadastro = DateTime.Now,
-                TermosAceitosEm = DateTime.Now
             };
 
             // Preferências: Loop para adicionar cada interesse selecionado ao utilizador
             foreach (var pref in dto.Preferencias) 
             {
-                novoUsuario.Preferencias.Add(new UsuarioPreferencia 
-                { 
-                    Preferencia = pref 
-                });
+                novoUsuario.Preferencias.Add(pref);
             }
 
             // Adiciona o novo utilizador ao DbSet correto e salva no Banco de Dados
@@ -64,7 +65,7 @@ namespace TremBomApi.Controllers
             {
                 mensagem = "Usuário registrado com sucesso!",
                 usuarioId = novoUsuario.Id,
-                nomeCompleto = novoUsuario.NomeCompleto
+                nickname = novoUsuario.Nickname,
             });
         }
 
@@ -114,9 +115,6 @@ namespace TremBomApi.Controllers
         Mensagem = "Login realizado com sucesso!",
         tokenSessao = novaSessao.Token,
         UsuarioId = usuario.Id,
-        NomeCompleto = usuario.NomeCompleto,
-        Email = usuario.Email,
-        FotoPerfilUrl = usuario.FotoPerfilUrl
     });
 
 

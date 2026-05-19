@@ -4,8 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorElement = document.getElementById("error");
 
   const inputsObrigatorios = [
-    document.getElementById("nome"),
-    document.getElementById("sobrenome"),
+    document.getElementById("nickname"),
     document.getElementById("email"),
   ];
 
@@ -19,8 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const nome = document.getElementById("nome").value.trim();
-    const sobrenome = document.getElementById("sobrenome").value.trim();
+    const nickname = document.getElementById("nickname").value.trim();
     const email = document.getElementById("email").value.trim();
     const genero = document.getElementById("genero").value;
     
@@ -50,18 +48,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (nome.length < 3 || sobrenome.length < 2) {
-      errorElement.textContent = "Por favor, digite um nome válido.";
+    if (nickname.length < 3) {
+      errorElement.textContent = "O nickname deve ter pelo menos 3 caracteres.";
       errorElement.style.display = 'block';
       return;
     }
 
     errorElement.style.display = 'none';
 
-    // --- AJUSTE AQUI: Guardamos Nome e Sobrenome separados para bater certinho com o DTO do C# ---
     const dados = {
-      nome: nome,
-      sobrenome: sobrenome,
+      nickname: nickname,
       email: email,
       genero: genero,
       nascimento: nascimento.toISOString(),

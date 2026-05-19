@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519194631_AjustesTabela7")]
+    partial class AjustesTabela7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -233,6 +236,30 @@ namespace TremBomApi.Migrations
                     b.ToTable("usuarios");
                 });
 
+            modelBuilder.Entity("TremBomApi.Models.UsuarioPreferencia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Preferencia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("preferencia");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("usuarios_preferencias");
+                });
+
             modelBuilder.Entity("TremBomApi.Models.Publicacao", b =>
                 {
                     b.HasOne("TremBomApi.Models.Local", "Local")
@@ -256,6 +283,17 @@ namespace TremBomApi.Migrations
                 {
                     b.HasOne("TremBomApi.Models.Usuario", "Usuario")
                         .WithMany("Sessoes")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("TremBomApi.Models.UsuarioPreferencia", b =>
+                {
+                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
+                        .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

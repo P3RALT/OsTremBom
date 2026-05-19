@@ -12,11 +12,11 @@ namespace TremBomApi.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "O nome é obrigatório")]
-        [MinLength(3, ErrorMessage = "O nome deve ter pelo menos 3 caracteres")]
-        [MaxLength(255)]
-        [Column("nome_completo")]
-        public string NomeCompleto { get; set; } = string.Empty;
+        [Required(ErrorMessage = "O nickname é obrigatório")]
+        [MinLength(3, ErrorMessage = "O nickname deve ter pelo menos 3 caracteres")]
+        [MaxLength(50, ErrorMessage = "O nickname deve ter no máximo 50 caracteres")]
+        [Column("nickname")]
+        public string Nickname { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O email é obrigatório")]
         [EmailAddress(ErrorMessage = "Email inválido")]
@@ -24,30 +24,26 @@ namespace TremBomApi.Models
         [Column("email")]
         public string Email { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        [Column("telefone")]
-        public string? Telefone { get; set; }
-
         [Required]
-        [MaxLength(255)]
         [Column("senha_hash")]
         public string SenhaHash { get; set; } = string.Empty;
 
-        [MaxLength(500)]
+        [Required]
+        [Column("aniversario")]
+        public DateTime Aniversario { get; set; }
+
         [Column("foto_perfil_url")]
         public string? FotoPerfilUrl { get; set; }
 
         [Column("data_cadastro")]
         public DateTime DataCadastro { get; set; } = DateTime.Now;
 
-        [Column("termos_aceitos_em")]
-        public DateTime? TermosAceitosEm { get; set; }
-
         [Column("ultimo_login")]
         public DateTime? UltimoLogin { get; set; }
 
-        // Relacionamentos
-        public virtual ICollection<UsuarioPreferencia> Preferencias { get; set; } = new List<UsuarioPreferencia>();
+        [Column("preferencias")]
+        public List<string> Preferencias { get; set; } = new List<string>();
+
         public virtual ICollection<Sessao> Sessoes { get; set; } = new List<Sessao>();
     }
 }

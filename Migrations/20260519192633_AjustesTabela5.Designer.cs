@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519192633_AjustesTabela5")]
+    partial class AjustesTabela5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -214,11 +217,6 @@ namespace TremBomApi.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("nickname");
 
-                    b.PrimitiveCollection<string>("Preferencias")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("preferencias");
-
                     b.Property<string>("SenhaHash")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -231,6 +229,30 @@ namespace TremBomApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("usuarios");
+                });
+
+            modelBuilder.Entity("TremBomApi.Models.UsuarioPreferencia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Preferencia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("preferencia");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("usuarios_preferencias");
                 });
 
             modelBuilder.Entity("TremBomApi.Models.Publicacao", b =>
@@ -263,6 +285,17 @@ namespace TremBomApi.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("TremBomApi.Models.UsuarioPreferencia", b =>
+                {
+                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
+                        .WithMany("Preferencias")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("TremBomApi.Models.Local", b =>
                 {
                     b.Navigation("Publicacoes");
@@ -270,6 +303,8 @@ namespace TremBomApi.Migrations
 
             modelBuilder.Entity("TremBomApi.Models.Usuario", b =>
                 {
+                    b.Navigation("Preferencias");
+
                     b.Navigation("Sessoes");
                 });
 #pragma warning restore 612, 618
