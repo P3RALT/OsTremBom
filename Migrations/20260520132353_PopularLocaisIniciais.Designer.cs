@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260520132353_PopularLocaisIniciais")]
+    partial class PopularLocaisIniciais
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -136,7 +139,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Famosa igreja projetada por Oscar Niemeyer, com painéis de Cândido Portinari, localizada na beira da Lagoa da Pampulha.",
                             Dicas = "Vá no fim da tarde para pegar o pôr do sol na lagoa.",
-                            ImagemUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Igrejinha_de_S%C3%A3o_Francisco_de_Assis_6.jpeg/250px-Igrejinha_de_S%C3%A3o_Francisco_de_Assis_6.jpeg",
+                            ImagemUrl = "https://exemplo.com/pampulha1.jpg",
                             Latitude = -19.858499999999999,
                             Longitude = -43.979100000000003,
                             Nome = "Igreja São Francisco de Assis (Igrejinha da Pampulha)",
@@ -182,7 +185,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Praça histórica cercada por belíssimos prédios públicos antigos que hoje formam o Circuito Cultural Praça da Liberdade.",
                             Dicas = "A visitação à maioria dos museus do circuito é gratuita.",
-                            ImagemUrl = "https://www.quintoandar.com.br/guias/wp-content/uploads/2023/04/Praca-da-Liberdade-em-Belo-Horizonte-Foto-Shutterstock.jpg",
+                            ImagemUrl = "https://exemplo.com/liberdade1.jpg",
                             Latitude = -19.932300000000001,
                             Longitude = -43.938099999999999,
                             Nome = "Praça da Liberdade",
@@ -205,7 +208,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Localizado em uma área de preservação, oferece uma vista panorâmica espetacular de toda a cidade de BH.",
                             Dicas = "Leve um agasalho, pois costuma ventilar bastante e fazer frio lá em cima.",
-                            ImagemUrl = "https://offloadmedia.feverup.com/belohorizontesecreto.com/wp-content/uploads/2023/08/21122832/mirantes-em-belo-horizonte-1024x683.jpg",
+                            ImagemUrl = "https://exemplo.com/mirante1.jpg",
                             Latitude = -19.9482,
                             Longitude = -43.916800000000002,
                             Nome = "Mirante do Mangabeiras",
@@ -228,10 +231,10 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "O gigante da Pampulha, palco histórico do futebol mineiro e grandes shows internacionais.",
                             Dicas = "A esplanada do Mineirão é enorme e excelente para passar a tarde com crianças e pets.",
-                            ImagemUrl = "https://historiadofutebol.com/blog/wp-content/uploads/2013/11/092-001-500x330.jpg",
+                            ImagemUrl = "https://exemplo.com/mineirao1.jpg",
                             Latitude = -19.8659,
                             Longitude = -43.970999999999997,
-                            Nome = "Minerão (Estádio Governador Magalhães Pinto)",
+                            Nome = "Estádio Governador Magalhães Pinto (Mineirão)",
                             Numero = 1001,
                             OqFazer = "Visitar o Museu do Futebol Mineiro e andar de skate ou patins na esplanada.",
                             PqVisitar = "Item indispensável para quem ama futebol e quer conhecer o templo do esporte em Minas.",
@@ -251,7 +254,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "O mais antigo parque ambiental de BH, localizado bem no centro da cidade, um verdadeiro refúgio verde.",
                             Dicas = "O parque abriga o tradicional Teatro Francisco Nunes, vale checar a programação.",
-                            ImagemUrl = "https://portalbelohorizonte.com.br/sites/default/files/arquivos/ao-ar-livre-e-esportes/2021-11/foto-pbh.jpg",
+                            ImagemUrl = "https://exemplo.com/parque1.jpg",
                             Latitude = -19.924199999999999,
                             Longitude = -43.930599999999998,
                             Nome = "Parque Municipal Américo Renné Giannetti",
@@ -274,7 +277,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Localizada nas altas do bairro Mangabeiras, ganhou esse nome após a visita do Papa João Paulo II em 1980.",
                             Dicas = "Perfeito para levar uma canga, lanche e fazer um piquenique no final de semana.",
-                            ImagemUrl = "https://portalbelohorizonte.com.br/sites/default/files/arquivos/ao-ar-livre-e-esportes/2021-11/praca-do-papa_qu4rto-studio-0056-1_0.jpg",
+                            ImagemUrl = "https://exemplo.com/papa1.jpg",
                             Latitude = -19.9453,
                             Longitude = -43.914200000000001,
                             Nome = "Praça do Papa",
@@ -297,7 +300,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Embora fique em Brumadinho (região metropolitana), é a principal extensão turística cultural de quem visita BH. Maior museu a céu aberto do mundo.",
                             Dicas = "Use sapatos muito confortáveis, o museu é gigante e você vai andar bastante.",
-                            ImagemUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVYgiX-foSy-CNzygiQBc9Z95TOzdbfFNAWA&s",
+                            ImagemUrl = "https://exemplo.com/inhotim1.jpg",
                             Latitude = -20.124099999999999,
                             Longitude = -44.220100000000002,
                             Nome = "Inhotim (Instituto Contemporâneo)",
@@ -320,7 +323,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Grande centro cultural no centro de BH que recebe shows, peças de teatro, cinema e exposições de arte.",
                             Dicas = "Fique de olho no site oficial deles, pois muitos eventos têm ingressos a preços populares.",
-                            ImagemUrl = "https://www.minasgerais.com.br/imagens/atracoes/1542284694Euy5sOet5H.jpg",
+                            ImagemUrl = "https://exemplo.com/palladium1.jpg",
                             Latitude = -19.923400000000001,
                             Longitude = -43.9392,
                             Nome = "Sesc Palladium",
@@ -343,7 +346,7 @@ namespace TremBomApi.Migrations
                             DataCadastro = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Famosa rua ladeira acima onde os carros, quando deixados em ponto morto, parecem subir a rua sozinhos devido a uma ilusão de ótica.",
                             Dicas = "Faça o teste com cuidado e pisca-alerta ligado para avisar outros motoristas.",
-                            ImagemUrl = "https://media-cdn.tripadvisor.com/media/photo-s/07/5c/ec/4e/rua-do-amendoim.jpg",
+                            ImagemUrl = "https://exemplo.com/amendoim1.jpg",
                             Latitude = -19.943100000000001,
                             Longitude = -43.914900000000003,
                             Nome = "Rua do Amendoim",
