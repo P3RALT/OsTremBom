@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Os Trem de BH</title>
+  <!-- CSS DO MENU -->
+       <link rel="stylesheet" href="../css/estiloperfil.css">
+  <!-- IMGS-->
+  <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="../css/estilosemanal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+ <!-- NAVBAR -->
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+           <span>Os Trem de BH</span></div>
+        <nav class="sidebar-nav">
+            <a href="../page/feed.html" class="nav-item active" id="btn-nav-inicio"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="javascript:void(0)" class="nav-item" id="btn-nav-pesquisar"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+            <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
+            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
+            <a href="../page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+        </nav>
+    </aside>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <main class="Conteudo">
+        <section class="Sessao01">
+            <div class="Carrossel" id="carrossel-locais">
+                 <script src="../script/localCarrosel.js"></script>
+            </div>
+        </section>
+        
+        <section class="SessaoGrupo" id="sessaoGrupo">
+            <div class="controle-grupos">
+                <button type="button" class="btn-acao-grupo" id="btn-adicionar-grupo" title="Criar Novo Grupo" onclick="abrirModalGrupo()">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                
+                <div class="pesquisa-grupo-container">
+                    <input type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
+                    <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
+                </div>
+            </div>
+
+            <div class="grupos-grid-container" id="grupos-container"></div>
+        </section>
+    </main> <div class="modal-overlay" id="modalCriarGrupo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Novo Grupo</h2>
+                <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
+            </div>
+            
+            <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
+                
+                <label for="grupoNome">Nome do Grupo</label>
+                <input type="text" id="grupoNome" placeholder="Ex: Rolezeiros da Pampulha" required>
+
+                <label for="grupoDescricao">Descrição do Grupo</label>
+                <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
+
+                <label for="grupoImagem">Imagem de Capa</label>
+                <input type="file" id="grupoImagem" accept="image/*">
+
+                <div class="form-linha-dupla">
+                    <div class="campo-metade">
+                        <label for="grupoLimite">Limite de Membros</label>
+                        <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 20" required>
+                    </div>
+                    <div class="campo-metade">
+                        <label for="grupoPrivacidade">Tipo de Grupo</label>
+                        <select id="grupoPrivacidade" onchange="tratarMudancaPrivacidade()" required>
+                            <option value="publico">Público</option>
+                            <option value="privado">Privado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="container-senha-grupo" style="display: none;">
+                    <label for="grupoSenha">Defina a Senha de Acesso</label>
+                    <input type="password" id="grupoSenha" placeholder="Digite a senha para novos membros">
+                </div>
+
+                <div class="botoes-recursos-container">
+                    <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Membros
+                    </button>
+                    <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo">
+                        <i class="fa-solid fa-location-dot"></i> Vincular Local
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Criar Grupo</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../script/api.js"></script>
+    <script src="../script/auth.js"></script>
+    <script src="../script/semanal.js"></script>
+</body>
+</html>
