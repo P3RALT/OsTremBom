@@ -38,20 +38,23 @@
           <input class="input" type="email" id="email" placeholder="E-mail">
           <input class="input" type="password" id="senha" placeholder="Senha">
           
-          <button class="btn-login" id="btn-entrar" type="submit">Entrar</button>
-        </form>
-        <a href="#" id="esqueceu-senha">Esqueceu a senha?</a>
-        <hr id="divisor">
-        <button id="btn-new" onclick="window.location.href='../page/register.html'">
-          <span class="btn-text">Criar nova conta</span>
+          <button class="btn-login" id="btn-entrar" type="submit">
+          <span class="btn-text">Entrar</span>
           <span class="btn-loading" style="display:none;">
                 <i class="fa-solid fa-spinner fa-spin"></i>
                     Enviando...
           </span>
+          </button>
+        </form>
+        <a href="#" id="esqueceu-senha">Esqueceu a senha?</a>
+        <hr id="divisor">
+        <button id="btn-new" onclick="window.location.href='../page/register.html'">
         </button>
     </div>
   </div>
 </div>
+<!-- Função para identificar globalmente o usuário logado -->
+<script src="/script/sessionHandler.js"></script>
 <script src="../script/login.js"></script>
 </body>
 </html>

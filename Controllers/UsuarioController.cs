@@ -120,7 +120,7 @@ namespace TremBomApi.Controllers
                     // ADICIONANDO AS COORDENADAS DENTRO DO JWT
                     new Claim("latitude", dto.lat??"".ToString()),
                     new Claim("longitude", dto.lon??"".ToString()),
-                    new Claim(ClaimTypes.Email, usuario.Email)
+                    new Claim("nickname", usuario.Nickname)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)

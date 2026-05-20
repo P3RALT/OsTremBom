@@ -16,163 +16,163 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
 </head>
 <body>
-  <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
-           <span>Os Trem de BH</span></div>
-        <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="/img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <span>Os Trem de BH</span></div>
+            <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
+            
+            <nav class="sidebar-nav">
+                <a href="/page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
+                <!-- Se search=true no JavaScript, a gente renderiza a página de pesquisa-->
+                <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+                <a href="/page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+                <a href="/page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
+                <a href="/page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+                <a href="/page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
+                <a href="/page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            </nav>
+        </aside>
+    <div class="main-content">
+        <div class="header-local">
+            <h1 id="nomeLocal">Carregando...</h1>
+            
+            <div class="header-actions">
+                <button class="btn-header"><i class="fa-solid fa-heart" style="color: #069e6e;"></i><span id="likesCount"></span></button>
+                <button class="btn-header"><i class="fa-solid fa-share-nodes"></i></button>
+            </div>
+        </div>
+        <div class="status-local content-width">
+
+            <p id="categoria" class="categoria-badge">
+                Carregando...
+            </p>
+
+            <div class="status-right">
+                <i class="fa-solid fa-circle status-icon" id="statusIcon"></i>
+                <span id="statusAberto">Aberto agora</span>
+            </div>
+
+        </div>
         
-        <nav class="sidebar-nav">
-            <a href="../page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
-            <a href="../page/search.html" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
-            <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
-            <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
-            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
-            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a href="../page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
-        </nav>
-    </aside>
-   <div class="main-content">
-    <div class="header-local">
-        <h1 id="nomeLocal">Carregando...</h1>
-        
-        <div class="header-actions">
-            <button class="btn-header"><i class="fa-solid fa-heart" style="color: #069e6e;"></i><span id="likesCount"></span></button>
-            <button class="btn-header"><i class="fa-solid fa-share-nodes"></i></button>
-        </div>
-    </div>
-    <div class="status-local content-width">
+        <section class="galeria-mosaico">
+            <div class="Foto_Principal" id="fotoPrincipal">
+            </div>
 
-        <p id="categoria" class="categoria-badge">
-            Carregando...
-        </p>
+            <div class="Fotos_Laterais" id="fotosLaterais">
 
-        <div class="status-right">
-            <i class="fa-solid fa-circle status-icon" id="statusIcon"></i>
-            <span id="statusAberto">Aberto agora</span>
-        </div>
-
-    </div>
-    
-    <section class="galeria-mosaico">
-        <div class="Foto_Principal" id="fotoPrincipal">
-        </div>
-
-        <div class="Fotos_Laterais" id="fotosLaterais">
-
-        </div>
-    </section>
-    <div class="content-width">
-        <div class="margin" style="display: flex; align-items: center; gap: 16px;">
-            <h1 class="title" style="margin: 0;">Descrição</h1>
-            <p style="padding: 6px 14px; border-radius: 20px; border: none; background: #069e6e36;">IA</p>
-        </div>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin feugiat eros lacus, 
-            non scelerisque elit lacinia ut. Orci varius natoque penatibus et magnis dis parturient montes, nascetur
-            ridiculus mus. Suspendisse justo nibh, semper sed semper in, euismod non arcu. Donec vitae arcu mauris. 
-            Phasellus semper tempus odio, id pulvinar massa euismod id. Integer molestie tempor aliquam. Pellentesque s
-            ed feugiat dolor. Maecenas vulputate fermentum sapien et venenatis. Donec tempor posuere sollicitudin. Lorem ipsum dolor sit amet, 
-            consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent molestie hendrerit libero,
-            vel egestas erat sagittis non. Vivamus aliquet, urna a interdum rutrum, enim lectus rhoncus magna, non finibus ligula odio eu nunc. Phasellus molestie tortor risus, 
-            in euismod erat lobortis a. Quisque quis condimentum dui.</p>
-        <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="oqFazer"></span></div>
-        <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="pqVisitar"></span></div>
-        <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="dicas"></span></div>
-        </div>
+            </div>
+        </section>
         <div class="content-width">
-            <h1 class="title margin">Endereço</h1>
-            <p id="enderecoLocal">Carregando...</p>
-        </div>
-            <div id="expanded-map" class="expanded-map-container">
-                    <div id="full-map" class="full-map"></div>
+            <div class="margin" style="display: flex; align-items: center; gap: 16px;">
+                <h1 class="title" style="margin: 0;">Descrição</h1>
+                <p style="padding: 6px 14px; border-radius: 20px; border: none; background: #069e6e36;">IA</p>
             </div>
-    <div class="content-width">
-    <h1 class="title margin">Posts</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin feugiat eros lacus, 
+                non scelerisque elit lacinia ut. Orci varius natoque penatibus et magnis dis parturient montes, nascetur
+                ridiculus mus. Suspendisse justo nibh, semper sed semper in, euismod non arcu. Donec vitae arcu mauris. 
+                Phasellus semper tempus odio, id pulvinar massa euismod id. Integer molestie tempor aliquam. Pellentesque s
+                ed feugiat dolor. Maecenas vulputate fermentum sapien et venenatis. Donec tempor posuere sollicitudin. Lorem ipsum dolor sit amet, 
+                consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent molestie hendrerit libero,
+                vel egestas erat sagittis non. Vivamus aliquet, urna a interdum rutrum, enim lectus rhoncus magna, non finibus ligula odio eu nunc. Phasellus molestie tortor risus, 
+                in euismod erat lobortis a. Quisque quis condimentum dui.</p>
+            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="oqFazer"></span></div>
+            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="pqVisitar"></span></div>
+            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="dicas"></span></div>
+            </div>
+            <div class="content-width">
+                <h1 class="title margin">Endereço</h1>
+                <p id="enderecoLocal">Carregando...</p>
+            </div>
+                <div id="expanded-map" class="expanded-map-container">
+                        <div id="full-map" class="full-map"></div>
+                </div>
+        <div class="content-width">
+        <h1 class="title margin">Posts</h1>
 
-    <div class="posts-container">
+        <div class="posts-container">
 
-        <!-- POST -->
-        <div class="post-card">
+            <!-- POST -->
+            <div class="post-card">
 
-            <div class="post-header">
+                <div class="post-header">
+                    <img
+                        src="https://i.pravatar.cc/100?img=32"
+                        alt="Perfil"
+                        class="post-profile-pic"
+                    >
+
+                    <div class="post-user-info">
+                        <span class="post-username">@mariana</span>
+                        <span class="post-date">Há 2 semanas</span>
+                    </div>
+                </div>
+
+                <p class="post-text">
+                    Achei o ambiente super tranquilo e seguro.
+                    Tem bastante coisa pra fazer perto também.
+                </p>
+
                 <img
-                    src="https://i.pravatar.cc/100?img=32"
-                    alt="Perfil"
-                    class="post-profile-pic"
+                    src="/img/imagemcentroPage.jpg"
+                    alt="Post"
+                    class="post-image"
                 >
 
-                <div class="post-user-info">
-                    <span class="post-username">@mariana</span>
-                    <span class="post-date">Há 2 semanas</span>
+                <div class="post-actions">
+                    <div class="action-left">
+                        <i class="fa-regular fa-heart"></i>
+                        <i class="fa-regular fa-comment"></i>
+                    </div>
                 </div>
+                <span class="likes">2.540 curtidas</span>
             </div>
 
-            <p class="post-text">
-                Achei o ambiente super tranquilo e seguro.
-                Tem bastante coisa pra fazer perto também.
-            </p>
+            <!-- POST -->
+            <div class="post-card">
 
-            <img
-                src="../img/imagemcentroPage.jpg"
-                alt="Post"
-                class="post-image"
-            >
+                <div class="post-header">
+                    <img
+                        src="https://i.pravatar.cc/100?img=12"
+                        alt="Perfil"
+                        class="post-profile-pic"
+                    >
 
-            <div class="post-actions">
-                <div class="action-left">
-                    <i class="fa-regular fa-heart"></i>
-                    <i class="fa-regular fa-comment"></i>
+                    <div class="post-user-info">
+                        <span class="post-username">@joaopedro</span>
+                        <span class="post-date">Há 5 dias</span>
+                    </div>
                 </div>
-            </div>
-            <span class="likes">2.540 curtidas</span>
-        </div>
 
-        <!-- POST -->
-        <div class="post-card">
+                <p class="post-text">
+                    Lugar muito bonito, principalmente no pôr do sol.
+                </p>
 
-            <div class="post-header">
                 <img
-                    src="https://i.pravatar.cc/100?img=12"
-                    alt="Perfil"
-                    class="post-profile-pic"
+                    src="/img/imagemcentroPage.jpg"
+                    alt="Post"
+                    class="post-image"
                 >
 
-                <div class="post-user-info">
-                    <span class="post-username">@joaopedro</span>
-                    <span class="post-date">Há 5 dias</span>
+                <div class="post-actions">
+                    <div class="action-left">
+                        <i class="fa-regular fa-heart"></i>
+                        <i class="fa-regular fa-comment"></i>
+                    </div>
                 </div>
+                <span class="likes">2.540 curtidas</span>
             </div>
 
-            <p class="post-text">
-                Lugar muito bonito, principalmente no pôr do sol.
-            </p>
-
-            <img
-                src="../img/imagemcentroPage.jpg"
-                alt="Post"
-                class="post-image"
-            >
-
-            <div class="post-actions">
-                <div class="action-left">
-                    <i class="fa-regular fa-heart"></i>
-                    <i class="fa-regular fa-comment"></i>
-                </div>
-            </div>
-            <span class="likes">2.540 curtidas</span>
         </div>
-
     </div>
-</div>
-        </div>
-
-    </div>
-</div>
-        
-<script src="../script/Detalhes.js"></script>
-</body>
+    <script src="../script/Detalhes.js"></script>
+    <!-- Função para identificar globalmente o usuário logado -->
+    <script src="/script/sessionHandler.js"></script>
+    <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
+    <script src="/script/loginOuPerfil.js"></script>   
+    </body>
 </html>

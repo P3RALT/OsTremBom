@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed - Os Trem de BH</title>
-    <!-- CSS DO MENU -->
     <link rel="stylesheet" href="../css/estiloperfil.css">
-    <!-- IMGS-->
     <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- CSS-->
     <link rel="stylesheet" href="../css/estilofeed.css">   
     <link rel="stylesheet" href="../css/estilologin.css">   
     <link rel="stylesheet" href="../css/estilonewpost.css">
@@ -35,7 +32,7 @@
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a href="../page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            <a href="javascript:void(0)" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
 
@@ -57,16 +54,16 @@
         <section class="feed tab-content active" id="tab-feed">
             <article class="post-card">
                 <div class="post-header">
-                    <a href="/page/profile.html">
+                    <a href="../page/profile.html">
                     <div class="post-user">
-                        <img src="/img/default-avatar.jpg" alt="User">
+                        <img src="../img/default-avatar.jpg" alt="User">
                         <span>@ostremdebh</span>
                     </div>
                     </a>
                     <i class="fa-solid fa-ellipsis"></i>
                 </div>
                 <div class="post-img">
-                    <img src="/img/imagemcentropage.jpg" alt="Praça da Liberdade">
+                    <img src="../img/imagemcentropage.jpg" alt="Praça da Liberdade">
                     <div class="map-balloon-wrapper" id="wrapper-post1">
                         <div id="mini-map-post1" class="mini-map"></div>
                         <div class="map-overlay-click" onclick="expandMap('post1', -19.9320, -43.9380)"></div>
@@ -76,7 +73,7 @@
                         <button class="close-map" onclick="closeMap('post1')">×</button>
                         <div id="full-map-post1" class="full-map"></div>
                     </div>
-                     <a href="/page/detalhes.html?id=102"> 
+                     <a href="../page/detalhes.html?id=102"> 
                             <div class="location-tag" style="display: flex; align-items: center;">
                                 <i class="fa-solid fa-location-dot"></i>
                                 <span>Praça da Liberdade, BH</span>
@@ -119,7 +116,7 @@
                         <button class="close-map" onclick="closeMap('post2')">×</button>
                         <div id="full-map-post2" class="full-map"></div>
                     </div>
-                     <a href="/page/detalhes.html?id=102"> 
+                     <a href="../page/detalhes.html?id=102"> 
                             <div class="location-tag" style="display: flex; align-items: center;">
                                 <i class="fa-solid fa-location-dot"></i>
                                 <span>Praça da Liberdade, BH</span>
@@ -180,7 +177,11 @@
             </div>
         </a>
     </aside>
-    <script src="/script/searchFeed.js"></script>
-    <script src="/script/toggleMenu.js"></script>
+    <script src="../script/searchFeed.js"></script>
+    <script src="../script/toggleMenu.js"></script>
+    <!-- Função para identificar globalmente o usuário logado -->
+    <script src="../script/sessionHandler.js"></script>
+    <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
+    <script src="../script/loginOuPerfil.js"></script>
 </body>
 </html>
