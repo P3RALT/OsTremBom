@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Os Trem de BH</title>
-  <!-- CSS DO MENU-->
-  <link rel="stylesheet" href="../css/estiloperfil.css">
+  <!-- CSS DO MENU -->
+       <link rel="stylesheet" href="../css/estiloperfil.css">
   <!-- IMGS-->
-    <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
@@ -15,11 +15,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- CSS -->
-    <link rel="stylesheet" href="../css/estilolocais.css">
-
+  <link rel="stylesheet" href="../css/estilosemanal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- NAVBAR -->
+ <!-- NAVBAR -->
     <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
         <i class="fa-solid fa-bars"></i>
     </button>
@@ -42,14 +42,43 @@
   <!-- OVERLAY -->
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-  <body class="pagina-corpo">
-    <main id="lista-locais" class="grade-de-locais">
-        <div class="feedback-usuario"> 
-            <script src="../script/Local.js"></script>
+    <main class="Conteudo">
+        <section class="Sessao01">
+            <!-- <div class="section-header">
+                <h2>Points</h2>
+                <p>Os lugares mais amados pela comunidade</p>
+            </div> -->
+            <div class="Carrossel" id="carrossel-locais">
+                 <script src="../script/localCarrosel.js"></script>
+            </div>
+        </section>
+        
+        <!-- Sessao -->
+        <section class="SessaoGrupo" id="sessaoGrupo">
+        <div class="controle-grupos">
+        <button type="button" class="btn-acao-grupo" id="btn-adicionar-grupo" title="Criar Novo Grupo">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        
+        <!-- PESQUISA -->
+        <div class="pesquisa-grupo-container">
+            <input type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
+            <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
         </div>
 
+    </div>
+
+    <div class="grupos-grid-container" id="grupos-container">
+        </div>
+
+</section>
+        </section>
     </main>
 
-    
+
+    <!-- Scripts - ORDEM CORRETA -->
+    <script src="../script/api.js"></script>
+    <script src="../script/auth.js"></script>
+    <script src="../script/semanal.js"></script>
 </body>
 </html>

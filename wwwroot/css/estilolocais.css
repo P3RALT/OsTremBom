@@ -1,46 +1,4 @@
 
-/* Estrutura base do conteúdo */
-.Conteudo {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    position: relative;
-    z-index: 1;
-}
-
-/* ==========================================================================
-   2. NAVBAR E LOGO
-   ========================================================================== */
-.logo {
-    display: flex;      
-    align-items: center; 
-}
-
-.logo img {
-    border-radius: 50%; 
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-}
-
-
-/* ============================================================
-           3. CABEÇALHO E TÍTULOS
-============================================================ */
-        .secao-topo {
-            max-width: 1200px;
-            margin: 0 auto 30px auto; /* Centraliza e dá margem abaixo */
-        }
-
-        .titulo-pagina {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin: 0;
-        }
 
         /* ============================================================
            4. GRID DE LAYOUT (A MALHA DOS CARDS)
