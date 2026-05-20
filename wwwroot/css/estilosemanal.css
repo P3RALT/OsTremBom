@@ -325,6 +325,223 @@
 }
 
 /* ==========================================================================
+   7. ESTILOS DO MODAL DE CRIAÇÃO DE GRUPO (CORREÇÃO DE FLUTUAÇÃO)
+   ========================================================================== */
+
+/* Camada escura de fundo - ESCONDIDA por padrão e FIXADA sobre o site */
+.modal-overlay {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
+    z-index: 9999 !important;              /* Garante que fica por cima de tudo */
+    display: none !important;              /* ESCONDE O MODAL TOTALMENTE */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Força o modal a aparecer apenas quando tiver a classe .active */
+.modal-overlay.active {
+    display: flex !important;
+}
+
+/* Caixa Branca Centralizada do Formulário */
+.modal-overlay .modal-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 520px;                     /* Largura máxima elegante */
+    max-height: 85vh;                     /* Evita que passe da altura da tela */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;                     /* Arredonda as bordas internas */
+    animation: modalPopIn 0.25s ease-out;
+}
+
+@keyframes modalPopIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Topo do Modal */
+.modal-overlay .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #efefef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.modal-overlay .modal-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.modal-overlay .btn-fechar {
+    font-size: 20px;
+    color: #8e8e8e;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.modal-overlay .btn-fechar:hover {
+    color: var(--primary-dark);
+}
+
+/* Corpo do Formulário com Rolagem Interna Segura */
+.modal-overlay .form-publicacao {
+    padding: 24px;
+    overflow-y: auto;                     /* Cria scroll se o formulário for comprido */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;                            /* Espaçamento uniforme entre blocos */
+    box-sizing: border-box;
+}
+
+/* Textos de Instrução (Labels) */
+.modal-overlay .form-publicacao label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: -8px;                  /* Aproxima o label do seu respectivo input */
+    display: block;
+}
+
+/* Estilização Geral de todos os Inputs, Selects e Textareas */
+.modal-overlay .form-publicacao input[type="text"],
+.modal-overlay .form-publicacao input[type="number"],
+.modal-overlay .form-publicacao input[type="password"],
+.modal-overlay .form-publicacao select,
+.modal-overlay .form-publicacao textarea {
+    width: 100% !important;
+    padding: 10px 14px !important;
+    border: 1px solid #dbdbdb !important;
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #262626;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal-overlay .form-publicacao input:focus,
+.modal-overlay .form-publicacao select:focus,
+.modal-overlay .form-publicacao textarea:focus {
+    border-color: var(--primary-green) !important;
+}
+
+/* Input do tipo arquivo (Upload) */
+.modal-overlay .form-publicacao input[type="file"] {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #718096;
+}
+
+/* Layout Duplo (Metade da Tela) */
+.modal-overlay .form-linha-dupla {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+.modal-overlay .campo-metade {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Botões Estilizados de Recursos Dinâmicos */
+.modal-overlay .botoes-recursos-container {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.modal-overlay .btn-recurso-adicionar {
+    flex: 1;
+    background-color: #ffffff;
+    color: var(--primary-dark);
+    border: 1px dashed var(--primary-green) !important;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+}
+.modal-overlay .btn-recurso-adicionar:hover {
+    background-color: rgba(6, 158, 110, 0.05);
+}
+
+/* Botão Verde Submeter */
+.modal-overlay .btn-publicar {
+    width: 100%;
+    background-color: var(--primary-green);
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s;
+}
+.modal-overlay .btn-publicar:hover {
+    background-color: #058a5f;
+}
+
+/* Recipiente Animado da Senha */
+#container-senha-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: modalPopIn 0.2s ease-out;
+}
+
+/* ==========================================================================
+   7.1 AJUSTE CRUCIAL PARA O CONTAINER DE SENHA (CORREÇÃO DE SOBREPOSIÇÃO)
+   ========================================================================== */
+#container-senha-grupo {
+    display: none;                  /* Controlado dinamicamente pelo JS */
+    flex-direction: column;
+    gap: 8px;                       /* Espaço entre a label e o input da senha */
+    width: 100%;
+    margin-top: 12px;               /* Empurra o campo para baixo, desgrudando do select */
+    margin-bottom: 8px;             /* Afasta o campo dos botões de baixo */
+    box-sizing: border-box;
+    animation: fadeInForm 0.25s ease-out;
+}
+
+/* Garante que quando o JS mandar exibir, ele use flex e não block */
+#container-senha-grupo[style*="display: block"] {
+    display: flex !important;
+}
+
+@keyframes fadeInForm {
+    from { 
+        opacity: 0; 
+        transform: translateY(-5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ==========================================================================
    5. RESPONSIVIDADE
    ========================================================================== */
 @media (max-width: 1260px) {

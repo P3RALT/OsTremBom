@@ -44,39 +44,76 @@
 
     <main class="Conteudo">
         <section class="Sessao01">
-            <!-- <div class="section-header">
-                <h2>Points</h2>
-                <p>Os lugares mais amados pela comunidade</p>
-            </div> -->
             <div class="Carrossel" id="carrossel-locais">
                  <script src="../script/localCarrosel.js"></script>
             </div>
         </section>
         
-        <!-- Sessao -->
         <section class="SessaoGrupo" id="sessaoGrupo">
-        <div class="controle-grupos">
-        <button type="button" class="btn-acao-grupo" id="btn-adicionar-grupo" title="Criar Novo Grupo">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-        
-        <!-- PESQUISA -->
-        <div class="pesquisa-grupo-container">
-            <input type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
-            <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
-        </div>
+            <div class="controle-grupos">
+                <button type="button" class="btn-acao-grupo" id="btn-adicionar-grupo" title="Criar Novo Grupo" onclick="abrirModalGrupo()">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                
+                <div class="pesquisa-grupo-container">
+                    <input type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
+                    <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
+                </div>
+            </div>
 
+            <div class="grupos-grid-container" id="grupos-container"></div>
+        </section>
+    </main> <div class="modal-overlay" id="modalCriarGrupo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Novo Grupo</h2>
+                <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
+            </div>
+            
+            <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
+                
+                <label for="grupoNome">Nome do Grupo</label>
+                <input type="text" id="grupoNome" placeholder="Ex: Rolezeiros da Pampulha" required>
+
+                <label for="grupoDescricao">Descrição do Grupo</label>
+                <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
+
+                <label for="grupoImagem">Imagem de Capa</label>
+                <input type="file" id="grupoImagem" accept="image/*">
+
+                <div class="form-linha-dupla">
+                    <div class="campo-metade">
+                        <label for="grupoLimite">Limite de Membros</label>
+                        <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 20" required>
+                    </div>
+                    <div class="campo-metade">
+                        <label for="grupoPrivacidade">Tipo de Grupo</label>
+                        <select id="grupoPrivacidade" onchange="tratarMudancaPrivacidade()" required>
+                            <option value="publico">Público</option>
+                            <option value="privado">Privado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="container-senha-grupo" style="display: none;">
+                    <label for="grupoSenha">Defina a Senha de Acesso</label>
+                    <input type="password" id="grupoSenha" placeholder="Digite a senha para novos membros">
+                </div>
+
+                <div class="botoes-recursos-container">
+                    <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo">
+                        <i class="fa-solid fa-user-plus"></i> Adicionar Membros
+                    </button>
+                    <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo">
+                        <i class="fa-solid fa-location-dot"></i> Vincular Local
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Criar Grupo</button>
+            </form>
+        </div>
     </div>
 
-    <div class="grupos-grid-container" id="grupos-container">
-        </div>
-
-</section>
-        </section>
-    </main>
-
-
-    <!-- Scripts - ORDEM CORRETA -->
     <script src="../script/api.js"></script>
     <script src="../script/auth.js"></script>
     <script src="../script/semanal.js"></script>
