@@ -1,16 +1,22 @@
 
 
         /* ============================================================
-           4. GRID DE LAYOUT (A MALHA DOS CARDS)
-           ============================================================ */
-        .grade-de-locais {
-            display: grid;
-            /* Cria colunas dinâmicas: mínimo 300px, máximo ocupa o espaço livre */
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px; /* Espaço entre os cards */
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+            4. GRID DE LAYOUT (A MALHA DOS CARDS)
+            ============================================================ */
+            .grade-de-locais {
+                display: grid;
+                /* Cria colunas dinâmicas: mínimo 300px, máximo ocupa o espaço livre */
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 24px; /* Espaço entre os cards */
+                max-width: 1200px;
+                
+                /* ALTERAÇÕES AQUI: */
+                margin: 0 auto; 
+                padding-top: 40px;    /* Cria um espaço seguro no topo para não colar na tela */
+                padding-left: 20px;   /* Pequena folga na esquerda */
+                padding-right: 20px;  /* Pequena folga na direita */
+                
+                
 
         /* ============================================================
            5. COMPONENTE: CARD DE ATRAÇÃO
