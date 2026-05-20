@@ -56,15 +56,6 @@ function salvarGrupo(event) {
 // Array global para armazenar os locais vindos do banco de dados temporariamente
 let locaisDoBancoGlobal = [];
 
-// Lista de locais reserva (Mock) para caso a API em C# não esteja rodando localmente
-const locaisFallback = [
-    { id: 1, nome: "Mercado Central de BH", categoria: "gastronomia" },
-    { id: 2, nome: "Praça da Savassi", categoria: "bar" },
-    { id: 3, nome: "Lagoa da Pampulha", categoria: "parque" },
-    { id: 4, nome: "Mineirão", categoria: "cultura" },
-    { id: 5, nome: "Mirante das Mangabeiras", categoria: "parque" }
-];
-
 // Função que define qual ícone usar baseado na Categoria da sua Model C#
 function obterIconePorCategoria(categoria) {
     if (!categoria) return 'fa-solid fa-location-dot'; 
