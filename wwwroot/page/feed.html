@@ -32,7 +32,7 @@
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a href="javascript:void(0)" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            <a style="cursor: pointer;" onclick="loginOrProfile()" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
 
@@ -54,10 +54,10 @@
         <section class="feed tab-content active" id="tab-feed">
             <article class="post-card">
                 <div class="post-header">
-                    <a href="../page/profile.html">
+                    <a href="../page/profile.html?usuario=ostrem">
                     <div class="post-user">
                         <img src="../img/default-avatar.jpg" alt="User">
-                        <span>@ostremdebh</span>
+                        <span>@ostrem</span>
                     </div>
                     </a>
                     <i class="fa-solid fa-ellipsis"></i>
@@ -98,7 +98,9 @@
                 <div class="post-header">
                     <div class="post-user">
                         <img src="https://i.pravatar.cc/150?u=6" alt="User">
-                        <span>@mineirinho_uai</span>
+                        <a href="../page/profile.html?usuario=gabriel">
+                            <span>@gabriel</span>
+                        </a>
                     </div>
                     <i class="fa-solid fa-ellipsis"></i>
                 </div>
@@ -179,8 +181,6 @@
     </aside>
     <script src="../script/searchFeed.js"></script>
     <script src="../script/toggleMenu.js"></script>
-    <!-- Função para identificar globalmente o usuário logado -->
-    <script src="../script/sessionHandler.js"></script>
     <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
     <script src="../script/loginOuPerfil.js"></script>
 </body>

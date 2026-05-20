@@ -41,6 +41,9 @@ namespace TremBomApi.Models
         [Column("data_cadastro")]
         public DateTime DataCadastro { get; set; } = DateTime.Now;
 
+        [Column("descricao")]
+        public string? Descricao { get; set; }
+
         [Column("ip")]
         public string? IpRegistro { get; set; }
 

@@ -12,12 +12,12 @@ public class AuthController : ControllerBase
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var nickname = User.FindFirst("nickname")?.Value;
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
-
         return Ok(new
         {
             id = userId,
             nickname = nickname,
         });
     }
+
+
 }

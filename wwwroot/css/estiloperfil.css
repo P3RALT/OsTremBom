@@ -54,7 +54,10 @@ body {
 .nav-item i { width: 30px; font-size: 22px; margin-right: 15px; }
 .nav-item.active { font-weight: bold; background-color: #069e6e1f}
 
-
+.categoria-badge {
+    font-size: 15px !important;
+    margin-right: 10px;
+}
 .container {
     max-width: 935px;
     margin: 0 auto;

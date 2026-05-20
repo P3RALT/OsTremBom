@@ -15,7 +15,10 @@ namespace TremBomApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            // Fazendo o nickname ser único
+            modelBuilder.Entity<Usuario>()
+            .HasIndex(u => u.Nickname)
+            .IsUnique(); 
             // Inserindo os 10 locais importantes de Belo Horizonte (Data Seeding)
             modelBuilder.Entity<Local>().HasData(
                 new Local

@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <!-- CSS-->
     <link rel="stylesheet" href="../css/estiloperfil.css">
+    <link rel="stylesheet" href="../css/estilodetalhes.css">
 </head>
 <body>
     <!-- MENU -->
@@ -33,7 +34,7 @@
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a href="../page/profile.html" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            <a style="cursor: pointer;" onclick="loginOrProfile()" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
     <!-- CONTEÚDO PRINCIPAL -->
@@ -41,14 +42,14 @@
         <div class="container">
             
             <header>
-                <div class="profile-image">
+                <div class="profile-image" id="foto-perfil-usuario">
                     <img src="../img/default-avatar.jpg" alt="Foto de Perfil">
                 </div>
 
                 <div class="profile-info">
                     <div class="profile-user-settings">
-                        <h1 class="username">ostremdebh</h1>
-                        <button class="btn-edit">Editar perfil</button>
+                        <h1 class="username" id="nickname">ostremdebh</h1>
+                        <!--- <button class="btn-edit">Editar perfil</button>-->
                     </div>
 
                     <ul class="profile-stats">
@@ -58,8 +59,11 @@
                     </ul>
 
                     <div class="profile-bio">
-                        <span class="full-name">Os Trem de BH 🔺</span>
-                        <p>Explorando o melhor de Belo Horizonte. <br>
+                        <div id="preferencias" style=" margin-bottom: 10px;" 20px;>
+                            <span class="categoria-badge">História</span>
+                            <span class="categoria-badge">Cultura</span>
+                        </div>
+                        <span id="descricao-bio">Explorando o melhor de Belo Horizonte.
                         Dicas, cultura e gastronomia mineira! ☕🧀<br>
                         <a href="#" style="color: #00376b; text-decoration: none; font-weight: 600;">ostremdebh.com.br</a></p>
                     </div>
@@ -98,9 +102,9 @@
         </div>
     </main>
     <!-- Função para identificar globalmente o usuário logado -->
-    <script src="/script/sessionHandler.js"></script>
+    <script src="../script/perfilBuilder.js"></script>
      <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
-    <script src="/script/loginOuPerfil.js"></script>
+    <script src="../script/loginOuPerfil.js"></script>
     <script src="../script/toggleMenu.js"></script>
 </body>
 </html>

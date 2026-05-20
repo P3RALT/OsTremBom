@@ -21,6 +21,8 @@ namespace TremBomApi.Controllers
         
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+
+        // Segurança²:  Usa um "pepper" (uma string secreta fixa) para adicionar uma camada extra de proteção contra ataques de força bruta
         string pepper  = "PePpErSeCrEto123!@#"; // ((Em produção a gente esconde isso, mas já q é um trabalho, a gente releva))
 
         // 3. O construtor recebe o AppDbContext por injeção
@@ -48,7 +50,6 @@ namespace TremBomApi.Controllers
                     return BadRequest(new { mensagem = "Nickname já registrado." });
             }
             // Segurança: Transforma a senha em texto limpo num Hash seguro usando o BCrypt
-            // Segurança²:  Usa um "pepper" (uma string secreta fixa) para adicionar uma camada extra de proteção contra ataques de força bruta
 
 
             string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(dto.Senha + pepper);
@@ -59,7 +60,7 @@ namespace TremBomApi.Controllers
                 Nickname = dto.Nickname,
                 Email = dto.Email,
                 SenhaHash = senhaCriptografada,
-                FotoPerfilUrl = dto.FotoPerfilUrl ?? "../images/default-profile.png",
+                FotoPerfilUrl = dto.FotoPerfilUrl ?? "../img/default-avatar.jpg",
                 Genero = dto.Genero,
                 IpRegistro = dto.ip,
                 Aniversario = dto.Aniversario,
@@ -76,13 +77,7 @@ namespace TremBomApi.Controllers
             // Adiciona o novo utilizador ao DbSet correto e salva no Banco de Dados
             _context.Usuarios.Add(novoUsuario);
             await _context.SaveChangesAsync();
-            
-            // GERAR O JWT LOGO APÓS SALVAR
-            
-            // Retorna o sucesso. O navegador já vai guardar o cookie automaticamente
-            return Created(string.Empty, new
-            {});
-        }
+            return Created(string.Empty, new{});}
         
 
         // LOGIN 
@@ -122,7 +117,7 @@ namespace TremBomApi.Controllers
                     new Claim("longitude", dto.lon??"".ToString()),
                     new Claim("nickname", usuario.Nickname)
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(1), // O token expira em 1 dia
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
             };
             
@@ -146,4 +141,37 @@ namespace TremBomApi.Controllers
         await _context.SaveChangesAsync();
         return Ok();
     }
-} }
+} 
+    //Controller para pegar dados de perfis
+    [ApiController]
+    [Route("api/usuario")]
+    public class PerfilController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+
+        public PerfilController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetUsuario(string name)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            var result = new
+            {
+                nickname = usuario.Nickname,
+                fotoPerfilUrl = usuario.FotoPerfilUrl,
+                preferencias = usuario.Preferencias,
+                descricao = usuario.Descricao,
+                aniversario = usuario.Aniversario,
+                vistoPorUltimo = usuario.UltimoLogin,
+            };
+            return Ok(result);
+        }
+
+}}
