@@ -27,7 +27,8 @@
         
         <nav class="sidebar-nav">
             <a href="../page/feed.html" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
-            <a href="../page/search.html" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <!-- Se search=true no JavaScript, a gente renderiza a página de pesquisa-->
+            <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
             <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
@@ -99,7 +100,7 @@
     <!-- Função para identificar globalmente o usuário logado -->
     <script src="/script/sessionHandler.js"></script>
      <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
-    <script src="/script/loginOrProfile.js"></script>
+    <script src="/script/loginOuPerfil.js"></script>
     <script src="../script/toggleMenu.js"></script>
 </body>
 </html>

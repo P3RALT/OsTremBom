@@ -16,7 +16,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
 </head>
 <body>
-<<<<<<< HEAD
     <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
             <i class="fa-solid fa-bars"></i>
         </button>
@@ -29,11 +28,12 @@
             
             <nav class="sidebar-nav">
                 <a href="/page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
-                <a href="/page/search.html" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+                <!-- Se search=true no JavaScript, a gente renderiza a página de pesquisa-->
+                <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
                 <a href="/page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
                 <a href="/page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
                 <a href="/page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
-                <a href="/page/semanal.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Semanal</span></a>
+                <a href="/page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
                 <a href="/page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
             </nav>
         </aside>
@@ -62,38 +62,6 @@
         <section class="galeria-mosaico">
             <div class="Foto_Principal" id="fotoPrincipal">
             </div>
-=======
-  <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
-           <span>Os Trem de BH</span></div>
-        <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
-        
-        <nav class="sidebar-nav">
-            <a href="../page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
-            <a href="../page/search.html" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
-            <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
-            <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
-            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
-            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a href="../page/login.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
-        </nav>
-    </aside>
-   <div class="main-content">
-    <div class="header-local">
-        <h1 id="nomeLocal">Carregando...</h1>
-        
-        <div class="header-actions">
-            <button class="btn-header"><i class="fa-solid fa-heart" style="color: #069e6e;"></i><span id="likesCount"></span></button>
-            <button class="btn-header"><i class="fa-solid fa-share-nodes"></i></button>
-        </div>
-    </div>
-    <div class="status-local content-width">
->>>>>>> 2c7f5650832af6bffe2492b1aca5a0ac5250e57a
 
             <div class="Fotos_Laterais" id="fotosLaterais">
 
@@ -167,20 +135,12 @@
             <!-- POST -->
             <div class="post-card">
 
-<<<<<<< HEAD
                 <div class="post-header">
                     <img
                         src="https://i.pravatar.cc/100?img=12"
                         alt="Perfil"
                         class="post-profile-pic"
                     >
-=======
-            <img
-                src="../img/imagemcentroPage.jpg"
-                alt="Post"
-                class="post-image"
-            >
->>>>>>> 2c7f5650832af6bffe2492b1aca5a0ac5250e57a
 
                     <div class="post-user-info">
                         <span class="post-username">@joaopedro</span>
@@ -207,26 +167,6 @@
                 <span class="likes">2.540 curtidas</span>
             </div>
 
-<<<<<<< HEAD
-=======
-            <p class="post-text">
-                Lugar muito bonito, principalmente no pôr do sol.
-            </p>
-
-            <img
-                src="../img/imagemcentroPage.jpg"
-                alt="Post"
-                class="post-image"
-            >
-
-            <div class="post-actions">
-                <div class="action-left">
-                    <i class="fa-regular fa-heart"></i>
-                    <i class="fa-regular fa-comment"></i>
-                </div>
-            </div>
-            <span class="likes">2.540 curtidas</span>
->>>>>>> 2c7f5650832af6bffe2492b1aca5a0ac5250e57a
         </div>
     </div>
     <script src="../script/Detalhes.js"></script>

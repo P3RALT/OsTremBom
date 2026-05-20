@@ -6,10 +6,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const buscaInput = document.getElementById("input-search");
     const resultadosDiv = document.getElementById("resultados");
     const defaultSearchText = document.getElementById("default-search-text");
+    const modoBusca = new URLSearchParams(window.location.search).get('search') === 'true';
 
     function alternarAba(abaParaMostrar, abaParaEsconder, botaoAtivo, botaoInativo) {
         abaParaEsconder.style.display = 'none';
         abaParaMostrar.style.display = 'block';
+    }
+    // se search=true, a gente já inicia na aba de pesquisa, senão inicia no feed normalmente
+    if (modoBusca) {
+        alternarAba(tabSearch, tabFeed, btnPesquisar, btnInicio);
     }
     // Configuração da "aba" de pesquisa
     btnPesquisar.addEventListener('click', () => {
@@ -69,8 +74,7 @@ buscaInput.addEventListener("input", async () => {
 
                 resultadosDiv.innerHTML = "";
                 resultadosDiv.style.display = "none";
-
-                console.log("Selecionado:", local);
+                 window.location.href = `/page/detalhes.html?id=${local.id}`;
             });
 
             resultadosDiv.appendChild(item);
@@ -78,7 +82,7 @@ buscaInput.addEventListener("input", async () => {
 
         resultadosDiv.style.display = "block";
         document.addEventListener("click", (e) => {
-            if (!e.target.closest("#nome-estabelecimento") &&
+            if (!e.target.closest("#input-search") &&
                 !e.target.closest("#resultados")) {
 
                 resultadosDiv.style.display = "none";
