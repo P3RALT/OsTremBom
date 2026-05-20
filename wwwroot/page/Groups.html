@@ -63,56 +63,81 @@
 
             <div class="grupos-grid-container" id="grupos-container"></div>
         </section>
-    </main> <div class="modal-overlay" id="modalCriarGrupo">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Criar Novo Grupo</h2>
-                <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
+    <!-- MODAL PRINCIPAL: CRIAR GRUPO -->
+        <div class="modal-overlay" id="modalCriarGrupo">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Criar Novo Grupo</h2>
+                    <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
+                </div>
+                
+                <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
+                    
+                    <label for="grupoNome">Nome do Grupo</label>
+                    <input type="text" id="grupoNome" placeholder="Ex: Rolezeiros da Pampulha" required>
+
+                    <label for="grupoDescricao">Descrição do Grupo</label>
+                    <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
+
+                    <label for="grupoImagem">Imagem de Capa</label>
+                    <input type="file" id="grupoImagem" accept="image/*">
+
+                    <div class="form-linha-dupla">
+                        <div class="campo-metade">
+                            <label for="grupoLimite">Limite de Membros</label>
+                            <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 20" required>
+                        </div>
+                        <div class="campo-metade">
+                            <label for="grupoPrivacidade">Tipo de Grupo</label>
+                            <select id="grupoPrivacidade" onchange="tratarMudancaPrivacidade()" required>
+                                <option value="publico">Público</option>
+                                <option value="privado">Privado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="container-senha-grupo" style="display: none;">
+                        <label for="grupoSenha">Defina a Senha de Acesso</label>
+                        <input type="password" id="grupoSenha" placeholder="Digite a senha para novos membros">
+                    </div>
+
+                    <!-- Botões de Recursos do Grupo -->
+                    <div class="botoes-recursos-container">
+                        <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo">
+                            <i class="fa-solid fa-user-plus"></i> Adicionar Membros
+                        </button>
+                        
+                        <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo" onclick="abrirSubModalLocais()">
+                            <i class="fa-solid fa-location-dot"></i> <span id="texto-local-vinculado">Vincular Local</span>
+                        </button>
+
+                        <!-- Input Invisível para armazenar o ID que vai pro banco -->
+                        <input type="hidden" id="grupoLocalSelecionadoId" name="local_id" value="">
+                    </div>
+                    
+                    <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Criar Grupo</button>
+                </form>
             </div>
-            
-            <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
-                
-                <label for="grupoNome">Nome do Grupo</label>
-                <input type="text" id="grupoNome" placeholder="Ex: Rolezeiros da Pampulha" required>
-
-                <label for="grupoDescricao">Descrição do Grupo</label>
-                <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
-
-                <label for="grupoImagem">Imagem de Capa</label>
-                <input type="file" id="grupoImagem" accept="image/*">
-
-                <div class="form-linha-dupla">
-                    <div class="campo-metade">
-                        <label for="grupoLimite">Limite de Membros</label>
-                        <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 20" required>
-                    </div>
-                    <div class="campo-metade">
-                        <label for="grupoPrivacidade">Tipo de Grupo</label>
-                        <select id="grupoPrivacidade" onchange="tratarMudancaPrivacidade()" required>
-                            <option value="publico">Público</option>
-                            <option value="privado">Privado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="container-senha-grupo" style="display: none;">
-                    <label for="grupoSenha">Defina a Senha de Acesso</label>
-                    <input type="password" id="grupoSenha" placeholder="Digite a senha para novos membros">
-                </div>
-
-                <div class="botoes-recursos-container">
-                    <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo">
-                        <i class="fa-solid fa-user-plus"></i> Adicionar Membros
-                    </button>
-                    <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo">
-                        <i class="fa-solid fa-location-dot"></i> Vincular Local
-                    </button>
-                </div>
-                
-                <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Criar Grupo</button>
-            </form>
         </div>
-    </div>
+
+        <!-- SUB-MODAL DE VINCULAR LOCAL (Movido para fora para flutuar corretamente) -->
+        <div class="sub-modal-overlay" id="subModalLocais">
+            <div class="sub-modal-content">
+                <div class="sub-modal-header">
+                    <h3>Selecionar Local</h3>
+                    <span class="btn-fechar-sub" onclick="fecharSubModalLocais()">✕</span>
+                </div>
+
+                <div class="pesquisa-local-box">
+                    <input type="text" id="input-pesquisa-local" placeholder="Pesquisar locais de BH..." oninput="filtrarLocaisLista()">
+                    <i class="fa-solid fa-magnifying-glass lupa-local"></i>
+                </div>
+
+                <div class="lista-locais-suspensa" id="lista-locais-dinamica">
+                    <!-- Inserido dinamicamente via JS -->
+                </div>
+            </div>
+        </div>
 
     <script src="../script/api.js"></script>
     <script src="../script/auth.js"></script>

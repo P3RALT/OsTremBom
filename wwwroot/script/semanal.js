@@ -51,3 +51,119 @@ function salvarGrupo(event) {
     alert('Grupo criado com sucesso! (Simulação)');
     fecharModalGrupo();
 }
+
+// Array global para armazenar os locais vindos do banco de dados temporariamente
+// Array global para armazenar os locais vindos do banco de dados temporariamente
+let locaisDoBancoGlobal = [];
+
+// Lista de locais reserva (Mock) para caso a API em C# não esteja rodando localmente
+const locaisFallback = [
+    { id: 1, nome: "Mercado Central de BH", categoria: "gastronomia" },
+    { id: 2, nome: "Praça da Savassi", categoria: "bar" },
+    { id: 3, nome: "Lagoa da Pampulha", categoria: "parque" },
+    { id: 4, nome: "Mineirão", categoria: "cultura" },
+    { id: 5, nome: "Mirante das Mangabeiras", categoria: "parque" }
+];
+
+// Função que define qual ícone usar baseado na Categoria da sua Model C#
+function obterIconePorCategoria(categoria) {
+    if (!categoria) return 'fa-solid fa-location-dot'; 
+    
+    const cat = categoria.toLowerCase();
+    if (cat.includes('gastronomia') || cat.includes('alimentação') || cat.includes('mercado')) {
+        return 'fa-solid fa-cart-shopping'; 
+    }
+    if (cat.includes('bar') || cat.includes('noite') || cat.includes('bebida')) {
+        return 'fa-solid fa-glass-martini-alt'; 
+    }
+    if (cat.includes('parque') || cat.includes('natureza')) {
+        return 'fa-solid fa-tree';
+    }
+    if (cat.includes('cultura') || cat.includes('arte') || cat.includes('arquitetura')) {
+        return 'fa-solid fa-landmark';
+    }
+    return 'fa-solid fa-location-dot';
+}
+
+// Abre o sub-modal e carrega a lista
+async function abrirSubModalLocais() {
+    const subModal = document.getElementById('subModalLocais');
+    if (subModal) {
+        subModal.classList.add('active');
+        // Reseta o campo de busca toda vez que abre o submenu
+        document.getElementById('input-pesquisa-local').value = "";
+        await carregarLocaisParaVinculo();
+    }
+}
+
+// Fecha o sub-modal de locais
+function fecharSubModalLocais() {
+    const subModal = document.getElementById('subModalLocais');
+    if (subModal) {
+        subModal.classList.remove('active');
+    }
+}
+
+// Faz o fetch GET na sua Controller para listar os locais salvos
+async function carregarLocaisParaVinculo() {
+    const listaContainer = document.getElementById('lista-locais-dinamica');
+    listaContainer.innerHTML = "<p style='color:#718096; font-size:13px; text-align:center;'>Carregando locais de BH...</p>";
+
+    try {
+        // Altere para a URL real da sua API quando rodar o backend
+        const resposta = await fetch('http://localhost:5207/api/Locais');
+        
+        if (!resposta.ok) throw new Error("Falha na resposta do servidor");
+        
+        const locais = await resposta.json();
+        locaisDoBancoGlobal = locais; 
+        renderizarListaLocais(locais);
+
+    } catch (erro) {
+        console.warn("API Offline. Carregando dados locais de simulação para desenvolvimento.", erro);
+        // Fallback ativo: Se der erro na API, ele usa a lista estática de BH
+        locaisDoBancoGlobal = locaisFallback;
+        renderizarListaLocais(locaisFallback);
+    }
+}
+
+// Renderiza os botões dinâmicos na tela
+function renderizarListaLocais(lista) {
+    const listaContainer = document.getElementById('lista-locais-dinamica');
+    listaContainer.innerHTML = "";
+
+    if (lista.length === 0) {
+        listaContainer.innerHTML = "<p style='color:#718096; font-size:13px; text-align:center;'>Nenhum local encontrado.</p>";
+        return;
+    }
+
+    lista.forEach(local => {
+        const iconeClass = obterIconePorCategoria(local.categoria);
+        
+        const divLinha = document.createElement('div');
+        divLinha.className = 'item-local-linha';
+        divLinha.onclick = () => selecionarLocalParaGrupo(local.id, local.nome);
+
+        divLinha.innerHTML = `
+            <i class="${iconeClass}"></i>
+            <span>${local.nome}</span>
+        `;
+        
+        listaContainer.appendChild(divLinha);
+    });
+}
+
+// Filtra a lista em tempo real enquanto digita na barra de pesquisa
+function filtrarLocaisLista() {
+    const termo = document.getElementById('input-pesquisa-local').value.toLowerCase();
+    const filtrados = locaisDoBancoGlobal.filter(l => l.nome.toLowerCase().includes(termo));
+    renderizarListaLocais(filtrados);
+}
+
+// Salva a escolha no input hidden e atualiza o texto do botão principal
+function selecionarLocalParaGrupo(id, nome) {
+    document.getElementById('grupoLocalSelecionadoId').value = id;
+    document.getElementById('texto-local-vinculado').innerText = `Local: ${nome}`;
+    document.getElementById('texto-local-vinculado').style.fontWeight = '700';
+    fecharSubModalLocais();
+}
