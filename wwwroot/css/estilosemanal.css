@@ -542,6 +542,164 @@
 }
 
 /* ==========================================================================
+   8. SUB-MODAL DE VINCULAR LOCAL (FORÇADO PARA FRENTE - FIEL À REF)
+   ========================================================================== */
+
+/* Camada de fundo que cobre o site inteiro e fica NA FRENTE do primeiro modal */
+body .sub-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important; /* Escurece o modal de trás */
+    z-index: 99999 !important;             /* VALOR MÁXIMO: Fica na frente de absolutamente tudo */
+    display: none !important;              /* Invisível até receber o .active */
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Força a exibição imediata quando ativado pelo JavaScript */
+body .sub-modal-overlay.active {
+    display: flex !important;
+}
+
+/* A Caixinha compacta e arredondada com bordas pretas fortes */
+body .sub-modal-overlay .sub-modal-content {
+    background-color: #ffffff !important;
+    width: 90% !important;
+    max-width: 360px !important;           /* Formato compacto vertical da imagem */
+    border: 3px solid #000000 !important;  /* Borda preta bem marcada da referência */
+    border-radius: 24px !important;        /* Super arredondado idêntico à imagem */
+    padding: 24px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    animation: subModalPop 0.2s ease-out !important;
+}
+
+@keyframes subModalPop {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Cabeçalho do Sub-Modal */
+body .sub-modal-overlay .sub-modal-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+body .sub-modal-overlay .sub-modal-header h3 {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #000000 !important;            /* Texto estritamente preto */
+    margin: 0 !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+body .sub-modal-overlay .btn-fechar-sub {
+    font-size: 20px !important;
+    color: #000000 !important;
+    cursor: pointer !important;
+    font-weight: 800 !important;
+}
+
+/* Caixa da barra de pesquisa */
+body .sub-modal-overlay .pesquisa-local-box {
+    position: relative !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Input de pesquisa cinza claro arredondado */
+body .sub-modal-overlay #input-pesquisa-local {
+    width: 100% !important;
+    height: 42px !important;
+    background-color: #f3f4f6 !important;  /* Cinza claro idêntico à imagem */
+    border: 1px solid #e5e7eb !important;
+    border-radius: 20px !important;        /* Formato pílula */
+    padding: 6px 40px 6px 16px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    color: #000000 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Lupa dentro do input */
+body .sub-modal-overlay .lupa-local {
+    position: absolute !important;
+    right: 16px !important;
+    color: #9ca3af !important;
+    font-size: 16px !important;
+    pointer-events: none !important;
+}
+
+/* Container de rolagem dos locais salvos */
+body .sub-modal-overlay .lista-locais-suspensa {
+    width: 100% !important;
+    max-height: 260px !important;         /* Evita que a janela cresça demais */
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;                 /* Espaço entre as linhas ovais */
+    padding-right: 4px !important;
+}
+
+/* Scrollbar interna discreta */
+body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar {
+    width: 4px !important;
+}
+body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar-thumb {
+    background-color: #dbdbdb !important;
+    border-radius: 10px !important;
+}
+
+/* As Linhas de Itens Orais com Borda Preta da sua imagem */
+body .sub-modal-overlay .item-local-linha {
+    width: 100% !important;
+    padding: 12px 18px !important;
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;  /* Borda preta forte da referência */
+    border-radius: 30px !important;        /* Formato oval perfeito */
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: background-color 0.15s !important;
+}
+
+body .sub-modal-overlay .item-local-linha:hover {
+    background-color: #f8fafc !important;  /* Destaque sutil ao passar o mouse */
+}
+
+/* Ícones das categorias dentro dos ovais */
+body .sub-modal-overlay .item-local-linha i {
+    font-size: 18px !important;
+    color: #000000 !important;
+    width: 24px !important;
+    text-align: center !important;
+}
+
+/* Nome do local em negrito forte */
+body .sub-modal-overlay .item-local-linha span {
+    font-size: 14px !important;
+    font-weight: 700 !important;           /* Negrito idêntico ao desenho */
+    color: #000000 !important;             /* Força a cor preta nas letras */
+    font-family: 'Inter', sans-serif !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;    /* Corta o texto elegantemente se for muito longo */
+}
+
+/* ==========================================================================
    5. RESPONSIVIDADE
    ========================================================================== */
 @media (max-width: 1260px) {
