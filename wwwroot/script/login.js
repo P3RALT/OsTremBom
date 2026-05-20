@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try{
   const params = new URLSearchParams(window.location.search);
   const data = params.get("ip");
-  if (data != null || data != ""){
+  if (data != null){
     errorElement.textContent = "Conta registrada com sucesso! Faça o login para continuar.";
     errorElement.style.display = 'block';
     errorElement.style.color = "green";
@@ -65,9 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-        btn.disabled = true;
-        btn.querySelector(".btn-text").style.display = "none";
-        btn.querySelector(".btn-loading").style.display = "block";
+        btnEntrar.disabled = true;
+        btnEntrar.querySelector(".btn-text").style.display = "none";
+        btnEntrar.querySelector(".btn-loading").style.display = "block";
       // 2. Fazer o disparo para o teu servidor local na porta 5207
       const resposta = await fetch('http://localhost:5207/api/usuario/login', {
         method: 'POST',
@@ -89,9 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
       errorElement.style.display = 'block';
     }
     finally{
-        btn.disabled = false;
-        btn.querySelector(".btn-text").style.display = "block";
-        btn.querySelector(".btn-loading").style.display = "none";
+        btnEntrar.disabled = false;
+        btnEntrar.querySelector(".btn-text").style.display = "block";
+        btnEntrar.querySelector(".btn-loading").style.display = "none";
+        errorElement.style.display = 'none';
+        errorElement.style.color = "#ff4d4d";
+        errorElement.style.backgroundColor = "#ff4d4d4f";
     }
   });
 });
