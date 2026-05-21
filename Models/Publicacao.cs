@@ -10,8 +10,11 @@ namespace TremBomApi.Models
         [Column("id")]
         public int Id { get; set; }
         public int UsuarioId { get; set; }
-        public int LocalId { get; set; }
-        
+        public int LocalId { get; set; }    
+
+        [Column("data_publicacao")]
+        public DateTime DataPublicacao { get; set; } = DateTime.Now;
+
         [ForeignKey("UsuarioId")]
         public virtual Usuario? Usuario { get; set; }
         [ForeignKey("LocalId")]
