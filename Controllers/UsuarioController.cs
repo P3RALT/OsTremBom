@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using TremBomApi.Extensions;
 
 namespace TremBomApi.Controllers
 {
@@ -184,8 +185,8 @@ namespace TremBomApi.Controllers
              .CountAsync(s => s.UsuarioId == usuario.Id);
 
             var result = new {
-                seguindo = totalSeguindo,
-                seguidores = totalSeguidores,
+                seguindo = totalSeguindo.FormatarQuantidade(),
+                seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
                 fotoPerfilUrl = usuario.FotoPerfilUrl,
                 preferencias = usuario.Preferencias,
@@ -209,6 +210,14 @@ namespace TremBomApi.Controllers
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
             
             if (usuario == null) return NotFound();
+            
+            // Contagem de seguidores
+            var totalSeguidores = await _context.Seguidores
+            .CountAsync(s => s.AlvoUsuarioId == usuario.Id);
+            // Contagem de quem ele segue
+            var totalSeguindo = await _context.Seguidores
+             .CountAsync(s => s.UsuarioId == usuario.Id);
+
 
             // Pega o ID de quem está logado (se houver alguém logado)
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -223,6 +232,8 @@ namespace TremBomApi.Controllers
             // Retorna os dados com a flag de controle
             var result = new
             {
+                seguindo = totalSeguindo.FormatarQuantidade(),
+                seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
                 fotoPerfilUrl = usuario.FotoPerfilUrl,
                 preferencias = usuario.Preferencias,
