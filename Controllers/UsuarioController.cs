@@ -228,10 +228,14 @@ namespace TremBomApi.Controllers
                 // Se o ID do token for igual ao ID do usuário do banco, ele é o dono!
                 ehODonoDoPerfil = usuario.Id == loggedInId;
             }
+            // Verifica se a pessoa já segue
+            var jaSegue = userIdStr!= null?await _context.Seguidores
+                                .FirstOrDefaultAsync(s => s.UsuarioId == int.Parse(userIdStr) && s.AlvoUsuarioId == usuario.Id):null;
 
             // Retorna os dados com a flag de controle
             var result = new
             {
+                id = usuario.Id,
                 seguindo = totalSeguindo.FormatarQuantidade(),
                 seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
@@ -240,10 +244,38 @@ namespace TremBomApi.Controllers
                 descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
-                isOwner = ehODonoDoPerfil 
+                isOwner = ehODonoDoPerfil,
+                segue = jaSegue!=null
             };
 
             return Ok(result);
+        }
+
+        [HttpPost("seguir/{name}")]
+        public async Task<IActionResult> SeguirUsuario(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest("O nome do usuário não foi informado.");
+            }
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound();
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null) return Unauthorized();
+            // Convertendo o id obtido da sessão em int
+            var parsedUserIdStr = int.Parse(userIdStr);
+            var jaSegue = await _context.Seguidores
+                                .FirstOrDefaultAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
+            if (jaSegue != null) return BadRequest("Você já segue essa conta.");
+            Seguidores result = new Seguidores
+            {
+                AlvoUsuarioId = usuario.Id,
+                UsuarioId = parsedUserIdStr,
+            };
+            // Atualizando a db com o novo seguidor
+            _context.Seguidores.Add(result);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
 

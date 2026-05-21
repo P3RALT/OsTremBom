@@ -69,7 +69,7 @@ body {
     opacity: 0.8;
     cursor: not-allowed;
 }
-.btn-login:disabled {
+:disabled {
     background-color: RGB(211, 211, 211);
     border-color: RGB(211, 211, 211);
     color: white;

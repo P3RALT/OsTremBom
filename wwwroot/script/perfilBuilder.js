@@ -1,14 +1,16 @@
-// Construção do perfil do usuário, buscando os dados na API e renderizando na página
 window.addEventListener('DOMContentLoaded', async () => {
+    const editProfile = document.getElementById("edit-profile");
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
+    
+    // Guardamos os dados do usuário em uma variável
+    let usuarioAtual = null; 
 
     if (paramsPerfil && paramsPerfil.trim() !== "") {
-        // Existe um usuário específico na URL (?usuario=nome)
         try {
             const resposta = await fetch(`/api/usuario/${encodeURIComponent(paramsPerfil)}`);
             if (resposta.ok) {
-                const usuario = await resposta.json();
-                renderizarPerfil(usuario, usuario.isOwner);
+                usuarioAtual = await resposta.json();
+                renderizarPerfil(usuarioAtual, usuarioAtual.isOwner);
             } else {
                 console.error("Usuário não encontrado na API.");
             }
@@ -16,15 +18,12 @@ window.addEventListener('DOMContentLoaded', async () => {
             console.error("Erro ao carregar perfil:", e);
         }
     } else {
-        // Não há parâmetro na URL, busca o usuário logado (Antes era a apiCall que não rodava)
         try {
             const resposta = await fetch('/api/usuario?logado=true');
             if (resposta.ok) {
-                const usuarioLogado = await resposta.json();
-                renderizarPerfil(usuarioLogado, true);
-  
+                usuarioAtual = await resposta.json();
+                renderizarPerfil(usuarioAtual, true);
             } else {
-                // Se não estiver logado, redireciona
                 window.location.href = "/page/login.html";
             }
         } catch (error) {
@@ -32,34 +31,80 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Função de renderização (mantida dentro do escopo do DOMContentLoaded para segurança dos elementos)
     function renderizarPerfil(usuario, isOwner) {
         const elemento = {
             seguidores: document.getElementById("seguidores"),
             seguindo: document.getElementById("seguindo"),
             nickname: document.getElementById("nickname"),
-            preferencias: document.getElementById("preferencias"),
             descricaoBio: document.getElementById("descricao-bio"),
             fotoPerfil: document.getElementById("foto-perfil-usuario"),
         };
 
-        // Verifica se os elementos realmente existem no HTML antes de injetar o texto (evita erros de 'null')
-        elemento.seguidores.textContent = usuario.seguidores || 0;
-        elemento.seguindo.textContent = usuario.seguindo || 0;
+        if (elemento.seguidores) elemento.seguidores.textContent = usuario.seguidores || 0;
+        if (elemento.seguindo) elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
-        console.log(usuario)
         if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "Nenhuma descrição disponível.";
-        if (isOwner){
-            const editProfile = document.getElementById("edit-profile");
-            editProfile.innerHTML = `<button class="btn-edit">Editar perfil</button>`
+        
+        if (isOwner) {
+            editProfile.innerHTML = `<button class="btn-edit" id="edit">Editar perfil</button>`;
+        } else {
+            if (usuario.segue){
+                editProfile.innerHTML = `<button class="btn-edit">Deixar de seguir</button>`;
+            }else{
+                editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
+            }
         }
         
         if (elemento.fotoPerfil) {
-            if (usuario.fotoPerfilUrl) {
-                elemento.fotoPerfil.src = usuario.fotoPerfilUrl;
-            } else {
-                elemento.fotoPerfil.src = "../img/default-profile.png";
-            }
+            elemento.fotoPerfil.src = usuario.fotoPerfilUrl || "../img/default-profile.png";
         }
+    }
+
+    if (editProfile) {
+        editProfile.addEventListener('click', async (event) => {
+            const target = event.target;
+            const seguidoresElement = document.getElementById("seguidores");
+            // Se o clique foi no botão de Editar
+            if (target.id === 'edit') {
+            }
+
+            // Se o clique foi no botão de Seguir
+            if (target.id === 'follow') {
+                target.disabled = true; // Desabilita para evitar múltiplos cliques
+
+                try {
+                    
+                    const resposta = await fetch(`/api/usuario/seguir/${encodeURIComponent(usuarioAtual.nickname)}`, {
+                        method: 'POST',
+                        credentials: 'include' // <-- Garante que o cookie com o JWT será enviado para a API
+                    });
+                    console.log(resposta);
+                    if (resposta.ok) {
+                        // Limpa o botão ou muda o texto para "Seguindo"
+                        editProfile.innerHTML = `<button class="btn-edit">Deixar de seguir</button>`;
+                        const textoAtual = seguidoresElement.textContent.trim().toLowerCase();
+        
+                        // Só faz a soma se NÃO tiver a letra "k" no texto
+                        if (!textoAtual.includes('k')) {
+                            let contagemAtual = parseInt(textoAtual) || 0;
+                            contagemAtual += 1;
+                            
+                            // Se a soma bateu exatamente 1000, você já pode travar em "1k"
+                            if (contagemAtual === 1000) {
+                                seguidoresElement.textContent = "1k";
+                            } else {
+                                seguidoresElement.textContent = contagemAtual;
+                            }
+                        }
+                    } else {
+                        console.warn("Falha ao seguir usuário.");
+                    }
+                } catch (e) {
+                    console.error("Erro na requisição de seguir:", e);
+                }finally{
+                    target.disabled = false;
+                }
+            }
+        });
     }
 });
