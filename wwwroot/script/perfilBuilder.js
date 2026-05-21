@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             editProfile.innerHTML = `<button class="btn-edit" id="edit">Editar perfil</button>`;
         } else {
             if (usuario.segue){
-                editProfile.innerHTML = `<button class="btn-edit">Deixar de seguir</button>`;
+                editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
             }else{
                 editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
             }
@@ -69,19 +69,39 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Se o clique foi no botão de Seguir
-            if (target.id === 'follow') {
+            if (target.id === 'follow' || target.id == "unfollow") {
                 target.disabled = true; // Desabilita para evitar múltiplos cliques
-
                 try {
-                    
+
+                    if (target.id == "unfollow"){
+                        // Lógica do unfollow
+                        const resposta = await fetch(`/api/usuario/unfollow/${encodeURIComponent(usuarioAtual.nickname)}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    if (resposta.ok) {
+                        editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
+                        const textoAtual = seguidoresElement.textContent.trim().toLowerCase();
+                        if (!textoAtual.includes('k')) {
+                            let contagemAtual = parseInt(textoAtual) || 0;
+                            contagemAtual -= 1;
+                            
+                            // Se a soma bateu exatamente 1000, você já pode travar em "1k"
+                            if (contagemAtual === 1000) {
+                                seguidoresElement.textContent = "999";
+                            } else {
+                                seguidoresElement.textContent = contagemAtual;
+                            }
+                        }
+                    }
+                    }else{
                     const resposta = await fetch(`/api/usuario/seguir/${encodeURIComponent(usuarioAtual.nickname)}`, {
                         method: 'POST',
                         credentials: 'include' // <-- Garante que o cookie com o JWT será enviado para a API
                     });
-                    console.log(resposta);
                     if (resposta.ok) {
                         // Limpa o botão ou muda o texto para "Seguindo"
-                        editProfile.innerHTML = `<button class="btn-edit">Deixar de seguir</button>`;
+                        editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
                         const textoAtual = seguidoresElement.textContent.trim().toLowerCase();
         
                         // Só faz a soma se NÃO tiver a letra "k" no texto
@@ -96,11 +116,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                                 seguidoresElement.textContent = contagemAtual;
                             }
                         }
-                    } else {
-                        console.warn("Falha ao seguir usuário.");
-                    }
-                } catch (e) {
-                    console.error("Erro na requisição de seguir:", e);
+                    } 
+                }} catch (e) {
+                    console.error("Erro na requisição:", e);
                 }finally{
                     target.disabled = false;
                 }

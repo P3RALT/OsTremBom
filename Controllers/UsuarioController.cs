@@ -277,6 +277,36 @@ namespace TremBomApi.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+        [HttpDelete("unfollow/{name}")]
+        public async Task<IActionResult> UnfollowUsuario(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest("O nome do usuário não foi informado.");
+            }
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound();
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null) return Unauthorized();
+            // Convertendo o id obtido da sessão em int
+            var parsedUserIdStr = int.Parse(userIdStr);
+            try
+            {
+                // Procura a linha que precisa ser deletada
+                var linhasAfetadas = await _context.Seguidores
+                .Where(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id)
+                .ExecuteDeleteAsync();
+                if (linhasAfetadas == 0)
+                {
+                    return BadRequest("Você já não seguia este usuário.");
+                }
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno ao deixar de seguir: {ex.Message}");
+            }
+        }
 
 
 }}
