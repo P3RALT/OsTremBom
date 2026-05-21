@@ -10,6 +10,10 @@ namespace TremBomApi.Data
         
         public DbSet<Local> Locais { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Likes> Likes { get; set; }
+        public DbSet<Comentarios> Comentarios { get; set; }
+        public DbSet<Publicacao> Publicacoes { get; set; }
+        
 
         // Este método é chamado quando o modelo do banco de dados está sendo criado
         protected override void OnModelCreating(ModelBuilder modelBuilder)

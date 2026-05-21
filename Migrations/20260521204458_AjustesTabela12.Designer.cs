@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,62 +11,14 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260521204458_AjustesTabela12")]
+    partial class AjustesTabela12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
-
-            modelBuilder.Entity("TremBomApi.Models.Comentarios", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Comentario")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("comentario");
-
-                    b.Property<int>("PublicacaoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PublicacaoId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("comentarios");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Likes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
-
-                    b.Property<int>("PublicacaoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PublicacaoId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("likes");
-                });
 
             modelBuilder.Entity("TremBomApi.Models.Local", b =>
                 {
@@ -492,44 +445,6 @@ namespace TremBomApi.Migrations
                         .IsUnique();
 
                     b.ToTable("usuarios");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Comentarios", b =>
-                {
-                    b.HasOne("TremBomApi.Models.Publicacao", "Publicacao")
-                        .WithMany()
-                        .HasForeignKey("PublicacaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Publicacao");
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Likes", b =>
-                {
-                    b.HasOne("TremBomApi.Models.Publicacao", "Publicacao")
-                        .WithMany()
-                        .HasForeignKey("PublicacaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Publicacao");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("TremBomApi.Models.Publicacao", b =>
