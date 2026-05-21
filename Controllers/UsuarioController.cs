@@ -175,8 +175,25 @@ namespace TremBomApi.Controllers
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
             
             if (usuario == null) return NotFound();
+            
+            // Contagem de seguidores
+            var totalSeguidores = await _context.Seguidores
+            .CountAsync(s => s.AlvoUsuarioId == usuario.Id);
+            // Contagem de quem ele segue
+            var totalSeguindo = await _context.Seguidores
+             .CountAsync(s => s.UsuarioId == usuario.Id);
 
-            return Ok(MontarResposta(usuario));
+            var result = new {
+                seguindo = totalSeguindo,
+                seguidores = totalSeguidores,
+                nickname = usuario.Nickname,
+                fotoPerfilUrl = usuario.FotoPerfilUrl,
+                preferencias = usuario.Preferencias,
+                descricaoBio = usuario.Descricao,
+                aniversario = usuario.Aniversario,
+                vistoPorUltimo = usuario.UltimoLogin,};
+
+            return Ok(result);
         }
 
         //  GET /api/usuario/nome-do-usuario (Busca pública por Nickname)
@@ -212,23 +229,11 @@ namespace TremBomApi.Controllers
                 descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
-                isOwner = ehODonoDoPerfil
+                isOwner = ehODonoDoPerfil 
             };
 
             return Ok(result);
         }
 
-        // Função auxiliar para não duplicar a criação do objeto de resposta
-        private object MontarResposta(Usuario usuario)
-        {
-            return new
-            {
-                nickname = usuario.Nickname,
-                fotoPerfilUrl = usuario.FotoPerfilUrl,
-                preferencias = usuario.Preferencias,
-                descricaoBio = usuario.Descricao,
-                aniversario = usuario.Aniversario,
-                vistoPorUltimo = usuario.UltimoLogin,
-            };
-        }
+
 }}

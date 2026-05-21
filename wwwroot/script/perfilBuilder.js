@@ -35,6 +35,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Função de renderização (mantida dentro do escopo do DOMContentLoaded para segurança dos elementos)
     function renderizarPerfil(usuario, isOwner) {
         const elemento = {
+            seguidores: document.getElementById("seguidores"),
+            seguindo: document.getElementById("seguindo"),
             nickname: document.getElementById("nickname"),
             preferencias: document.getElementById("preferencias"),
             descricaoBio: document.getElementById("descricao-bio"),
@@ -42,6 +44,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         };
 
         // Verifica se os elementos realmente existem no HTML antes de injetar o texto (evita erros de 'null')
+        elemento.seguidores.textContent = usuario.seguidores || 0;
+        elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
         console.log(usuario)
         if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "Nenhuma descrição disponível.";
