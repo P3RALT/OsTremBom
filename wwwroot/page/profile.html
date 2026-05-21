@@ -35,7 +35,7 @@
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a style="cursor: pointer;" onclick="loginOrProfile()" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            <a href="../page/profile.html" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
     <!-- CONTEÚDO PRINCIPAL -->
@@ -50,7 +50,7 @@
                 <div class="profile-info">
                     <div class="profile-user-settings">
                         <h1 class="username" id="nickname">ostremdebh</h1>
-                        <!--- <button class="btn-edit">Editar perfil</button>-->
+                        <div id="edit-profile"></div>
                     </div>
 
                     <ul class="profile-stats">
@@ -102,11 +102,8 @@
                 </main>
         </div>
     </main>
-    <!-- Função para identificar globalmente o usuário logado -->
+    <!-- Função para identificar o usuário logado/ construir o perfil de alguém -->
     <script src="../script/perfilBuilder.js"></script>
-     <!-- Função para alternar entre login e perfil (se o usuário estiver logado) -->
-    <script src="../script/loginOuPerfil.js"></script>
-    <script src="../script/loginOuPerfil.js"></script>
     <script src="../script/toggleMenu.js"></script>
 </body>
 </html>

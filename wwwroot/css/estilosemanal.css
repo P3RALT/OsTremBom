@@ -76,8 +76,10 @@
     border-radius: 10px;
 }
 .Carrossel:hover::-webkit-scrollbar-thumb {
-    background: var(--primary-green);
+    background: #069e6e65;
+    transition: background-color 0.2s;
 }
+
 
 .Card {
     width: 240px;
@@ -256,12 +258,12 @@
 .SessaoGrupo .controle-grupos {
     width: 100%;
     min-height: 54px;               /* Altura mínima garantida para a pílula verde */
-    background-color: #069E6E !important; /* Força o fundo verde oficial */
-    border-radius: 50px !important; /* Cantos arredondados estilo pílula */
+    background-color: #069e6e1f; /* Força o fundo verde oficial */
+    border-radius: 50px; /* Cantos arredondados estilo pílula */
     padding: 10px 24px;
-    display: flex !important;       /* Alinha itens nas pontas internas */
-    justify-content: space-between !important;
-    align-items: center !important;
+    display: flex;       /* Alinha itens nas pontas internas */
+    justify-content: space-between;
+    align-items: center;
     box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     margin-bottom: 30px;
@@ -269,51 +271,49 @@
 
 /* O Ícone/Botão de mais (+) */
 .SessaoGrupo .btn-acao-grupo {
-    background: none !important;
-    border: none !important;
-    color: #2D2E47 !important;      /* Cor escura contrastante */
-    font-size: 26px !important;     /* Tamanho ideal para leitura */
+    background: none;
+    border: none;
+    color: #2D2E47;      /* Cor escura contrastante */
+    font-size: 26px;     /* Tamanho ideal para leitura */
     cursor: pointer;
-    display: inline-flex !important;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 5px;
+    background-color:transparent;
+    border-radius: 50%;
     margin: 0;
     width: auto;
     height: auto;
+}
+.btn-acao-grupo:hover {
+    transition: background-color 0.2s;
+    background-color: #069e6e65;
 }
 
 /* Container que segura o Input e a Lupa */
 .SessaoGrupo .pesquisa-grupo-container {
     position: relative;
     width: 280px;
-    display: flex !important;
+    display: flex;
     align-items: center;
 }
 
 /* O Campo de Entrada Branco */
-.SessaoGrupo #input-pesquisa-grupo {
+#input-pesquisa-grupo {
     width: 100%;
-    height: 36px;                   /* Altura do campo interno */
-    background-color: #ffffff !important;
-    border: 1px solid #dbdbdb !important;
-    border-radius: 20px !important; /* Arredondado pílula */
-    padding: 6px 36px 6px 16px !important; /* Margem direita para a lupa não pisar nas letras */
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #262626;
-    outline: none;
-    box-sizing: border-box;
+    height: 30px;                   /* Altura do campo interno */
 }
+
 
 /* Ícone da Lupa */
 .SessaoGrupo .icone-lupa {
     position: absolute;
     right: 14px;
-    color: #718096 !important;
-    font-size: 14px !important;
+    color: #718096;
+    font-size: 14px;
     pointer-events: none;           /* Deixa o clique passar direto para o input */
-    display: inline-block !important;
+    display: inline-block;
 }
 
 /* Grid onde os futuros grupos ficarão */
@@ -330,21 +330,21 @@
 
 /* Camada escura de fundo - ESCONDIDA por padrão e FIXADA sobre o site */
 .modal-overlay {
-    position: fixed !important;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
-    z-index: 9999 !important;              /* Garante que fica por cima de tudo */
-    display: none !important;              /* ESCONDE O MODAL TOTALMENTE */
+    z-index: 9999;              /* Garante que fica por cima de tudo */
+    display: none;              /* ESCONDE O MODAL TOTALMENTE */
     align-items: center;
     justify-content: center;
 }
 
 /* Força o modal a aparecer apenas quando tiver a classe .active */
 .modal-overlay.active {
-    display: flex !important;
+    display: flex;
 }
 
 /* Caixa Branca Centralizada do Formulário */
@@ -418,10 +418,10 @@
 .modal-overlay .form-publicacao input[type="password"],
 .modal-overlay .form-publicacao select,
 .modal-overlay .form-publicacao textarea {
-    width: 100% !important;
-    padding: 10px 14px !important;
-    border: 1px solid #dbdbdb !important;
-    border-radius: 10px !important;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #dbdbdb;
+    border-radius: 10px;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #262626;
@@ -434,7 +434,7 @@
 .modal-overlay .form-publicacao input:focus,
 .modal-overlay .form-publicacao select:focus,
 .modal-overlay .form-publicacao textarea:focus {
-    border-color: var(--primary-green) !important;
+    border-color: var(--primary-green);
 }
 
 /* Input do tipo arquivo (Upload) */
@@ -469,7 +469,7 @@
     flex: 1;
     background-color: #ffffff;
     color: var(--primary-dark);
-    border: 1px dashed var(--primary-green) !important;
+    border: 1px dashed var(--primary-green);
     padding: 10px 12px;
     border-radius: 10px;
     font-size: 12px;
@@ -527,7 +527,7 @@
 
 /* Garante que quando o JS mandar exibir, ele use flex e não block */
 #container-senha-grupo[style*="display: block"] {
-    display: flex !important;
+    display: flex;
 }
 
 @keyframes fadeInForm {
@@ -547,38 +547,38 @@
 
 /* Camada de fundo que cobre o site inteiro e fica NA FRENTE do primeiro modal */
 body .sub-modal-overlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background-color: rgba(0, 0, 0, 0.5) !important; /* Escurece o modal de trás */
-    z-index: 99999 !important;             /* VALOR MÁXIMO: Fica na frente de absolutamente tudo */
-    display: none !important;              /* Invisível até receber o .active */
-    align-items: center !important;
-    justify-content: center !important;
-    box-sizing: border-box !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Escurece o modal de trás */
+    z-index: 99999;             /* VALOR MÁXIMO: Fica na frente de absolutamente tudo */
+    display: none;              /* Invisível até receber o .active */
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
 /* Força a exibição imediata quando ativado pelo JavaScript */
 body .sub-modal-overlay.active {
-    display: flex !important;
+    display: flex;
 }
 
 /* A Caixinha compacta e arredondada com bordas pretas fortes */
 body .sub-modal-overlay .sub-modal-content {
-    background-color: #ffffff !important;
-    width: 90% !important;
-    max-width: 360px !important;           /* Formato compacto vertical da imagem */
-    border: 3px solid #000000 !important;  /* Borda preta bem marcada da referência */
-    border-radius: 24px !important;        /* Super arredondado idêntico à imagem */
-    padding: 24px !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
-    animation: subModalPop 0.2s ease-out !important;
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 360px;           /* Formato compacto vertical da imagem */
+    border: 3px solid #000000;  /* Borda preta bem marcada da referência */
+    border-radius: 24px;        /* Super arredondado idêntico à imagem */
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: subModalPop 0.2s ease-out;
 }
 
 @keyframes subModalPop {
@@ -588,115 +588,115 @@ body .sub-modal-overlay .sub-modal-content {
 
 /* Cabeçalho do Sub-Modal */
 body .sub-modal-overlay .sub-modal-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    width: 100% !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 body .sub-modal-overlay .sub-modal-header h3 {
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    color: #000000 !important;            /* Texto estritamente preto */
-    margin: 0 !important;
-    font-family: 'Inter', sans-serif !important;
+    font-size: 18px;
+    font-weight: 800;
+    color: #000000;            /* Texto estritamente preto */
+    margin: 0;
+    font-family: 'Inter', sans-serif;
 }
 
 body .sub-modal-overlay .btn-fechar-sub {
-    font-size: 20px !important;
-    color: #000000 !important;
-    cursor: pointer !important;
-    font-weight: 800 !important;
+    font-size: 20px;
+    color: #000000;
+    cursor: pointer;
+    font-weight: 800;
 }
 
 /* Caixa da barra de pesquisa */
 body .sub-modal-overlay .pesquisa-local-box {
-    position: relative !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
 }
 
 /* Input de pesquisa cinza claro arredondado */
 body .sub-modal-overlay #input-pesquisa-local {
-    width: 100% !important;
-    height: 42px !important;
-    background-color: #f3f4f6 !important;  /* Cinza claro idêntico à imagem */
-    border: 1px solid #e5e7eb !important;
-    border-radius: 20px !important;        /* Formato pílula */
-    padding: 6px 40px 6px 16px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 14px !important;
-    color: #000000 !important;
-    outline: none !important;
-    box-sizing: border-box !important;
+    width: 100%;
+    height: 42px;
+    background-color: #f3f4f6;  /* Cinza claro idêntico à imagem */
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;        /* Formato pílula */
+    padding: 6px 40px 6px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #000000;
+    outline: none;
+    box-sizing: border-box;
 }
 
 /* Lupa dentro do input */
 body .sub-modal-overlay .lupa-local {
-    position: absolute !important;
-    right: 16px !important;
-    color: #9ca3af !important;
-    font-size: 16px !important;
-    pointer-events: none !important;
+    position: absolute;
+    right: 16px;
+    color: #9ca3af;
+    font-size: 16px;
+    pointer-events: none;
 }
 
 /* Container de rolagem dos locais salvos */
 body .sub-modal-overlay .lista-locais-suspensa {
-    width: 100% !important;
-    max-height: 260px !important;         /* Evita que a janela cresça demais */
-    overflow-y: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;                 /* Espaço entre as linhas ovais */
-    padding-right: 4px !important;
+    width: 100%;
+    max-height: 260px;         /* Evita que a janela cresça demais */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;                 /* Espaço entre as linhas ovais */
+    padding-right: 4px;
 }
 
 /* Scrollbar interna discreta */
 body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar {
-    width: 4px !important;
+    width: 4px;
 }
 body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar-thumb {
-    background-color: #dbdbdb !important;
-    border-radius: 10px !important;
+    background-color: #dbdbdb;
+    border-radius: 10px;
 }
 
 /* As Linhas de Itens Orais com Borda Preta da sua imagem */
 body .sub-modal-overlay .item-local-linha {
-    width: 100% !important;
-    padding: 12px 18px !important;
-    background-color: #ffffff !important;
-    border: 2px solid #000000 !important;  /* Borda preta forte da referência */
-    border-radius: 30px !important;        /* Formato oval perfeito */
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-    cursor: pointer !important;
-    box-sizing: border-box !important;
-    transition: background-color 0.15s !important;
+    width: 100%;
+    padding: 12px 18px;
+    background-color: #ffffff;
+    border: 2px solid #000000;  /* Borda preta forte da referência */
+    border-radius: 30px;        /* Formato oval perfeito */
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.15s;
 }
 
 body .sub-modal-overlay .item-local-linha:hover {
-    background-color: #f8fafc !important;  /* Destaque sutil ao passar o mouse */
+    background-color: #f8fafc;  /* Destaque sutil ao passar o mouse */
 }
 
 /* Ícones das categorias dentro dos ovais */
 body .sub-modal-overlay .item-local-linha i {
-    font-size: 18px !important;
-    color: #000000 !important;
-    width: 24px !important;
-    text-align: center !important;
+    font-size: 18px;
+    color: #000000;
+    width: 24px;
+    text-align: center;
 }
 
 /* Nome do local em negrito forte */
 body .sub-modal-overlay .item-local-linha span {
-    font-size: 14px !important;
-    font-weight: 700 !important;           /* Negrito idêntico ao desenho */
-    color: #000000 !important;             /* Força a cor preta nas letras */
-    font-family: 'Inter', sans-serif !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;    /* Corta o texto elegantemente se for muito longo */
+    font-size: 14px;
+    font-weight: 700;           /* Negrito idêntico ao desenho */
+    color: #000000;             /* Força a cor preta nas letras */
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;    /* Corta o texto elegantemente se for muito longo */
 }
 
 /* ==========================================================================
@@ -712,8 +712,8 @@ body .sub-modal-overlay .item-local-linha span {
 
 @media (max-width: 800px) {
     .Conteudo {
-        margin-left: 0 !important;
-        width: 100% !important;
+        margin-left: 0;
+        width: 100%;
         padding-top: 80px; 
     }
 }

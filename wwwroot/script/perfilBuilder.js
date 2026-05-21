@@ -1,40 +1,14 @@
 // Construção do perfil do usuário, buscando os dados na API e renderizando na página
 window.addEventListener('DOMContentLoaded', async () => {
-    const elemento = {
-        nickname: document.getElementById("nickname"),
-        preferencias: document.getElementById("preferencias"),
-        descricaoBio: document.getElementById("descricao-bio"),
-        fotoPerfil: document.getElementById("foto-perfil-usuario"),
-    };
-
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
 
     if (paramsPerfil && paramsPerfil.trim() !== "") {
+        // Existe um usuário específico na URL (?usuario=nome)
         try {
             const resposta = await fetch(`/api/usuario/${encodeURIComponent(paramsPerfil)}`);
             if (resposta.ok) {
-                const dadosDoPerfil = await resposta.json();
-                
-                elemento.nickname.textContent = dadosDoPerfil.nickname;
-                //elemento.vistoPorUltimo.textContent = dadosDoPerfil.vistoPorUltimo;
-                if (elemento.preferencias && dadosDoPerfil.preferencias) {
-                    elemento.preferencias.innerHTML = ""; 
-                    dadosDoPerfil.preferencias.forEach(pref => {
-                        // Cria um elemento de span (ou li) para cada preferência
-                        const tag = document.createElement("span");
-                        tag.className = "categoria-badge"; 
-                        tag.textContent = pref.nome || pref; 
-                        
-                        // Adiciona a tag dentro do container do HTML
-                        elemento.preferencias.appendChild(tag);
-                    });
-                }
-                elemento.descricaoBio.textContent = dadosDoPerfil.descricao;
-                // Renderiza a imagem injetando a tag completa
-                elemento.fotoPerfil.innerHTML = `<img src="${dadosDoPerfil.fotoPerfilUrl}" alt="Foto de perfil de ${dadosDoPerfil.nickname}">`;
-                
-                // document.getElementById("descricao-bio").textContent = dadosDoPerfil.descricaoBio;
-                // document.getElementById("data-registro").textContent = new Date(dadosDoPerfil.dataRegistro).toLocaleDateString();
+                const usuario = await resposta.json();
+                renderizarPerfil(usuario, usuario.isOwner);
             } else {
                 console.error("Usuário não encontrado na API.");
             }
@@ -42,6 +16,46 @@ window.addEventListener('DOMContentLoaded', async () => {
             console.error("Erro ao carregar perfil:", e);
         }
     } else {
-        console.warn("Nenhum parâmetro de usuário foi encontrado na URL.");
+        // Não há parâmetro na URL, busca o usuário logado (Antes era a apiCall que não rodava)
+        try {
+            const resposta = await fetch('/api/usuario?logado=true');
+            if (resposta.ok) {
+                const usuarioLogado = await resposta.json();
+                renderizarPerfil(usuarioLogado, true);
+  
+            } else {
+                // Se não estiver logado, redireciona
+                window.location.href = "/page/login.html";
+            }
+        } catch (error) {
+            console.error("Erro ao verificar usuário logado:", error);
+        }
+    }
+
+    // Função de renderização (mantida dentro do escopo do DOMContentLoaded para segurança dos elementos)
+    function renderizarPerfil(usuario, isOwner) {
+        const elemento = {
+            nickname: document.getElementById("nickname"),
+            preferencias: document.getElementById("preferencias"),
+            descricaoBio: document.getElementById("descricao-bio"),
+            fotoPerfil: document.getElementById("foto-perfil-usuario"),
+        };
+
+        // Verifica se os elementos realmente existem no HTML antes de injetar o texto (evita erros de 'null')
+        if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
+        console.log(usuario)
+        if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "Nenhuma descrição disponível.";
+        if (isOwner){
+            const editProfile = document.getElementById("edit-profile");
+            editProfile.innerHTML = `<button class="btn-edit">Editar perfil</button>`
+        }
+        
+        if (elemento.fotoPerfil) {
+            if (usuario.fotoPerfilUrl) {
+                elemento.fotoPerfil.src = usuario.fotoPerfilUrl;
+            } else {
+                elemento.fotoPerfil.src = "../img/default-profile.png";
+            }
+        }
     }
 });

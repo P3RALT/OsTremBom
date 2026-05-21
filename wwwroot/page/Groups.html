@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Os Trem de BH</title>
   <!-- CSS DO MENU -->
-       <link rel="stylesheet" href="../css/estiloperfil.css">
+    <link rel="stylesheet" href="../css/estiloperfil.css">
+    <link rel="stylesheet" href="../css/estilologin.css">
   <!-- IMGS-->
   <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
@@ -35,7 +36,7 @@
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
-            <a style="cursor: pointer;" onclick="loginOrProfile()" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+            <a href="../page/profile.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
 
@@ -52,11 +53,11 @@
         <section class="SessaoGrupo" id="sessaoGrupo">
             <div class="controle-grupos">
                 <button type="button" class="btn-acao-grupo" id="btn-adicionar-grupo" title="Criar Novo Grupo" onclick="abrirModalGrupo()">
-                    <i class="fa-solid fa-plus"></i>
+                    <i class="fa-solid fa-plus" style="font-size:22px;"></i>
                 </button>
                 
                 <div class="pesquisa-grupo-container">
-                    <input type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
+                    <input class="input" type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
                     <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
                 </div>
             </div>
@@ -129,7 +130,7 @@
                 </div>
 
                 <div class="pesquisa-local-box">
-                    <input type="text" id="input-pesquisa-local" placeholder="Pesquisar locais de BH..." oninput="filtrarLocaisLista()">
+                    <input class="input" type="text" id="input-pesquisa-local" placeholder="Pesquisar locais de BH..." oninput="filtrarLocaisLista()">
                     <i class="fa-solid fa-magnifying-glass lupa-local"></i>
                 </div>
 

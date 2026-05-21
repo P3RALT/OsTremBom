@@ -154,24 +154,81 @@ namespace TremBomApi.Controllers
             _context = context;
         }
 
-        [HttpGet("{name}")]
-        public async Task<IActionResult> GetUsuario(string name)
+        // GET /api/usuario?logado=true (Busca o perfil de quem está logado)
+        [HttpGet]
+        public async Task<IActionResult> GetUsuarioLogado([FromQuery] bool logado = false)
         {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
-            if (usuario == null)
+            if (!logado)
             {
-                return NotFound();
+                return BadRequest("Para acessar esta rota sem um nome, o parâmetro 'logado=true' deve ser fornecido.");
             }
+
+            // Pega o ID do token de autenticação
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (string.IsNullOrEmpty(userIdStr)) 
+                return Unauthorized();
+
+            if (!int.TryParse(userIdStr, out int userId))
+                return BadRequest("ID de usuário inválido.");
+
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
+            
+            if (usuario == null) return NotFound();
+
+            return Ok(MontarResposta(usuario));
+        }
+
+        //  GET /api/usuario/nome-do-usuario (Busca pública por Nickname)
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetUsuarioPorNome(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest("O nome do usuário não foi informado.");
+            }
+
+            // Busca o usuário pelo nickname na URL
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            
+            if (usuario == null) return NotFound();
+
+            // Pega o ID de quem está logado (se houver alguém logado)
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            bool ehODonoDoPerfil = false;
+
+            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int loggedInId))
+            {
+                // Se o ID do token for igual ao ID do usuário do banco, ele é o dono!
+                ehODonoDoPerfil = usuario.Id == loggedInId;
+            }
+
+            // Retorna os dados com a flag de controle
             var result = new
             {
                 nickname = usuario.Nickname,
                 fotoPerfilUrl = usuario.FotoPerfilUrl,
                 preferencias = usuario.Preferencias,
-                descricao = usuario.Descricao,
+                descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
+                isOwner = ehODonoDoPerfil
             };
+
             return Ok(result);
         }
 
+        // Função auxiliar para não duplicar a criação do objeto de resposta
+        private object MontarResposta(Usuario usuario)
+        {
+            return new
+            {
+                nickname = usuario.Nickname,
+                fotoPerfilUrl = usuario.FotoPerfilUrl,
+                preferencias = usuario.Preferencias,
+                descricaoBio = usuario.Descricao,
+                aniversario = usuario.Aniversario,
+                vistoPorUltimo = usuario.UltimoLogin,
+            };
+        }
 }}
