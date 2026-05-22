@@ -57,8 +57,10 @@
 
                     <ul class="profile-stats">
                         <li><span>128</span> publicações</li>
-                        <li><span id="seguidores">15.4k</span> seguidores</li>
-                        <li><span id="seguindo">450</span> seguindo</li>
+
+                        <li onclick="abrirModalLista('seguidores')" style="cursor: pointer;"><span id="seguidores">0</span> seguidores</li>
+
+                        <li onclick="abrirModalLista('seguindo')" style="cursor: pointer;"><span id="seguindo">0</span> seguindo</li>
                     </ul>
 
                     <div class="profile-bio">
@@ -103,7 +105,7 @@
             </main>
         </div>
 
-        <!-- MODAL DE EDIÇÃO DE PERFIL (Interface Melhorada) -->
+        <!-- MODAL DE EDIÇÃO DE PERFIL -->
         <div id="modal-editar" class="modal-container">
         <div class="modal-content">
             <div class="modal-header">
@@ -156,7 +158,39 @@
                 </div>
             </form>
         </div>
-</div>
+        </div>
+        <!-- MODAIS DE LISTA DE SEGUIDORES E SEGUINDO -->
+        <div id="modal-seguidores" class="lista-modal-container">
+            <div class="lista-modal-content">
+                <div class="lista-modal-header">
+                    <h2>Seguidores</h2>
+                    <button type="button" class="lista-btn-fechar" onclick="fecharModalLista('modal-seguidores')">&times;</button>
+                </div>
+
+                <div class="busca-lista-container">
+                    <i class="fas fa-search lupa-icone"></i>
+                    <input type="text" id="busca-seguidores" placeholder="Pesquisar seguidores..." oninput="filtrarLista('seguidores')">
+                </div>
+
+                <div id="lista-seguidores" class="lista-usuarios-modal"></div>
+            </div>
+        </div>
+
+        <div id="modal-seguindo" class="lista-modal-container">
+            <div class="lista-modal-content">
+                <div class="lista-modal-header">
+                    <h2>Seguindo</h2>
+                    <button type="button" class="lista-btn-fechar" onclick="fecharModalLista('modal-seguindo')">&times;</button>
+                </div>
+                
+                <div class="busca-lista-container">
+                    <i class="fas fa-search lupa-icone"></i>
+                    <input type="text" id="busca-seguindo" placeholder="Pesquisar pessoas que você segue..." oninput="filtrarLista('seguindo')">
+                </div>
+                
+                <div id="lista-seguindo" class="lista-usuarios-modal"></div>
+            </div>
+        </div>
     </main>
 
     <!-- Scripts de Controle -->
