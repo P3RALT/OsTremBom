@@ -143,7 +143,7 @@ namespace TremBomApi.Controllers
         return Ok();
     }
 } 
-    //Controller para pegar dados de perfis
+//Controller para pegar dados de perfis
     [ApiController]
     [Route("api/usuario")]
     public class PerfilController : ControllerBase
@@ -155,7 +155,7 @@ namespace TremBomApi.Controllers
             _context = context;
         }
 
-        // GET /api/usuario?logado=true (Busca o perfil de quem está logado)
+// Função para mostrar os dados do perfil do usuário logado (GET /api/usuario?logado=true)
         [HttpGet]
         public async Task<IActionResult> GetUsuarioLogado([FromQuery] bool logado = false)
         {
@@ -197,7 +197,7 @@ namespace TremBomApi.Controllers
             return Ok(result);
         }
 
-        //  GET /api/usuario/nome-do-usuario (Busca pública por Nickname)
+// Função para buscar um perfil público pelo nickname (GET /api/usuario/nome-do-usuario)
         [HttpGet("{name}")]
         public async Task<IActionResult> GetUsuarioPorNome(string name)
         {
@@ -251,6 +251,7 @@ namespace TremBomApi.Controllers
             return Ok(result);
         }
 
+// Função para seguir um usuário (POST /api/usuario/seguir/nome-do-usuario)
         [HttpPost("seguir/{name}")]
         public async Task<IActionResult> SeguirUsuario(string name)
         {
@@ -277,6 +278,8 @@ namespace TremBomApi.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+    // Função para deixar de seguir um usuário (DELETE /api/usuario/unfollow/nome-do-usuario)
         [HttpDelete("unfollow/{name}")]
         public async Task<IActionResult> UnfollowUsuario(string name)
         {
@@ -292,7 +295,7 @@ namespace TremBomApi.Controllers
             var parsedUserIdStr = int.Parse(userIdStr);
             try
             {
-                // Procura a linha que precisa ser deletada
+            // Procura a linha que precisa ser deletada
                 var linhasAfetadas = await _context.Seguidores
                 .Where(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id)
                 .ExecuteDeleteAsync();
@@ -309,7 +312,7 @@ namespace TremBomApi.Controllers
         }
 
 
-        // 1. DTO para receber os dados do formulário de edição
+// 1. DTO para receber os dados do formulário de edição
         public class UsuarioEdicaoDto
         {
             public string? FotoPerfilUrl { get; set; }
@@ -317,7 +320,53 @@ namespace TremBomApi.Controllers
             public System.Collections.Generic.List<string>? Preferencias { get; set; }
         }
 
-        // 2. Rota PUT adicionada dentro do PerfilController
+
+
+// -------------------------------
+// PESQUISAR 
+// --------------------------------
+
+[HttpGet("buscar")]
+        public async Task<IActionResult> BuscarUsuarios([FromQuery] string termo)
+        {
+            // ETAPA 1: Validação preventiva do termo de busca
+            if (string.IsNullOrWhiteSpace(termo) || termo.Trim().Length < 2)
+            {
+                return BadRequest(new { mensagem = "O termo de busca deve ter pelo menos 2 caracteres." });
+            }
+
+            // Normaliza o termo para letras minúsculas e remove espaços extras nas pontas
+            var termoMinusculo = termo.Trim().ToLower();
+
+            try
+            {
+                // ETAPA 2: Consulta filtrada e projetada no Banco de Dados via LINQ
+                var usuariosEncontrados = await _context.Usuarios
+                    .Where(u => u.Nickname.ToLower().Contains(termoMinusculo)) // Busca parcial ignorando maiúsculas/minúsculas
+                    .Select(u => new
+                    {
+                        // ETAPA 3: Mapeamento seletivo dos campos para o Front-end
+                        Nickname = u.Nickname,
+                        FotoPerfilUrl = u.FotoPerfilUrl ?? "../img/default-avatar.jpg" // Fallback caso o usuário não tenha foto
+                    })
+                    .Take(15) // Limita em no máximo 15 resultados para manter a busca ultra rápida
+                    .ToListAsync();
+
+                // Retorna a lista encontrada com o status HTTP 200 (Ok)
+                return Ok(usuariosEncontrados);
+            }
+            catch (Exception ex)
+            {
+                // Caso ocorra qualquer falha de comunicação com o banco, loga o erro com segurança
+                return StatusCode(500, new { mensagem = $"Erro interno ao processar a busca: {ex.Message}" });
+            }
+        }
+
+
+// -------------------------------
+// PROFILE
+// --------------------------------
+// Função para atualizar o perfil do usuário logado (PUT /api/usuario/atualizar)
         [HttpPut("atualizar")]
         public async Task<IActionResult> AtualizarPerfil([FromBody] UsuarioEdicaoDto dto)
         {
@@ -353,6 +402,26 @@ namespace TremBomApi.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Perfil atualizado com sucesso uai!" });
+        }
+    
+
+// Funcao para mostrar a lista de seguidores de um perfil público (GET /api/usuario/nome-do-usuario/seguidores)
+        [HttpGet("{name}/seguidores")]
+        public async Task<IActionResult> GetSeguidores(string name)
+        {
+            // 1. Busca o usuário dono do perfil para pegar o ID dele
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound("Usuário não encontrado.");
+
+            // 2. Procura na tabela de seguidores quem tem como alvo o ID desse usuário
+            var lista = await _context.Seguidores
+                .Where(s => s.AlvoUsuarioId == usuario.Id)
+                .Select(s => new {
+                    Nickname = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.Nickname).FirstOrDefault(),
+                    FotoPerfilUrl = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.FotoPerfilUrl).FirstOrDefault()
+                }).ToListAsync();
+
+            return Ok(lista);
         }
 
 
