@@ -355,5 +355,23 @@ namespace TremBomApi.Controllers
             return Ok(new { mensagem = "Perfil atualizado com sucesso uai!" });
         }
 
+        [HttpGet("{name}/seguidores")]
+        public async Task<IActionResult> GetSeguidores(string name)
+        {
+            // 1. Busca o usuário dono do perfil para pegar o ID dele
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound("Usuário não encontrado.");
+
+            // 2. Procura na tabela de seguidores quem tem como alvo o ID desse usuário
+            var lista = await _context.Seguidores
+                .Where(s => s.AlvoUsuarioId == usuario.Id)
+                .Select(s => new {
+                    Nickname = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.Nickname).FirstOrDefault(),
+                    FotoPerfilUrl = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.FotoPerfilUrl).FirstOrDefault()
+                }).ToListAsync();
+
+            return Ok(lista);
+        }
+
 
 }}
