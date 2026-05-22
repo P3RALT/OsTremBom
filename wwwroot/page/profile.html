@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil - Os Trem de BH</title>
-    <!-- Icones, Fonrtes, e Imagens -->
+    <!-- Icones, Fontes, e Imagens -->
     <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../css/estiloperfil.css">
     <link rel="stylesheet" href="../css/estilodetalhes.css">
     <link rel="stylesheet" href="../css/estilologin.css">
+    <link rel="stylesheet" href="../css/Perfil.css">
 </head>
 <body>
     <!-- MENU -->
@@ -23,14 +24,13 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-                <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
-                <span>Os Trem de BH</span>
+            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <span>Os Trem de BH</span>
         </div>
         <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
         
         <nav class="sidebar-nav">
             <a href="../page/feed.html" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
-            <!-- Se search=true no JavaScript, a gente renderiza a página de pesquisa-->
             <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
             <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
@@ -39,10 +39,10 @@
             <a href="../page/profile.html" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
+
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="main-wrapper">
         <div class="container">
-            
             <header>
                 <div class="profile-image" id="foto-perfil-usuario">
                     <img src="../img/default-avatar.jpg" alt="Foto de Perfil">
@@ -51,6 +51,7 @@
                 <div class="profile-info">
                     <div class="profile-user-settings">
                         <h1 class="username" id="nickname">ostremdebh</h1>
+                        <!-- O JavaScript vai injetar dinamicamente o botão correto aqui dentro -->
                         <div id="edit-profile"></div>
                     </div>
 
@@ -61,13 +62,13 @@
                     </ul>
 
                     <div class="profile-bio">
-                        <div id="preferencias" style=" margin-bottom: 10px;" 20px;>
+                        <div id="preferencias" style="margin-bottom: 10px;">
                             <span class="categoria-badge">História</span>
                             <span class="categoria-badge">Cultura</span>
                         </div>
-                        <span id="descricao-bio">Explorando o melhor de Belo Horizonte.
-                        Dicas, cultura e gastronomia mineira! ☕🧀<br>
-                        <a href="#" style="color: #00376b; text-decoration: none; font-weight: 600;">ostremdebh.com.br</a></p>
+                        <span id="descricao-bio">Explorando o melhor de Belo Horizonte. Dicas, cultura e gastronomia mineira! ☕🧀</span>
+                        <br>
+                        <a href="#" style="color: #00376b; text-decoration: none; font-weight: 600;">ostremdebh.com.br</a>
                     </div>
                 </div>
             </header>
@@ -75,7 +76,6 @@
             <div class="tabs">
                 <div class="tab-item active"><i class="fa-solid fa-table-cells"></i> Publicações</div>
                 <div class="tab-item"><i class="fa fa-heart"></i> Curtidos</div>
-                <!-- <div class="tab-item"><i class="fa-regular fa-id-badge"></i> Marcados</div> -->
             </div>
 
             <main class="photo-grid">
@@ -100,10 +100,66 @@
                         <span><i class="fas fa-comment"></i> 89</span>
                     </div>
                 </div>
-                </main>
+            </main>
         </div>
+
+        <!-- MODAL DE EDIÇÃO DE PERFIL (Interface Melhorada) -->
+        <div id="modal-editar" class="modal-container">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Perfil</h2>
+                <button type="button" class="btn-fechar" onclick="fecharModal()">&times;</button>
+            </div>
+            
+            <form id="form-editar-perfil" onsubmit="salvarPerfil(event)">
+                
+                <!-- Foto de Perfil com Seletor Visual e Prévia -->
+                <div class="form-group foto-upload-container">
+                    <label>Foto de Perfil</label>
+                    <div class="avatar-preview-wrapper" onclick="document.getElementById('edit-foto-file').click()">
+                        <img id="avatar-preview" src="../img/default-avatar.jpg" alt="Prévia da foto">
+                        <div class="avatar-overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <!-- Input de arquivo invisível, acionado ao clicar no círculo acima -->
+                    <input type="file" id="edit-foto-file" accept="image/*" style="display: none;" onchange="atualizarPreviaImagem(this)">
+                    <span class="ajuda-texto">Clique na imagem para alterar</span>
+                </div>
+
+                <!-- Descrição / Bio com Limite de 150 caracteres e Contador -->
+                <div class="form-group">
+                    <div class="label-wrapper">
+                        <label for="edit-bio">Descrição (Bio)</label>
+                        <span id="contador-caracteres" class="contador">150</span>
+                    </div>
+                    <textarea id="edit-bio" rows="3" maxlength="150" placeholder="Conte um pouco sobre você..." oninput="atualizarContador(this)"></textarea>
+                </div>
+
+                <!-- Seleção de Tags por Badges Clicáveis -->
+                <div class="form-group">
+                    <label>Tags de Interesse (Selecione as que gostar)</label>
+                    <div id="wrapper-tags-seletor" class="tags-seletor-container">
+                        <!-- Opções fixas de tags do projeto "Os Trem de BH" -->
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">História</span>
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">Cultura</span>
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">Gastronomia</span>
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">Dicas</span>
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">Eventos</span>
+                        <span class="tag-opcao" onclick="toggleTagSelecao(this)">Natureza</span>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-salvar">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+</div>
     </main>
-    <!-- Função para identificar o usuário logado/ construir o perfil de alguém -->
+
+    <!-- Scripts de Controle -->
     <script src="../script/perfilBuilder.js"></script>
     <script src="../script/toggleMenu.js"></script>
 </body>
