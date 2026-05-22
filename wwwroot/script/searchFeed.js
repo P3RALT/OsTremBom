@@ -114,6 +114,7 @@ buscaInput.addEventListener("input", async () => {
                     >
                     <div>
                         <strong>${resultado.nome}</strong>
+                        <p>${resultado.seguidores} seguidores</p>
                     </div>
 
                 </div>

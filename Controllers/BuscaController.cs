@@ -41,6 +41,8 @@ namespace TremBomApi.Controllers
                 Tipo = "Usuario",
                 Nome = u.Nickname,
                 FotoPerfil = u.FotoPerfilUrl,
+                Seguidores =    (int?) _context.Seguidores
+                    .Count(s => s.AlvoUsuarioId == u.Id),
                 // Isso aq é só pra "burlar" o SQL e conseguir consultar
                 Rua = (string?)null,
                 Bairro = (string?)null,
@@ -55,6 +57,7 @@ namespace TremBomApi.Controllers
                         Tipo = "Local",
                         Nome = l.Nome,
                         FotoPerfil = l.ImagemUrl,
+                        Seguidores = (int?)null,
                         Rua = l.Rua,
                         Bairro = l.Bairro,
                         Numero = l.Numero,
