@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../css/estiloregister.css">
     <link rel="stylesheet" href="../css/estilologin.css">
     <link rel="stylesheet" href="../css/estilopage.css">
+    <link rel="stylesheet" href="../css/estilosemanal.css">
     <link rel="stylesheet" href="../css/estilonewpost.css">
 </head>
 <body>
@@ -28,11 +29,37 @@
         <p id="subtitulo-p">Preencha alguns detalhes abaixo e finaliza a criação da sua <span class="teal">conta</span>.</p>
         <p id="error"></p>
         <p class="subtitulo">Fotos da postagem</p>
-    <!-- FORMULÁRIO DE CRIAÇÃO DE POSTAGEM -->
+     <div class="modal-overlay" id="modalCriarGrupo">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Criar Novo Local</h2>
+                    <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
+                </div>
+                
+                <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
+                    <label for="nomeEndereco">Nome do local</label>
+                    <input type="text" id="nomeEndereco" placeholder="Ex: Bar do seu zé, Parque Fulano..." required>
+                    <label for="cepEndereco">Cep</label>
+                    <input 
+                        type="text"
+                        id="cepEndereco"
+                        maxlength="9"
+                        placeholder="Ex: 30000-000"
+                        required
+                    >
+                    <label for="ruaEndereco">Rua</label>
+                    <input type="text" id="ruaEndereco" disabled placeholder="Ex: Av. Afonso Vaz de Melo" required>
+                    <label for="numeroEndereco">Número</label>
+                    <input type="number" id="numeroEndereco" placeholder="Ex: 11" required>
+                    <button type="submit" class="btn-publicar" id="btnCriarLocalSubmit" disabled>Criar Local</button>
+                </form>
+            </div>
+        </div>
+        <!-- FORMULÁRIO DE CRIAÇÃO DE POSTAGEM -->
         <form id="registro-form">
             <div class="photo-upload">
                 <div class="main-preview-container">
-                    <button type="button" class="nav-arrow prev" id="prev-photo">&#10094;</button>
+                    <button type="button" class="nav-arrow prev" id="prev-photo" style="display: none;">&#10094;</button>
                     
                     <label for="foto-input" class="upload-icon-label">
                         <i class="fa-solid fa-plus" id="preview-icon"></i>
@@ -43,7 +70,7 @@
                         <i class="fa-solid fa-trash"></i>
                     </button>
                                     
-                    <button type="button" class="nav-arrow next" id="next-photo">&#10095;</button>
+                    <button type="button" class="nav-arrow next" id="next-photo" style="display: none;">&#10095;</button>
                 </div>
 
                 <input type="file" id="foto-input" accept="image/png, image/jpeg" multiple>

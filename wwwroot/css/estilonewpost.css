@@ -62,7 +62,15 @@
     transition: background-color 0.2s, transform 0.1s;
     z-index: 10;
 }
-
+button:disabled,
+.btn-publicar:disabled {
+    background-color: rgb(211, 211, 211) !important;
+    border-color: rgb(211, 211, 211) !important;
+    color: white !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+    pointer-events: none;
+}
 .btn-deletar:hover {
     background-color: rgb(220, 40, 30);
     transform: scale(1.05);

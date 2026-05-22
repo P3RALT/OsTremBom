@@ -61,7 +61,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             nickname: document.getElementById("nickname"),
             descricaoBio: document.getElementById("descricao-bio"),
             fotoPerfil: document.querySelector("#foto-perfil-usuario img"),
-            preferencias: document.getElementById("preferencias")
+            preferencias: document.getElementById("preferencias"),
+            publicacoesElement: document.getElementById("total-publicacoes")
         };
 
         // Atualização de textos simples com valores padrão (fallbacks) de segurança
@@ -69,6 +70,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (elemento.seguindo) elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
         if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "";
+        elemento.publicacoesElement.textContent = usuario.publicacoes;
         
         // Atualiza o atributo src da imagem de avatar
         if (elemento.fotoPerfil) {

@@ -183,7 +183,8 @@ namespace TremBomApi.Controllers
             // Contagem de quem ele segue
             var totalSeguindo = await _context.Seguidores
              .CountAsync(s => s.UsuarioId == usuario.Id);
-
+            // Total de publicações
+            var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
             var result = new {
                 seguindo = totalSeguindo.FormatarQuantidade(),
                 seguidores = totalSeguidores.FormatarQuantidade(),
@@ -192,6 +193,7 @@ namespace TremBomApi.Controllers
                 preferencias = usuario.Preferencias,
                 descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
+                publicacoes = totalPublicacoes,
                 vistoPorUltimo = usuario.UltimoLogin,};
 
             return Ok(result);
@@ -217,7 +219,8 @@ namespace TremBomApi.Controllers
             // Contagem de quem ele segue
             var totalSeguindo = await _context.Seguidores
              .CountAsync(s => s.UsuarioId == usuario.Id);
-
+            // Total de publicações
+            var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
 
             // Pega o ID de quem está logado (se houver alguém logado)
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -245,6 +248,7 @@ namespace TremBomApi.Controllers
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
                 isOwner = ehODonoDoPerfil,
+                publicacoes = totalPublicacoes,
                 segue = jaSegue!=null
             };
 

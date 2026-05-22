@@ -35,7 +35,7 @@
             <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
             <a href="../page/notifications.html" class="nav-item"><i class="fas fa-heart"></i> <span>Notificações</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
-            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-arrow-trend-up"></i> <span>Grupos</span></a>
+            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-user-group"></i> <span>Grupos</span></a>
             <a href="../page/profile.html" class="nav-item active"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
         </nav>
     </aside>
@@ -50,13 +50,13 @@
 
                 <div class="profile-info">
                     <div class="profile-user-settings">
-                        <h1 class="username" id="nickname">ostremdebh</h1>
+                        <h1 class="username" id="nickname"></h1>
                         <!-- O JavaScript vai injetar dinamicamente o botão correto aqui dentro -->
                         <div id="edit-profile"></div>
                     </div>
 
                     <ul class="profile-stats">
-                        <li><span>128</span> publicações</li>
+                        <li><span id="total-publicacoes"></span> publicações</li>
 
                         <li onclick="abrirModalLista('seguidores')" style="cursor: pointer;"><span id="seguidores">0</span> seguidores</li>
                         <li onclick="abrirModalLista('seguindo')" style="cursor: pointer;"><span id="seguindo">0</span> seguindo</li>
@@ -77,7 +77,7 @@
             <div class="tabs">
                 <div class="tab-item active"><i class="fa-solid fa-table-cells"></i> Publicações</div>
                 <div class="tab-item"><i class="fa fa-heart"></i> Curtidos</div>
-                <div class="tab-item"><i class="fa fa-heart"></i> Grupos</div>
+                <div class="tab-item"><i class="fa-solid fa-user-group"></i> Grupos</div>
             </div>
 
             <main class="photo-grid">

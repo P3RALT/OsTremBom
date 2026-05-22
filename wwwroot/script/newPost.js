@@ -7,12 +7,22 @@ const btnPrev = document.getElementById('prev-photo');
 const btnNext = document.getElementById('next-photo');
 const buttonSubmit = document.getElementById('btn-postar');
 const tags = document.querySelectorAll('.tag');
+const btnCriarLocalSubmit = document.getElementById("btnCriarLocalSubmit");
 const descricaoInput = document.getElementById('descricao');
 const nomeEstabelecimentoInput = document.getElementById('nome-estabelecimento');
-
+const cepEndereco = document.getElementById("cepEndereco");
 let imagesArray = [];
 let currentIndex = 0;
-
+const inputsObrigatorios = {
+    cep: document.getElementById("cepEndereco"),
+    numero: document.getElementById("numeroEndereco"),
+    rua: document.getElementById("ruaEndereco")
+};
+function validarCamposVazios() {
+    const textosOk = Object.values(inputsObrigatorios)
+    .every(el => el.value.trim() !== "");
+    btnCriarLocalSubmit.disabled = !textosOk;
+  }
 function validarFormulario() {
     const descricao = descricaoInput.value.trim();
     const nomeEstabelecimento = nomeEstabelecimentoInput.value.trim();
@@ -25,7 +35,9 @@ function validarFormulario() {
         buttonSubmit.disabled = true;
     }
 }
+btnCriarLocalSubmit.addEventListener("click", function(){
 
+})
 descricaoInput.addEventListener('input', validarFormulario);
 nomeEstabelecimentoInput.addEventListener('input', validarFormulario);
 
@@ -35,6 +47,36 @@ tags.forEach(tag => {
         tag.classList.add('selected');
         validarFormulario();
     });
+});
+// Formatar o CEP
+inputsObrigatorios.cep.addEventListener("input", async (e) => {
+    let valor = e.target.value.replace(/\D/g, "");
+
+    valor = valor.slice(0, 8);
+
+    if (valor.length > 5) {
+        valor = valor.replace(/^(\d{5})(\d+)/, "$1-$2");
+    }
+
+    e.target.value = valor;
+
+    if (valor.length == 9) {
+
+        const cepLimpo = valor.replace(/\D/g, "");
+        try{
+            const resposta = await fetch(
+                `https://viacep.com.br/ws/${cepLimpo}/json/`
+            );
+
+            if (resposta.ok) {
+                const resultado = await resposta.json();
+                if (resultado.erro) alert("Por favor, digite um CEP válido.");
+                else inputsObrigatorios.rua.value = resultado.logradouro;
+            }
+        }catch(e){
+            alert(`Não foi possível se conectar com a API, tente novamente mais tarde. Error: ${e}`)
+        }
+    }
 });
 
 fotoInput.addEventListener('change', function() {
@@ -61,6 +103,8 @@ fotoInput.addEventListener('change', function() {
             }
             reader.readAsDataURL(file);
         });
+    }else{
+
     }
     this.value = "";
 });
@@ -84,7 +128,8 @@ function updatePreview(index) {
         btnDeletar.style.display = "none";
         return;
     }
-    
+    btnNext.style.display = "block";
+    btnPrev.style.display = "block";
     mainPreview.style.display = "block";
     previewIcon.style.display = "none";
     btnDeletar.style.display = "block";
@@ -141,7 +186,25 @@ buscaInput.addEventListener("input", async () => {
         const locais = await resposta.json();
         resultadosDiv.innerHTML = "";
         if (locais.length === 0) {
-            resultadosDiv.style.display = "none";
+            const item = document.createElement("div");
+            item.classList.add("resultado-item");
+            item.innerHTML = `
+                <strong>Criar novo local</strong>
+                <p>Não foi possível achar o local que você queria. Não se preocupe, crie ele agora mesmo e contribua com o crescimento da nossa comunidade.</p>
+            `;
+            item.addEventListener("click", () => {
+                const modal = document.getElementById('modalCriarGrupo');
+                
+                if (modal) {
+                    modal.classList.add('active');
+
+                    Object.values(inputsObrigatorios)
+                        .forEach(el => el.addEventListener("input", validarCamposVazios));
+
+                    validarCamposVazios();
+                }
+            });
+            resultadosDiv.appendChild(item);
             return;
         }
         locais.forEach(local => {
@@ -169,3 +232,12 @@ document.addEventListener("click", (e) => {
         resultadosDiv.style.display = "none";
     }
 });
+
+function fecharModalGrupo() {
+    const modal = document.getElementById('modalCriarGrupo');
+    if (modal) {
+        modal.classList.remove('active');
+        document.getElementById('formCriarGrupo').reset();
+        document.getElementById('container-senha-grupo').style.display = 'none';
+    }
+}
