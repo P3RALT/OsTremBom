@@ -200,3 +200,61 @@
     transition: background-color 0.2s;
 }
 .btn-salvar:hover { background-color: #069e6e71; color: black;}
+
+/* --- CONTAINER ISOLADO DOS MODAIS DE LISTAS --- */
+.lista-modal-container {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65) !important; /* Fundo escuro sem afetar outros modais */
+    z-index: 99999 !important; /* Força ficar na frente do menu e de tudo */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Caixa branca interna da lista */
+.lista-modal-content {
+    background-color: #ffffff !important;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 450px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabeçalho da lista */
+.lista-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #efefef;
+    padding-bottom: 10px;
+}
+
+.lista-modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #262626;
+    margin: 0;
+}
+
+/* Botão de fechar (X) da lista */
+.lista-btn-fechar {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #8e8e8e;
+    cursor: pointer;
+    line-height: 1;
+}
+.lista-btn-fechar:hover {
+    color: #000000;
+}
