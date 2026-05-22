@@ -1,5 +1,7 @@
 const fotoInput = document.getElementById('foto-input');
 const mainPreview = document.getElementById('preview');
+const previewIcon = document.getElementById('preview-icon');
+const btnDeletar = document.getElementById('btn-deletar-foto');
 const thumbContainer = document.getElementById('thumbnail-container');
 const btnPrev = document.getElementById('prev-photo');
 const btnNext = document.getElementById('next-photo');
@@ -50,13 +52,8 @@ fotoInput.addEventListener('change', function() {
             reader.onload = function(e) {
                 const url = e.target.result;
                 imagesArray.push(url);
-                const newIndex = imagesArray.length - 1;
-
-                const imgThumb = document.createElement('img');
-                imgThumb.src = url;
-                imgThumb.classList.add('thumb-item');
-                imgThumb.onclick = () => updatePreview(newIndex);
-                thumbContainer.appendChild(imgThumb);
+                
+                renderThumbnails();
 
                 if (imagesArray.length === 1) updatePreview(0);
                 
@@ -68,14 +65,52 @@ fotoInput.addEventListener('change', function() {
     this.value = "";
 });
 
+function renderThumbnails() {
+    thumbContainer.innerHTML = "";
+    imagesArray.forEach((url, index) => {
+        const imgThumb = document.createElement('img');
+        imgThumb.src = url;
+        imgThumb.classList.add('thumb-item');
+        if (index === currentIndex) imgThumb.classList.add('active');
+        imgThumb.onclick = () => updatePreview(index);
+        thumbContainer.appendChild(imgThumb);
+    });
+}
+
 function updatePreview(index) {
-    if (imagesArray.length === 0) return;
+    if (imagesArray.length === 0) {
+        mainPreview.style.display = "none";
+        previewIcon.style.display = "block";
+        btnDeletar.style.display = "none";
+        return;
+    }
+    
+    mainPreview.style.display = "block";
+    previewIcon.style.display = "none";
+    btnDeletar.style.display = "block";
+
     currentIndex = index;
     mainPreview.src = imagesArray[currentIndex];
+    
     document.querySelectorAll('.thumb-item').forEach((thumb, i) => {
         thumb.classList.toggle('active', i === currentIndex);
     });
 }
+
+btnDeletar.onclick = (e) => {
+    e.preventDefault();
+    if (imagesArray.length === 0) return;
+
+    imagesArray.splice(currentIndex, 1);
+
+    if (currentIndex >= imagesArray.length && imagesArray.length > 0) {
+        currentIndex = imagesArray.length - 1;
+    }
+
+    renderThumbnails();
+    updatePreview(currentIndex);
+    validarFormulario();
+};
 
 btnNext.onclick = (e) => {
     e.preventDefault();
@@ -95,71 +130,42 @@ const buscaInput = document.getElementById("nome-estabelecimento");
 const resultadosDiv = document.getElementById("resultados");
 
 buscaInput.addEventListener("input", async () => {
-
     const termo = buscaInput.value.trim();
-
     if (termo.length < 2) {
         resultadosDiv.innerHTML = "";
         resultadosDiv.style.display = "none";
         return;
     }
-
     try {
-
-        const resposta = await fetch(
-            `/api/locais/buscar-criar-post?termo=${encodeURIComponent(termo)}`
-        );
-
+        const resposta = await fetch(`/api/locais/buscar-criar-post?termo=${encodeURIComponent(termo)}`);
         const locais = await resposta.json();
-
         resultadosDiv.innerHTML = "";
-
         if (locais.length === 0) {
             resultadosDiv.style.display = "none";
             return;
         }
-
         locais.forEach(local => {
-
             const item = document.createElement("div");
-
             item.classList.add("resultado-item");
-
             item.innerHTML = `
                 <strong>${local.nome}</strong>
-                <p>
-                    ${local.rua || local.Rua} 
-                    ${local.numero || local.Numero},
-                    ${local.bairro || local.Bairro} -
-                    ${local.cidade || local.Cidade}
-                </p>
+                <p>${local.rua || local.Rua} ${local.numero || local.Numero}, ${local.bairro || local.Bairro} - ${local.cidade || local.Cidade}</p>
             `;
-
             item.addEventListener("click", () => {
-
                 buscaInput.value = local.nome;
-
                 resultadosDiv.innerHTML = "";
                 resultadosDiv.style.display = "none";
-
-                console.log("Selecionado:", local);
             });
-
             resultadosDiv.appendChild(item);
         });
-
         resultadosDiv.style.display = "block";
-
     } catch (erro) {
         console.error(erro);
     }
 });
+
 document.addEventListener("click", (e) => {
-
-    if (!e.target.closest("#nome-estabelecimento") &&
-        !e.target.closest("#resultados")) {
-
+    if (!e.target.closest("#nome-estabelecimento") && !e.target.closest("#resultados")) {
         resultadosDiv.style.display = "none";
     }
-
 });

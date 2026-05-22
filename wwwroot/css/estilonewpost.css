@@ -32,7 +32,54 @@
     margin-top: 20px;
     margin-bottom: 20px;
     }
+.upload-icon-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;    
+    height: 450px;  
+    background-color: #f0f0f0;
+    border: 2px dashed #ccc;
+    border-radius: 20px;  
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.btn-deletar {
+    position: absolute;
+    top: 10px;
+    right: 10px; 
+    background-color: rgba(255, 65, 54, 0.9); 
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
+    transition: background-color 0.2s, transform 0.1s;
+    z-index: 10;
+}
 
+.btn-deletar:hover {
+    background-color: rgb(220, 40, 30);
+    transform: scale(1.05);
+}
+
+.btn-deletar:active {
+    transform: scale(0.95);
+}
+.upload-icon-label:hover {
+    background-color: #e0e0e0;
+    border-color: #999;
+}
+
+#preview-icon, #preview-text {
+    font-size: 32px;     
+    color: #666;
+}
 .photo-upload .main-preview-container img {
     border-radius: 20px;
     width: 100%;

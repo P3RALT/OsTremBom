@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS -->
     <link rel="stylesheet" href="../css/estiloregister.css">
     <link rel="stylesheet" href="../css/estilologin.css">
@@ -33,10 +34,15 @@
                 <div class="main-preview-container">
                     <button type="button" class="nav-arrow prev" id="prev-photo">&#10094;</button>
                     
-                    <label for="foto-input">
-                        <img id="preview" src="../img/default-avatar.jpg" alt="Preview da postagem">
+                    <label for="foto-input" class="upload-icon-label">
+                        <i class="fa-solid fa-plus" id="preview-icon"></i>
+                        <img id="preview" src="" alt="Preview da postagem" style="display: none;">
                     </label>
                     
+                    <button type="button" id="btn-deletar-foto" class="btn-deletar" style="display: none;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                                    
                     <button type="button" class="nav-arrow next" id="next-photo">&#10095;</button>
                 </div>
 
