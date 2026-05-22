@@ -163,9 +163,9 @@
 
 /* Classe aplicada via JavaScript quando a tag está marcada */
 .tag-opcao.selecionada {
-    background-color: #0095f6;
+    background-color: #069E6E;
     color: #ffffff;
-    border-color: #0095f6;
+    border-color: #069E6E;
 }
 
 /* --- BOTÕES --- */
@@ -181,22 +181,22 @@
     border: 1px solid #dbdbdb;
     color: #262626;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
 }
-.btn-cancelar:hover { background-color: #fafafa; }
+.btn-cancelar:hover { background-color: rgba(255, 0, 0, 0.13); }
 
 .btn-salvar {
-    background-color: #0095f6;
+    background-color: #069E6E;
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
     transition: background-color 0.2s;
 }
-.btn-salvar:hover { background-color: #1877f2; }
+.btn-salvar:hover { background-color: #069e6e71; color: black;}
