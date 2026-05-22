@@ -311,58 +311,6 @@ namespace TremBomApi.Controllers
             }
         }
 
-
-// 1. DTO para receber os dados do formulário de edição
-        public class UsuarioEdicaoDto
-        {
-            public string? FotoPerfilUrl { get; set; }
-            public string? DescricaoBio { get; set; }
-            public System.Collections.Generic.List<string>? Preferencias { get; set; }
-        }
-
-
-
-// -------------------------------
-// PESQUISAR 
-// --------------------------------
-
-[HttpGet("buscar")]
-        public async Task<IActionResult> BuscarUsuarios([FromQuery] string termo)
-        {
-            // ETAPA 1: Validação preventiva do termo de busca
-            if (string.IsNullOrWhiteSpace(termo) || termo.Trim().Length < 2)
-            {
-                return BadRequest(new { mensagem = "O termo de busca deve ter pelo menos 2 caracteres." });
-            }
-
-            // Normaliza o termo para letras minúsculas e remove espaços extras nas pontas
-            var termoMinusculo = termo.Trim().ToLower();
-
-            try
-            {
-                // ETAPA 2: Consulta filtrada e projetada no Banco de Dados via LINQ
-                var usuariosEncontrados = await _context.Usuarios
-                    .Where(u => u.Nickname.ToLower().Contains(termoMinusculo)) // Busca parcial ignorando maiúsculas/minúsculas
-                    .Select(u => new
-                    {
-                        // ETAPA 3: Mapeamento seletivo dos campos para o Front-end
-                        Nickname = u.Nickname,
-                        FotoPerfilUrl = u.FotoPerfilUrl ?? "../img/default-avatar.jpg" // Fallback caso o usuário não tenha foto
-                    })
-                    .Take(15) // Limita em no máximo 15 resultados para manter a busca ultra rápida
-                    .ToListAsync();
-
-                // Retorna a lista encontrada com o status HTTP 200 (Ok)
-                return Ok(usuariosEncontrados);
-            }
-            catch (Exception ex)
-            {
-                // Caso ocorra qualquer falha de comunicação com o banco, loga o erro com segurança
-                return StatusCode(500, new { mensagem = $"Erro interno ao processar a busca: {ex.Message}" });
-            }
-        }
-
-
 // -------------------------------
 // PROFILE
 // --------------------------------
