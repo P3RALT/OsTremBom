@@ -297,6 +297,55 @@ async function salvarPerfil(event) {
     }
 }
 
+let dadosSeguidoresBrutos = [];
+let dadosSeguindoBrutos = [];
+
+/**
+ * Abre o modal correspondente e aciona a busca de dados na API.
+ */
+async function abrirModalLista(tipo) {
+    const nicknameElemento = document.getElementById("nickname");
+    const nicknamePerfil = nicknameElemento ? nicknameElemento.textContent.trim() : "";
+
+    if (!nicknamePerfil) {
+        console.error("Não foi possível achar o nickname na tela.");
+        return;
+    }
+
+    // CORREÇÃO: Aplica a exibição flex usando a nova classe isolada do container
+    document.getElementById(`modal-${tipo}`).style.display = "flex";
+
+    // Mostra um feedback visual de carregamento na lista correspondente
+    document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; padding:20px;">Carregando dados, uai...</p>`;
+
+    try {
+        const resposta = await fetch(`/api/usuario/${encodeURIComponent(nicknamePerfil)}/${tipo}`);
+        if (resposta.ok) {
+            const dados = await resposta.json();
+            
+            if (tipo === 'seguidores') dadosSeguidoresBrutos = dados;
+            else dadosSeguindoBrutos = dados;
+
+            atualizarListaNaTela(tipo, dados);
+        } else {
+            document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; color:red; padding:20px;">Erro ao carregar a lista.</p>`;
+        }
+    } catch (error) {
+        console.error("Erro na requisição da lista:", error);
+    }
+}
+
+/**
+ * Oculta o modal de lista limpando o display.
+ */
+function fecharModalLista(idModal) {
+    document.getElementById(idModal).style.display = "none";
+}
+
+// Vincula as funções corrigidas ao escopo do Window do navegador
+window.abrirModalLista = abrirModalLista;
+window.fecharModalLista = fecharModalLista;
+
 // Exporta as novas funções criadas para que fiquem visíveis globalmente no arquivo HTML
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
