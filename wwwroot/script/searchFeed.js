@@ -58,8 +58,6 @@ buscaInput.addEventListener("input", async () => {
             const item = document.createElement("div");
             item.classList.add("resultado-item");
 
-            console.log(resultado);
-
             if (resultado.tipo == "Local") {
             item.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -99,7 +97,6 @@ buscaInput.addEventListener("input", async () => {
                 });
 
             } else {
-
                 item.innerHTML = `
                    <div style="display:flex; align-items:center; gap:10px;">
                     <img 
@@ -114,9 +111,8 @@ buscaInput.addEventListener("input", async () => {
                     >
                     <div>
                         <strong>${resultado.nome}</strong>
-                        <p>${resultado.seguidores} seguidores</p>
+                        <p>${resultado.seguidores} ${resultado.seguidores==1?"seguidor":"seguidores"}</p>
                     </div>
-
                 </div>
                 `;
 

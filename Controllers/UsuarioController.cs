@@ -372,5 +372,30 @@ namespace TremBomApi.Controllers
             return Ok(lista);
         }
 
+        // Funcao para mostrar a lista de quem a pessoa segue de um perfil público
+        [HttpGet("{name}/seguindo")]
+        public async Task<IActionResult> GetSeguindo(string name)
+        {
+            // Busca o utilizador dono do perfil para obter o ID dele
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound("Utilizador não encontrado.");
+
+            // Procura quem este utilizador segue (onde ele é o UsuarioId de origem)
+            var lista = await _context.Seguidores
+                .Where(s => s.UsuarioId == usuario.Id)
+                .Select(s => new {
+                    Nickname = _context.Usuarios
+                        .Where(u => u.Id == s.AlvoUsuarioId) 
+                        .Select(u => u.Nickname)
+                        .FirstOrDefault(),
+                    FotoPerfilUrl = _context.Usuarios
+                        .Where(u => u.Id == s.AlvoUsuarioId)
+                        .Select(u => u.FotoPerfilUrl)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(lista);
+        }
 
 }}

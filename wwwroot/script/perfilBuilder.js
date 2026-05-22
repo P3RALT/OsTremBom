@@ -325,7 +325,6 @@ async function abrirModalLista(tipo) {
             
             if (tipo === 'seguidores') dadosSeguidoresBrutos = dados;
             else dadosSeguindoBrutos = dados;
-
             atualizarListaNaTela(tipo, dados);
         } else {
             document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; color:red; padding:20px;">Erro ao carregar a lista.</p>`;
@@ -334,7 +333,44 @@ async function abrirModalLista(tipo) {
         console.error("Erro na requisição da lista:", error);
     }
 }
+function atualizarListaNaTela(tipo, dados) {
+    const container = document.getElementById(`lista-${tipo}`);
 
+    if (!Array.isArray(dados)) {
+        console.error("Dados inválidos:", dados);
+        return;
+    }
+
+    container.innerHTML = "";
+
+    dados.forEach(dado => {
+        const item = document.createElement("div");
+
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+                <img 
+                    src="${dado.fotoPerfil ?? dado.fotoPerfilUrl}" 
+                    style="
+                        width:50px;
+                        height:50px;
+                        border-radius:50%;
+                        object-fit:cover;
+                    "
+                >
+                <div>
+                    <strong>${dado.nome ?? dado.nickname}</strong>
+                </div>
+            </div>
+        `;
+
+        item.addEventListener("click", () => {
+            const usuario = dado.nome ?? dado.nickname;
+            window.location.href = `/page/profile.html?usuario=${usuario}`;
+        });
+
+        container.appendChild(item);
+    });
+}
 /**
  * Oculta o modal de lista limpando o display.
  */
