@@ -11,6 +11,8 @@ window.addEventListener('DOMContentLoaded', () => {
     function alternarAba(abaParaMostrar, abaParaEsconder, botaoAtivo, botaoInativo) {
         abaParaEsconder.style.display = 'none';
         abaParaMostrar.style.display = 'block';
+        botaoInativo.classList.remove("active");
+        botaoAtivo.classList.add("active");
     }
     // se search=true, a gente já inicia na aba de pesquisa, senão inicia no feed normalmente
     if (modoBusca) {
@@ -59,16 +61,32 @@ buscaInput.addEventListener("input", async () => {
             console.log(resultado);
 
             if (resultado.tipo == "Local") {
+            item.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px;">
+                    
+                    <img 
+                        src="${resultado.fotoPerfil}" 
+                        alt="Foto"
+                        style="
+                            width:50px;
+                            height:50px;
+                            border-radius:50%;
+                            object-fit:cover;
+                        "
+                    >
 
-                item.innerHTML = `
-                    <strong>${resultado.nome}</strong>
-                    <p>
-                        ${resultado.rua}
-                        ${resultado.numero},
-                        ${resultado.bairro} -
-                        ${resultado.cidade}
-                    </p>
-                `;
+                    <div>
+                        <strong>${resultado.nome}</strong>
+                        <p>
+                            ${resultado.rua}
+                            ${resultado.numero},
+                            ${resultado.bairro} -
+                            ${resultado.cidade}
+                        </p>
+                    </div>
+
+                </div>
+            `;
 
                 item.addEventListener("click", () => {
 
@@ -83,7 +101,22 @@ buscaInput.addEventListener("input", async () => {
             } else {
 
                 item.innerHTML = `
-                    <strong>${resultado.nome}</strong>
+                   <div style="display:flex; align-items:center; gap:10px;">
+                    <img 
+                        src="${resultado.fotoPerfil}" 
+                        alt="Foto"
+                        style="
+                            width:50px;
+                            height:50px;
+                            border-radius:50%;
+                            object-fit:cover;
+                        "
+                    >
+                    <div>
+                        <strong>${resultado.nome}</strong>
+                    </div>
+
+                </div>
                 `;
 
                 item.addEventListener("click", () => {
