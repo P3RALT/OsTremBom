@@ -258,3 +258,46 @@
 .lista-btn-fechar:hover {
     color: #000000;
 }
+/* --- MELHORIA DA BARRA DE PESQUISA COM LUPA --- */
+
+/* Container que envolve a lupa e o input */
+.busca-lista-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* O Campo de Entrada de Texto */
+.busca-lista-container input {
+    width: 100%;
+    /* 38px de espaço na esquerda para o texto não bater na lupa */
+    padding: 10px 12px 10px 38px; 
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fafafa;
+    color: #262626;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Efeito visual quando o usuário clica para digitar */
+.busca-lista-container input:focus {
+    border-color: #a8a8a8;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* O Ícone da Lupa Isolado e Posicionado dentro do Input */
+.lupa-icone {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    /* Centraliza o ícone verticalmente de forma matemática */
+    transform: translateY(-50%); 
+    color: #8e8e8e;
+    font-size: 14px;
+    pointer-events: none; /* Garante que clicar na lupa ative o input por baixo */
+}
