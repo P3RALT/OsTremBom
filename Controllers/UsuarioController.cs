@@ -176,6 +176,29 @@ namespace TremBomApi.Controllers
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
             
             if (usuario == null) return NotFound();
+            // Últimas 10 publicações
+            var ultimasPublicacoes = await _context.Publicacoes
+                .Where(p => p.UsuarioId == usuario.Id)
+                .OrderByDescending(p => p.DataPublicacao) // Garante que venham as mais novas primeiro
+                .Take(10)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    // Pega a URL da primeira imagem vinculada a essa publicação (se houver)
+                    fotoUrl = _context.PublicacoesFotos
+                        .Where(img => img.PublicacaoId == p.Id)
+                        .Select(img => img.FotoUrl)
+                        .FirstOrDefault(),
+                    
+                    // Conta a quantidade de registros de likes para esta publicação
+                    likes = _context.Likes 
+                        .Count(l => l.PublicacaoId == p.Id).FormatarQuantidade(),
+
+                    // Conta a quantidade de registros de comentários para esta publicação
+                    comentarios = _context.Comentarios
+                        .Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
+                })
+                .ToListAsync();
             
             // Contagem de seguidores
             var totalSeguidores = await _context.Seguidores
@@ -185,7 +208,9 @@ namespace TremBomApi.Controllers
              .CountAsync(s => s.UsuarioId == usuario.Id);
             // Total de publicações
             var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
-            var result = new {
+            var result = new
+            {
+                id = usuario.Id,
                 seguindo = totalSeguindo.FormatarQuantidade(),
                 seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
@@ -193,8 +218,10 @@ namespace TremBomApi.Controllers
                 preferencias = usuario.Preferencias,
                 descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
-                publicacoes = totalPublicacoes,
-                vistoPorUltimo = usuario.UltimoLogin,};
+                vistoPorUltimo = usuario.UltimoLogin,
+                publicacoesCount = totalPublicacoes.FormatarQuantidade(),
+                publicacoes = ultimasPublicacoes,
+            };
 
             return Ok(result);
         }
@@ -212,8 +239,7 @@ namespace TremBomApi.Controllers
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
             
             if (usuario == null) return NotFound();
-            
-            // Contagem de seguidores
+            // Contagem de seguidores   
             var totalSeguidores = await _context.Seguidores
             .CountAsync(s => s.AlvoUsuarioId == usuario.Id);
             // Contagem de quem ele segue
@@ -221,6 +247,30 @@ namespace TremBomApi.Controllers
              .CountAsync(s => s.UsuarioId == usuario.Id);
             // Total de publicações
             var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
+
+            // Últimas 10 publicações
+            var ultimasPublicacoes = await _context.Publicacoes
+                .Where(p => p.UsuarioId == usuario.Id)
+                .OrderByDescending(p => p.DataPublicacao) // Garante que venham as mais novas primeiro
+                .Take(10)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    // Pega a URL da primeira imagem vinculada a essa publicação (se houver)
+                    fotoUrl = _context.PublicacoesFotos
+                        .Where(img => img.PublicacaoId == p.Id)
+                        .Select(img => img.FotoUrl)
+                        .FirstOrDefault(),
+                    
+                    // Conta a quantidade de registros de likes para esta publicação
+                    likes = _context.Likes 
+                        .Count(l => l.PublicacaoId == p.Id).FormatarQuantidade(),
+
+                    // Conta a quantidade de registros de comentários para esta publicação
+                    comentarios = _context.Comentarios
+                        .Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
+                })
+                .ToListAsync();
 
             // Pega o ID de quem está logado (se houver alguém logado)
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -248,7 +298,8 @@ namespace TremBomApi.Controllers
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
                 isOwner = ehODonoDoPerfil,
-                publicacoes = totalPublicacoes,
+                publicacoesCount = totalPublicacoes.FormatarQuantidade(),
+                publicacoes = ultimasPublicacoes,
                 segue = jaSegue!=null
             };
 

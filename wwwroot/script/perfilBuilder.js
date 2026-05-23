@@ -16,6 +16,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Captura o parâmetro '?usuario=nome' presente na URL da página
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
 
+    //! MUDANÇA AQUI: Movido o mapeamento de elementos para o topo do escopo do DOMContentLoaded
+    //! Agora tanto a função 'renderizarPerfil' quanto o 'addEventListener' conseguem usá-los sem erro de ReferenceError.
+    const elemento = {
+        seguidores: document.getElementById("seguidores"),
+        seguindo: document.getElementById("seguindo"),
+        nickname: document.getElementById("nickname"),
+        descricaoBio: document.getElementById("descricao-bio"),
+        fotoPerfil: document.querySelector("#foto-perfil-usuario img"),
+        preferencias: document.getElementById("preferencias"),
+        publicacoesElement: document.getElementById("total-publicacoes")
+    };
+
     // VERIFICAÇÃO 1: Se existir um parâmetro de usuário na URL, busca o perfil público dele
     if (paramsPerfil && paramsPerfil.trim() !== "") {
         try {
@@ -54,23 +66,45 @@ window.addEventListener('DOMContentLoaded', async () => {
      * @param {Boolean} isOwner - Identifica se o usuário visualizando é o dono do perfil.
      */
     function renderizarPerfil(usuario, isOwner) {
-        // Mapeamento dos elementos estruturais da página
-        const elemento = {
-            seguidores: document.getElementById("seguidores"),
-            seguindo: document.getElementById("seguindo"),
-            nickname: document.getElementById("nickname"),
-            descricaoBio: document.getElementById("descricao-bio"),
-            fotoPerfil: document.querySelector("#foto-perfil-usuario img"),
-            preferencias: document.getElementById("preferencias"),
-            publicacoesElement: document.getElementById("total-publicacoes")
-        };
+        const mainGrid = document.getElementById("main-grid")
+        const publicacoes = usuario.publicacoes || [];
+        
+        if (publicacoes.length > 0){
+            mainGrid.innerHTML = ""
+            publicacoes.forEach(post => {
+                const postCard = document.createElement("div");
+                postCard.classList.add("photo-item");
+                
+                // Fallback adicionado para evitar que o src fique "undefined" caso a foto falte.
+                const fotoCard = post.fotoUrl || "../img/placeholder-post.png"; 
+                
+                postCard.innerHTML = `
+                    <img src="${fotoCard}" alt="Post">
+                    <div class="photo-overlay">
+                        <span><i class="fas fa-heart"></i> ${post.likes}</span>
+                        <span><i class="fas fa-comment"></i> ${post.comentarios}</span>
+                    </div>
+                `;
+
+                postCard.addEventListener("click", () => {
+                    // Só exemplo por enquanto
+                    abrirModalPost(post.id);
+                });
+
+                mainGrid.appendChild(postCard);
+            });
+        }
+        // Se não houver postagens, renderiza o estado vazio limpando o container anterior.
+        else {
+            mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhuma publicação ainda.</p>`;
+        } 
 
         // Atualização de textos simples com valores padrão (fallbacks) de segurança
         if (elemento.seguidores) elemento.seguidores.textContent = usuario.seguidores || 0;
         if (elemento.seguindo) elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
         if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "";
-        elemento.publicacoesElement.textContent = usuario.publicacoes;
+        if (elemento.publicacoesElement) elemento.publicacoesElement.textContent = usuario.publicacoesCount || 0;
         
         // Atualiza o atributo src da imagem de avatar
         if (elemento.fotoPerfil) {
@@ -94,7 +128,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                 editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
             }
         }
-    }
+    } 
+    
 
     /**
      * Escuta todos os cliques ocorridos dentro do container #edit-profile (técnica de Event Delegation).
@@ -103,7 +138,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (editProfile) {
         editProfile.addEventListener('click', async (event) => {
             const target = event.target;
-            const seguidoresElement = document.getElementById("seguidores");
             
             // Tratamento preventivo de segurança para evitar quebras se o usuário não tiver sido carregado
             if (!usuarioAtual) return;
@@ -126,12 +160,16 @@ window.addEventListener('DOMContentLoaded', async () => {
                         if (resposta.ok) {
                             // Altera visualmente o botão para Seguir
                             editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
-                            const textoAtual = seguidoresElement.textContent.trim().toLowerCase();
-                            // Se a contagem não estiver abreviada (ex: 15.4k), atualiza o número em tempo real (-1)
-                            if (!textoAtual.includes('k')) {
-                                let contagemAtual = parseInt(textoAtual) || 0;
-                                contagemAtual = Math.max(0, contagemAtual - 1); // Evita números negativos
-                                seguidoresElement.textContent = contagemAtual;
+                            
+                            //! Mudança aqui: Agora usamos o 'elemento.seguidores' global do escopo DOM com segurança
+                            if (elemento.seguidores) {
+                                const textoAtual = elemento.seguidores.textContent.trim().toLowerCase();
+                                // Se a contagem não estiver abreviada (ex: 15.4k), atualiza o número em tempo real (-1)
+                                if (!textoAtual.includes('k')) {
+                                    let contagemAtual = parseInt(textoAtual) || 0;
+                                    contagemAtual = Math.max(0, contagemAtual - 1); // Evita números negativos
+                                    elemento.seguidores.textContent = contagemAtual;
+                                }
                             }
                         }
                     } 
@@ -144,12 +182,16 @@ window.addEventListener('DOMContentLoaded', async () => {
                         if (resposta.ok) {
                             // Altera visualmente o botão para Deixar de Seguir
                             editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
-                            const textoAtual = seguidoresElement.textContent.trim().toLowerCase();
-                            // Se a contagem não estiver abreviada, atualiza o número em tempo real (+1)
-                            if (!textoAtual.includes('k')) {
-                                let contagemAtual = parseInt(textoAtual) || 0;
-                                contagemAtual += 1;
-                                seguidoresElement.textContent = contagemAtual;
+                            
+                            //! Mudança aqui: Atualizando com o ponteiro correto de escopo
+                            if (elemento.seguidores) {
+                                const textoAtual = elemento.seguidores.textContent.trim().toLowerCase();
+                                // Se a contagem não estiver abreviada, atualiza o número em tempo real (+1)
+                                if (!textoAtual.includes('k')) {
+                                    let contagemAtual = parseInt(textoAtual) || 0;
+                                    contagemAtual += 1;
+                                    elemento.seguidores.textContent = contagemAtual;
+                                }
                             }
                         }
                     }
@@ -231,7 +273,7 @@ function toggleTagSelecao(elementoTag) {
  * Calcula em tempo real quantos caracteres restam da descrição.
  * @param {HTMLTextAreaElement} textarea - O campo de texto da bio.
  */
-function actualizarContador(textarea) {
+function atualizarContador(textarea) {
     const limite = 150;
     const qtdDigitada = textarea.value.length;
     const restante = limite - qtdDigitada;
@@ -288,7 +330,7 @@ async function salvarPerfil(event) {
         });
 
         if (response.ok) {
-            alert("Perfil atualizado com sucesso, uai!");
+            alert("Perfil updated successfully!");
             fecharModal();
             window.location.reload(); 
         } else {
@@ -388,6 +430,6 @@ window.fecharModalLista = fecharModalLista;
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
 window.toggleTagSelecao = toggleTagSelecao;
-window.atualizarContador = actualizarContador;
+window.atualizarContador = atualizarContador;
 window.atualizarPreviaImagem = atualizarPreviaImagem;
 window.salvarPerfil = salvarPerfil;

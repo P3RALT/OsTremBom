@@ -52,93 +52,6 @@
         </div>
     </section>
         <section class="feed tab-content active" id="tab-feed">
-            <article class="post-card">
-                <div class="post-header">
-                    <a href="../page/profile.html?usuario=ostrem">
-                    <div class="post-user">
-                        <img src="../img/default-avatar.jpg" alt="User">
-                        <span>@ostrem</span>
-                    </div>
-                    </a>
-                    <i class="fa-solid fa-ellipsis"></i>
-                </div>
-                <div class="post-img">
-                    <img src="../img/imagemcentropage.jpg" alt="Praça da Liberdade">
-                    <div class="map-balloon-wrapper" id="wrapper-post1">
-                        <div id="mini-map-post1" class="mini-map"></div>
-                        <div class="map-overlay-click" onclick="expandMap('post1', -19.9320, -43.9380)"></div>
-                    </div>
-
-                    <div id="expanded-map-post1" class="expanded-map-container">
-                        <button class="close-map" onclick="closeMap('post1')">×</button>
-                        <div id="full-map-post1" class="full-map"></div>
-                    </div>
-                     <a href="../page/detalhes.html?id=102"> 
-                            <div class="location-tag" style="display: flex; align-items: center;">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <span>Praça da Liberdade, BH</span>
-                                <span class="heart"><i class="fa-solid fa-heart"></i>&nbsp;890</span>
-                            </div>
-                    </a>
-                </div>
-                <div class="post-footer">
-                    <div class="post-icons">
-                        <i class="fa-regular fa-heart"></i>
-                        <i class="fa-regular fa-comment"></i>
-                    </div>
-                    <span class="likes">2.540 curtidas</span>
-                    <div class="caption">
-                        <b>@ostremdebh</b> Noite mágica na Praça da Liberdade! Quem mais ama esse lugar? 🔺✨ #BH #MinasGerais
-                    </div>
-                    <span class="time">Há 3 horas</span>
-                </div>
-            </article>
-
-            <article class="post-card">
-                <div class="post-header">
-                    <div class="post-user">
-                        <img src="https://i.pravatar.cc/150?u=6" alt="User">
-                        <a href="../page/profile.html?usuario=gabriel">
-                            <span>@gabriel</span>
-                        </a>
-                    </div>
-                    <i class="fa-solid fa-ellipsis"></i>
-                </div>
-                <div class="post-img">
-                    <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&q=80&w=800" alt="Pão de Queijo">
-                    <div class="map-balloon-wrapper" id="wrapper-post2">
-                    <div id="mini-map-post2" class="mini-map"></div>
-                    <div 
-                        class="map-overlay-click"
-                        onclick="expandMap('post2', -19.9320, -43.9380)">
-                    </div>
-                </div>
-
-                    <div id="expanded-map-post2" class="expanded-map-container">
-                        <button class="close-map" onclick="closeMap('post2')">×</button>
-                        <div id="full-map-post2" class="full-map"></div>
-                    </div>
-                     <a href="../page/detalhes.html?id=102"> 
-                            <div class="location-tag" style="display: flex; align-items: center;">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <span>Praça da Liberdade, BH</span>
-                                <span class="heart"><i class="fa-solid fa-heart"></i>&nbsp;890</span>
-                            </div>
-                    </a>
-                </div>
-                <div class="post-footer">
-                    <div class="post-icons">
-                        <i class="fa-regular fa-heart"></i>
-                        <i class="fa-regular fa-comment"></i>
-                    </div>
-                    <span class="likes">890 curtidas</span>
-                    <div class="caption">
-                        <b>@mineirinho_uai</b> O café da tarde perfeito não exist... ☕🧀
-                    </div>
-                    <span class="time">Há 5 horas</span>
-                </div>
-            </article>
-
         </section>
     </div>
     <aside class="sidebar2" id="sidebar2" style="border: none !important; margin-right: 60px; background-color: transparent !important;">
@@ -181,6 +94,7 @@
     </aside>
     <!--Não tira isso daq, vai quebrar tudo-->
     <script src="../script/searchFeed.js"></script>
+    <script src="../script/renderizarFeed.js"></script>
     <script src="../script/toggleMenu.js"></script>
 </body>
 </html>

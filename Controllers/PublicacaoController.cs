@@ -1,11 +1,13 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Web;
 using TremBomApi.Data;
+using TremBomApi.Extensions;
 using TremBomApi.Models;
 
 namespace TremBomApi.Controllers
@@ -24,6 +26,69 @@ namespace TremBomApi.Controllers
             _configuration = configuration;
             
         }
+
+        [HttpGet("feed")]
+        public async Task<IActionResult> ObterFeed([FromQuery] int offset = 0, [FromQuery] int limit = 10)
+        {
+            try
+            {
+                // Busca os dados brutos do banco de dados (Query convertida em SQL válida)
+                var postsBrutos = await _context.Publicacoes
+                    .AsNoTracking()
+                    .OrderByDescending(p => p.DataPublicacao)
+                    .Skip(offset)
+                    .Take(limit)
+                    .Select(p => new 
+                    {
+                        id = p.Id,
+                        legenda = p.Descricao,
+                        localId = p.LocalId,
+                        localNome = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Nome).FirstOrDefault(),
+                        localLat = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Latitude).FirstOrDefault(),
+                        localLon =  _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Longitude).FirstOrDefault(),
+                        localCidade = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Cidade).FirstOrDefault(),
+                        // Dados do Dono do Post
+                        nickname = p.Usuario!.Nickname, 
+                        usuarioAvatar = p.Usuario.FotoPerfilUrl, 
+                        dataPublicacaoOriginal = p.DataPublicacao,
+                        // Pega todas as fotos relacionadas ao post
+                        fotosUrls = _context.PublicacoesFotos
+                                            .Where(img => img.PublicacaoId == p.Id)
+                                            .Select(img => img.FotoUrl)
+                                            .ToList(),
+
+
+                        likesCount = _context.Likes.Count(l => l.PublicacaoId == p.Id),
+                    })
+                    .ToListAsync();
+
+                // Transforma/Formata na memória (LINQ to Objects) antes de enviar para o Front-end
+                var postsFormatados = postsBrutos.Select(p => new 
+                {
+                    p.id,
+                    p.nickname,
+                    p.usuarioAvatar,
+                    p.fotosUrls,
+                    p.legenda,
+                    p.localId,
+                    p.localCidade,
+                    p.localNome,
+                    p.localLat,
+                    p.localLon,
+                    dataPublicacao = new DateTimeOffset(p.dataPublicacaoOriginal).ToUnixTimeMilliseconds(),
+                    likes = p.likesCount.FormatarQuantidade(),
+                }).ToList();
+
+                return Ok(postsFormatados);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao buscar feed: {ex.Message}");
+                return StatusCode(500, "Erro interno no servidor.");
+            }
+        }
+        
+
         [HttpPost("criar")]
         public async Task<IActionResult> CriarPost(
             [FromForm] List<IFormFile> imagens,
