@@ -12,6 +12,9 @@ namespace TremBomApi.Models
         public int UsuarioId { get; set; }
         public int LocalId { get; set; }    
 
+        [Column("descricao")]
+        public required string Descricao {get; set;}
+
         [Column("data_publicacao")]
         public DateTime DataPublicacao { get; set; } = DateTime.Now;
 
@@ -26,6 +29,10 @@ namespace TremBomApi.Models
     {
         [Key]
         public int Id { get; set; }
+        public int PublicacaoId { get; set; }
+
+        [ForeignKey("PublicacaoId")]
+        public virtual Publicacao? Publicacao { get; set; }
         public string FotoUrl { get; set; } = string.Empty;
     }
 }

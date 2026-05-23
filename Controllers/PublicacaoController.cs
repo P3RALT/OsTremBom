@@ -1,7 +1,11 @@
-/*
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Web;
+using TremBomApi.Data;
 using TremBomApi.Models;
 
 namespace TremBomApi.Controllers
@@ -11,149 +15,171 @@ namespace TremBomApi.Controllers
     [Authorize]
     public class PublicacaoController : ControllerBase
     {
-        private readonly IPublicacaoService _publicacaoService;
+        private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public PublicacaoController(IPublicacaoService publicacaoService)
+        public PublicacaoController(AppDbContext context, IConfiguration configuration)
         {
-            _publicacaoService = publicacaoService;
+            _context = context;
+            _configuration = configuration;
+            
         }
-
-        private int GetUsuarioId()
+        [HttpPost("criar")]
+        public async Task<IActionResult> CriarPost(
+            [FromForm] List<IFormFile> imagens,
+            [FromForm] string descricao,
+            [FromForm] string nomeEstabelecimento,
+            [FromForm] int? enderecoId,
+            // Campos adicionais do formulário para quando for um local novo
+            [FromForm] string? rua,
+            [FromForm] int? numero,
+            [FromForm] string? bairro,
+            [FromForm] string? cidade)
         {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
-                ?? User.FindFirst("sub")?.Value;
-            return int.TryParse(claim, out var id) ? id : 0;
-        }
+            try
+            {
+                var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(usuario)) return Unauthorized();
+                // Validação básica de segurança
+                if (string.IsNullOrEmpty(nomeEstabelecimento) || string.IsNullOrEmpty(descricao))
+                {
+                    return BadRequest("Nome do estabelecimento e descrição são obrigatórios.");
+                }
 
-        /// <summary>
-        /// Lista todas as publicações
-        /// </summary>
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetPublicacoes()
-        {
-            int? usuarioId = User.Identity?.IsAuthenticated == true ? GetUsuarioId() : null;
-            var resultado = await _publicacaoService.GetPublicacoesAsync(usuarioId);
-            return Ok(resultado);
-        }
+                int idLocalFinal = 0;
 
-        /// <summary>
-        /// Obtém uma publicação por ID
-        /// </summary>
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetPublicacao(int id)
-        {
-            int? usuarioId = User.Identity?.IsAuthenticated == true ? GetUsuarioId() : null;
-            var resultado = await _publicacaoService.GetPublicacaoByIdAsync(id, usuarioId);
-            
-            if (!resultado.Sucesso)
-                return NotFound(resultado);
-            
-            return Ok(resultado);
-        }
+                // Opção 1: Não veio ID do front-end, precisamos cadastrar)
+                if (enderecoId == null || enderecoId <= 0)
+                {
+                    double? latitude = null;
+                    double? longitude = null;
 
-        /// <summary>
-        /// Cria uma nova publicação
-        /// IDs: publicacaoLocalId, publicacaoLocal, publicacaoFotos, 
-        /// publicacaoFeedback, publicacaoRatingSelecionado
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> CriarPublicacao([FromForm] PublicacaoRequest request)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.CriarPublicacaoAsync(usuarioId, request);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
-        }
+                    // Busca as coordenadas no Nominatim se houver nome da rua
+                    if (!string.IsNullOrEmpty(rua))
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            // Identificação obrigatória exigida pela política do Nominatim
+                            client.DefaultRequestHeaders.Add("User-Agent", "OsTremDeBH_Backend/1.0 (email@teste.com)");
 
-        /// <summary>
-        /// Curtir uma publicação
-        /// </summary>
-        [HttpPost("{id}/like")]
-        public async Task<IActionResult> CurtirPublicacao(int id)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.CurtirPublicacaoAsync(id, usuarioId);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
-        }
+                            var ruaCompleta = $"{rua}, {numero}";
+                            var cidadeBusca = !string.IsNullOrEmpty(cidade) ? cidade : "Belo Horizonte";
 
-        /// <summary>
-        /// Descurtir uma publicação
-        /// </summary>
-        [HttpDelete("{id}/like")]
-        public async Task<IActionResult> DescurtirPublicacao(int id)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.DescurtirPublicacaoAsync(id, usuarioId);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
-        }
+                            var urlNominatim = $"https://nominatim.openstreetmap.org/search?street={HttpUtility.UrlEncode(ruaCompleta)}&city={HttpUtility.UrlEncode(cidadeBusca)}&country=Brazil&format=jsonv2&limit=1";
 
-        /// <summary>
-        /// Excluir uma publicação
-        /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> ExcluirPublicacao(int id)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.ExcluirPublicacaoAsync(id, usuarioId);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
-        }
+                            try
+                            {
+                                var respostaMap = await client.GetAsync(urlNominatim);
+                                if (respostaMap.IsSuccessStatusCode)
+                                {
+                                    var jsonString = await respostaMap.Content.ReadAsStringAsync();
+                                    using (var doc = JsonDocument.Parse(jsonString))
+                                    {
+                                        var root = doc.RootElement;
+                                        if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
+                                        {
+                                            var primeiroResultado = root[0];
 
-        /// <summary>
-        /// Adicionar comentário em uma publicação
-        /// </summary>
-        [HttpPost("{id}/comentarios")]
-        public async Task<IActionResult> AdicionarComentario(int id, [FromBody] ComentarioRequest request)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.AdicionarComentarioAsync(id, usuarioId, request);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
-        }
+                                            if (primeiroResultado.TryGetProperty("lat", out var latProp) && 
+                                                primeiroResultado.TryGetProperty("lon", out var lonProp))
+                                            {
+                                                if (double.TryParse(latProp.GetString(), CultureInfo.InvariantCulture, out double lat))
+                                                    latitude = lat;
+                                                
+                                                if (double.TryParse(lonProp.GetString(), CultureInfo.InvariantCulture, out double lon))
+                                                    longitude = lon;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception mapEx)
+                            {
+                                Console.WriteLine($"Erro ao consultar o Nominatim: {mapEx.Message}");
+                                return BadRequest("Erro ao consultar o Nominatim.");
+                            }
+                        }
+                    }
 
-        /// <summary>
-        /// Listar comentários de uma publicação
-        /// </summary>
-        [HttpGet("{id}/comentarios")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetComentarios(int id)
-        {
-            var resultado = await _publicacaoService.GetComentariosAsync(id);
-            return Ok(resultado);
-        }
+                    // Instancia o novo local com os dados recebidos e as coordenadas achadas
+                    var novoLocal = new Local
+                    {
+                        Nome = nomeEstabelecimento,
+                        Rua = rua,
+                        Numero = numero,
+                        Bairro = bairro,
+                        Cidade = !string.IsNullOrEmpty(cidade) ? cidade : "Belo Horizonte",
+                        Latitude = latitude??0,
+                        Longitude = longitude??0,
+                    };
 
-        /// <summary>
-        /// Excluir um comentário
-        /// </summary>
-        [HttpDelete("comentarios/{comentarioId}")]
-        public async Task<IActionResult> ExcluirComentario(int comentarioId)
-        {
-            var usuarioId = GetUsuarioId();
-            var resultado = await _publicacaoService.ExcluirComentarioAsync(comentarioId, usuarioId);
-            
-            if (!resultado.Sucesso)
-                return BadRequest(resultado);
-            
-            return Ok(resultado);
+                    _context.Locais.Add(novoLocal);
+                    await _context.SaveChangesAsync(); // Salva para gerar o ID automático
+                    
+                    idLocalFinal = novoLocal.Id; 
+                }
+                // Opção 2: LOCAL EXISTENTE (O usuário selecionou um local já salvo da lista)
+                else
+                {
+                    idLocalFinal = enderecoId.Value;
+                }
+
+                // SALVAR A PUBLICAÇÃO 
+                var novaPublicacao = new Publicacao
+                {
+                    Descricao = descricao,
+                    UsuarioId = int.Parse(usuario),
+                    LocalId = idLocalFinal, // Vincula ao ID
+                };
+                _context.Publicacoes.Add(novaPublicacao);
+                await _context.SaveChangesAsync();
+
+                // SALVAR AS IMAGENS NO DISCO E REGISTRAR NO BANCO
+                var caminhosImagens = new List<string>();
+                string pasta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "posts-imgs");
+
+                if (!Directory.Exists(pasta))
+                    Directory.CreateDirectory(pasta);
+
+                if (imagens != null && imagens.Count > 0)
+                {
+                    foreach (var imagem in imagens)
+                    {
+                        if (imagem.Length > 0)
+                        {
+                            var nomeArquivo = $"{idLocalFinal}-" + Guid.NewGuid() + Path.GetExtension(imagem.FileName);
+                            var caminhoCompleto = Path.Combine(pasta, nomeArquivo);
+
+                            using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+                            {
+                                await imagem.CopyToAsync(stream);
+                            }
+
+                            var urlRelativa = $"/img/posts-imgs/{nomeArquivo}";
+                            caminhosImagens.Add(urlRelativa);
+
+                            // Cria a referência da imagem no banco atrelada à publicação
+                            var imagemPost = new PublicacaoFoto
+                            {
+                                PublicacaoId = novaPublicacao.Id,
+                                FotoUrl = urlRelativa
+                            };
+                            _context.PublicacoesFotos.Add(imagemPost);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new
+                {
+                    mensagem = "Post e local processados com sucesso!",
+                    publicacaoId = novaPublicacao.Id,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
+            }
         }
     }
-}*/
+}

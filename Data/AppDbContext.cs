@@ -13,6 +13,7 @@ namespace TremBomApi.Data
         public DbSet<Likes> Likes { get; set; }
         public DbSet<Comentarios> Comentarios { get; set; }
         public DbSet<Publicacao> Publicacoes { get; set; }
+        public DbSet<PublicacaoFoto> PublicacoesFotos { get; set; }
         public DbSet<Seguidores> Seguidores { get; set; }
 
 
