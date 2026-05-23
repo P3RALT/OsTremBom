@@ -1,31 +1,45 @@
 window.addEventListener('DOMContentLoaded', () => {
+    const estiloCarrossel = document.createElement('style');
+    estiloCarrossel.innerHTML = `
+        .post-carousel { position: relative; width: 100%; overflow: hidden; background: #fafafa; }
+        .carousel-track { display: flex; transition: transform 0.4s ease-in-out; width: 100%; }
+        .carousel-item { min-width: 100%; box-sizing: border-box; display: flex; justify-content: center; align-items: center; }
+        /* AQUI ESTÁ O PADRÃO DE ALTURA DAS IMAGENS */
+        .carousel-item img { width: 100%; height: 500px; display: block; object-fit: cover; }
+        
+        .carousel-control { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.4); color: white; border: none; font-size: 18px; padding: 10px 14px; cursor: pointer; border-radius: 50%; z-index: 10; transition: background 0.2s; }
+        .carousel-control:hover { background: rgba(0, 0, 0, 0.7); }
+        .carousel-control.prev { left: 10px; }
+        .carousel-control.next { right: 10px; }
+        .carousel-indicators { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
+        .indicator { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); transition: background 0.2s; }
+        .indicator.active { background: #069E6E; transform: scale(1.2); }
+    `;
+    document.head.appendChild(estiloCarrossel);
+
     const mainGrid = document.getElementById("tab-feed");
     
-    let offset = 0; // A posição que a gente começa a puxar os posts (ex: agr é 0, na outra vira 10)
-    const limit = 10; // Limitado a 10
-    let carregando = false; // Evita requisições duplicadas ao mesmo tempo
-    let fimDosPosts = false; // Para de buscar se a API não retornar mais nada
+    let offset = 0; 
+    const limit = 10; 
+    let carregando = false; 
+    let fimDosPosts = false; 
 
     async function carregarPosts() {
         if (carregando || fimDosPosts) return;
         
         carregando = true;
         try {
-            // Passando os parâmetros de paginação na URL da API
             const resposta = await fetch(`/api/publicacao/feed?offset=${offset}&limit=${limit}`);
             
             if (resposta.ok) {
                 const posts = await resposta.json();
                 
-                // Se a API retornar menos posts que o limite, significa que os posts acabaram
                 if (posts.length < limit) {
                     fimDosPosts = true;
                 }
 
-                // Se houver posts, renderiza na tela
                 if (posts.length > 0) {
                     renderizarPosts(posts);
-                    // Incrementa o offset em 10 para a próxima busca
                     offset += limit; 
                 }
             } else {
@@ -38,15 +52,31 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função auxiliar para injetar os posts no HTML
     function renderizarPosts(posts) {
         posts.forEach(post => {
             const article = document.createElement("article");
             article.classList.add("post-card");
             
-            const fotoCapa = post.fotosUrls && post.fotosUrls.length > 0 
-                ? post.fotosUrls[0] 
-                : '../img/placeholder-post.png';
+            const fotos = post.fotosUrls && post.fotosUrls.length > 0 
+                ? post.fotosUrls 
+                : ['../img/placeholder-post.png'];
+
+            let carrosselItensHtml = '';
+            fotos.forEach((foto, index) => {
+                carrosselItensHtml += `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <img src="${foto}" alt="${post.localNome || 'Publicação'}">
+                    </div>
+                `;
+            });
+
+            const botoesControleHtml = fotos.length > 1 ? `
+                <button class="carousel-control prev" onclick="window.mudarSlide(this, -1)">&#10094;</button>
+                <button class="carousel-control next" onclick="window.mudarSlide(this, 1)">&#10095;</button>
+                <div class="carousel-indicators">
+                    ${fotos.map((_, i) => `<span class="indicator ${i === 0 ? 'active' : ''}"></span>`).join('')}
+                </div>
+            ` : '';
 
             article.innerHTML = `
                 <div class="post-header">
@@ -60,7 +90,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="post-img">
-                    <img src="${fotoCapa}" alt="${post.localNome || 'Publicação'}">
+                    <div class="post-carousel">
+                        <div class="carousel-track">
+                            ${carrosselItensHtml}
+                        </div>
+                        ${botoesControleHtml}
+                    </div>
                     
                     <div class="map-balloon-wrapper" id="wrapper-post${post.id}">
                         <div id="mini-map-post${post.id}" class="mini-map"></div>
@@ -99,39 +134,37 @@ window.addEventListener('DOMContentLoaded', () => {
         atualizarTemposEmTempoReal();
     }
     
-    // Calcula a diferença entre a hora atual e o timestamp do post.
-   function calcularTempoPassado(timestamp) {
-    // Como passamos um número do C#, convertemos para Int antes de criar a data
-    const conversaoTime = parseInt(timestamp);
-    if (isNaN(conversaoTime)) return "Data inválida";
+    function calcularTempoPassado(timestamp) {
+        const conversaoTime = parseInt(timestamp);
+        if (isNaN(conversaoTime)) return "Data inválida";
 
-    const dataPost = new Date(conversaoTime);
-    const agora = new Date();
-    const diferencaEmSegundos = Math.floor((agora - dataPost) / 1000);
+        const dataPost = new Date(conversaoTime);
+        const agora = new Date();
+        const diferencaEmSegundos = Math.floor((agora - dataPost) / 1000);
 
-    // Se o fuso horário local der uma diferença negativa sutil, assume que foi agora
-    if (diferencaEmSegundos < 60) {
-        return "Agora mesmo";
+        if (diferencaEmSegundos < 60) {
+            return "Agora mesmo";
+        }
+
+        const diferencaEmMinutos = Math.floor(diferencaEmSegundos / 60);
+        if (diferencaEmMinutos < 60) {
+            return `Há ${diferencaEmMinutos} ${diferencaEmMinutos === 1 ? 'minuto' : 'minutos'}`;
+        }
+
+        const diferencaEmHoras = Math.floor(diferencaEmMinutos / 60);
+        if (diferencaEmHoras < 24) {
+            return `Há ${diferencaEmHoras} ${diferencaEmHoras === 1 ? 'hora' : 'horas'}`;
+        }
+
+        const diferencaEmDias = Math.floor(diferencaEmHoras / 24);
+        if (diferencaEmDias < 7) {
+            return `Há ${diferencaEmDias} ${diferencaEmDias === 1 ? 'dia' : 'dias'}`;
+        }
+
+        return dataPost.toLocaleDateString('pt-BR');
     }
 
-    const diferencaEmMinutos = Math.floor(diferencaEmSegundos / 60);
-    if (diferencaEmMinutos < 60) {
-        return `Há ${diferencaEmMinutos} ${diferencaEmMinutos === 1 ? 'minuto' : 'minutos'}`;
-    }
-
-    const diferencaEmHoras = Math.floor(diferencaEmMinutos / 60);
-    if (diferencaEmHoras < 24) {
-        return `Há ${diferencaEmHoras} ${diferencaEmHoras === 1 ? 'hora' : 'horas'}`;
-    }
-
-    const diferencaEmDias = Math.floor(diferencaEmHoras / 24);
-    if (diferencaEmDias < 7) {
-        return `Há ${diferencaEmDias} ${diferencaEmDias === 1 ? 'dia' : 'dias'}`;
-    }
-
-    return dataPost.toLocaleDateString('pt-BR');
-}
-function createMiniMap(id, coords) {
+    function createMiniMap(id, coords) {
         const element = document.getElementById(id);
 
         if (!element) return;
@@ -152,30 +185,77 @@ function createMiniMap(id, coords) {
             opacity: 1,
             fillOpacity: 0.8
         }).addTo(map);
-}
+    }
 
-function atualizarTemposEmTempoReal() {
-    const elementosDeTempo = document.querySelectorAll('.time-agenda');
-    elementosDeTempo.forEach(el => {
-        const timestamp = el.getAttribute('data-timestamp');
-        if (timestamp && timestamp !== "undefined") {
-            el.textContent = calcularTempoPassado(timestamp);
-        } else {
-            el.textContent = "Data indisponível";
-        }
-    });
-}
+    function atualizarTemposEmTempoReal() {
+        const elementosDeTempo = document.querySelectorAll('.time-agenda');
+        elementosDeTempo.forEach(el => {
+            const timestamp = el.getAttribute('data-timestamp');
+            if (timestamp && timestamp !== "undefined") {
+                el.textContent = calcularTempoPassado(timestamp);
+            } else {
+                el.textContent = "Data indisponível";
+            }
+        });
+    }
 
-    // Detecta o scroll da página para carregar mais posts automaticamente quando o usuário chegar ao fim
     window.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
         
-        // Se o usuário chegou a 100px do final da página, puxa mais 10 posts
         if (scrollTop + clientHeight >= scrollHeight - 100) {
             carregarPosts();
         }
+    });
+    // Detecta quando a tela muda de tamanho
+    let timeoutResize;
+    window.addEventListener('resize', () => {
+        clearTimeout(timeoutResize);
+        // Só executa o reset após o usuário parar de mexer no tamanho da tela por 100ms
+        timeoutResize = setTimeout(() => {
+            // Defina o tamanho máximo de tela que você considera "pequena" (ex: 768px para mobile)
+                const todosCarrosseis = document.querySelectorAll('.post-carousel');
+                
+                todosCarrosseis.forEach(carousel => {
+                    const track = carousel.querySelector('.carousel-track');
+                    const itens = Array.from(track.children);
+                    const indicators = Array.from(carousel.querySelectorAll('.indicator'));
+                    
+                    // Remove estado ativo de todo mundo
+                    itens.forEach(item => item.classList.remove('active'));
+                    if (indicators.length > 0) {
+                        indicators.forEach(ind => ind.classList.remove('active'));
+                        indicators[0].classList.add('active'); // Ativa a primeira bolinha
+                    }
+                    
+                    // Força o primeiro item a ficar ativo e reseta a posição do slide para o início
+                    if (itens.length > 0) {
+                        itens[0].classList.add('active');
+                    }
+                    track.style.transform = 'translateX(0px)';
+                });
+        }, 100);
     });
 
     carregarPosts();
 });
 
+window.mudarSlide = function(botao, direcao) {
+    const carousel = botao.closest('.post-carousel');
+    const track = carousel.querySelector('.carousel-track');
+    const itens = Array.from(track.children);
+    const indicators = Array.from(carousel.querySelectorAll('.indicator'));
+    
+    const itemAtivo = track.querySelector('.carousel-item.active');
+    let indexAtual = itens.indexOf(itemAtivo);
+    
+    itemAtivo.classList.remove('active');
+    if (indicators.length > 0) indicators[indexAtual].classList.remove('active');
+    
+    indexAtual = (indexAtual + direcao + itens.length) % itens.length;
+    
+    itens[indexAtual].classList.add('active');
+    if (indicators.length > 0) indicators[indexAtual].classList.add('active');
+    
+    const larguraSlide = itens[indexAtual].getBoundingClientRect().width;
+    track.style.transform = `translateX(-${indexAtual * larguraSlide}px)`;
+};
