@@ -204,6 +204,16 @@ a {
 .post-icons:hover {
     cursor: pointer;
 }
+.fa-heart.curtido {
+    color: #069e6e;
+    animation: pulsar 0.3s ease-in-out;
+}
+
+@keyframes pulsar {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
 .fa-heart:hover {
     color: #069e6e;
 }

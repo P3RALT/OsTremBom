@@ -54,8 +54,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function renderizarPosts(posts) {
         posts.forEach(post => {
+            
             const article = document.createElement("article");
             article.classList.add("post-card");
+            // Lógica para mostrar o coração colorido ou n
+            const classeCoracao = post.jaCurtiu ? 'fa-solid fa-heart curtido' : 'fa-regular fa-heart';
             
             const fotos = post.fotosUrls && post.fotosUrls.length > 0 
                 ? post.fotosUrls 
@@ -117,16 +120,16 @@ window.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="post-footer">
-                    <div class="post-icons">
-                        <i class="fa-regular fa-heart"></i>
-                        <i class="fa-regular fa-comment"></i>
-                    </div>
-                    <span class="likes">${post.likes || 0} curtidas</span>
-                    <div class="caption">
-                        <b>@${post.nickname || 'usuario'}</b> ${post.legenda || ''}
-                    </div>
-                    <span class="time time-agenda" data-timestamp="${post.dataPublicacao}">Calculando...</span>
+                <div class="post-icons">
+                    <i class="${classeCoracao}" data-post-id="${post.id}" onclick="alternarLike(this, ${post.id})"></i>
+                    <i class="fa-regular fa-comment"></i>
                 </div>
+                <span class="likes-contador-${post.id} likes">${post.likes || 0} curtidas</span>
+                <div class="caption">
+                    <b>@${post.nickname || 'usuario'}</b> ${post.legenda || ''}
+                </div>
+                <span class="time time-agenda" data-timestamp="${post.dataPublicacao}">Calculando...</span>
+            </div>
             `;
             mainGrid.appendChild(article);
             createMiniMap(`mini-map-post${post.id}`, [post.localLat, post.localLon]);
@@ -258,4 +261,51 @@ window.mudarSlide = function(botao, direcao) {
     
     const larguraSlide = itens[indexAtual].getBoundingClientRect().width;
     track.style.transform = `translateX(-${indexAtual * larguraSlide}px)`;
+};
+window.alternarLike = async function(elemento, postId) {
+    // Evita cliques duplos enquanto a requisição acontece
+    if (elemento.style.pointerEvents === 'none') return;
+    elemento.style.pointerEvents = 'none';
+
+    // Determina se a ação atual é um Like ou Deslike baseado na classe atual do ícone
+    const ehDeslike = elemento.classList.contains('fa-solid');
+    const url = `/api/publicacao/${postId}/${ehDeslike ? 'deslike' : 'like'}`;
+
+    try {
+        const resposta = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (resposta.ok) {
+            // Se a requisição funcionou, atualiza o visual do ícone
+            if (ehDeslike) {
+                elemento.classList.remove('fa-solid', 'curtido');
+                elemento.classList.add('fa-regular');
+            } else {
+                elemento.classList.remove('fa-regular');
+                elemento.classList.add('fa-solid', 'curtido');
+            }
+
+            // Atualiza o contador de curtidas na tela sem recarregar a página
+            const contador = document.querySelector(`.likes-contador-${postId}`);
+            if (contador) {
+                let quantidadeAtual = parseInt(contador.textContent) || 0;
+                quantidadeAtual = ehDeslike ? quantidadeAtual - 1 : quantidadeAtual + 1;
+                contador.textContent = `${quantidadeAtual} ${quantidadeAtual === 1 ? 'curtida' : 'curtidas'}`;
+            }
+
+        } else if (resposta.status === 401) {
+            alert("Você precisa estar logado para curtir uma publicação.");
+        } else {
+            console.error("Erro ao processar o clique.");
+        }
+    } catch (erro) {
+        console.error("Erro na comunicação com o servidor:", erro);
+    } finally {
+        // Reativa o clique no botão
+        elemento.style.pointerEvents = 'auto';
+    }
 };

@@ -27,10 +27,47 @@ namespace TremBomApi.Controllers
             
         }
 
+        [HttpPost("{publicacao}/deslike")]
+        public async Task<IActionResult> Deslike(int publicacao)
+        {
+            var publi = await _context.Publicacoes.Where(p => p.Id == publicacao).FirstOrDefaultAsync();
+            if (publi == null) return NotFound();
+            var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usuario)) return Unauthorized();
+
+
+            var userInt = int.Parse(usuario);
+            var jaDeuLike = await _context.Likes.Where(l => l.UsuarioId == userInt && l.PublicacaoId == publicacao).FirstOrDefaultAsync();
+            if (jaDeuLike == null)
+            {
+                return BadRequest("Você não deu like nesse post.");
+            }
+            _context.Likes.Remove(jaDeuLike);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Like removido com sucesso." });
+        }
+
         [HttpPost("{publicacao}/like")]
         public async Task<IActionResult> Like(int publicacao)
         {
-            return Ok();
+            var publi = await _context.Publicacoes.Where(p => p.Id == publicacao).FirstOrDefaultAsync();
+            if (publi == null) return NotFound();
+            var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usuario)) return Unauthorized();
+            var userInt = int.Parse(usuario);
+            var jaDeuLike = await _context.Likes.Where(l => l.UsuarioId == userInt && l.PublicacaoId == publicacao).FirstOrDefaultAsync();
+            if (jaDeuLike != null)
+            {
+                return BadRequest("Você já deu like nesse post.");
+            }
+            var result = new Likes
+            {
+                UsuarioId = userInt,
+                PublicacaoId = publicacao,
+            };
+            _context.Likes.Add(result);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Like adicionado com sucesso." });
         }
         [HttpGet("feed")]
         [AllowAnonymous]
@@ -38,6 +75,10 @@ namespace TremBomApi.Controllers
         {
             try
             {
+                // Pra lógica de já curtiu ou n, vemos se o usuário tem um id no JWT, se não tive a gente deixa 0
+                var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdInt = string.IsNullOrEmpty(usuario) ? 0 : int.Parse(usuario);
+
                 // Busca os dados brutos do banco de dados (Query convertida em SQL válida)
                 var postsBrutos = await _context.Publicacoes
                     .AsNoTracking()
@@ -49,6 +90,7 @@ namespace TremBomApi.Controllers
                         id = p.Id,
                         legenda = p.Descricao,
                         localId = p.LocalId,
+                        jaCurtiu = userIdInt != 0 && _context.Likes.Any(l => l.UsuarioId == userIdInt && l.PublicacaoId == p.Id),
                         localNome = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Nome).FirstOrDefault(),
                         localLat = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Latitude).FirstOrDefault(),
                         localLon =  _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Longitude).FirstOrDefault(),
@@ -81,6 +123,7 @@ namespace TremBomApi.Controllers
                     p.localNome,
                     p.localLat,
                     p.localLon,
+                    p.jaCurtiu,
                     dataPublicacao = new DateTimeOffset(p.dataPublicacaoOriginal).ToUnixTimeMilliseconds(),
                     likes = p.likesCount.FormatarQuantidade(),
                 }).ToList();

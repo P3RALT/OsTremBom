@@ -155,6 +155,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const resposta = await fetch(`/api/usuario/${usuarioAtual.nickname}/curtidos`);
             if (resposta.ok) {
                 const curtidas = await resposta.json();
+                console.log("DADOS DO BACKEND:", curtidas);
                 
                 if (curtidas.length > 0) {
                     mainGrid.innerHTML = "";
@@ -163,7 +164,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         postCard.classList.add("photo-item");
                         
                         postCard.innerHTML = `
-                            <img src="${post.fotoUrl}" alt="Post Curtido">
+                            <img src="${post.fotoUrlPublicacao}" alt="Post Curtido">
                             <div class="photo-overlay">
                                 <span><i class="fas fa-heart"></i> ${post.likes}</span>
                                 <span><i class="fas fa-comment"></i> ${post.comentarios}</span>
