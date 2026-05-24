@@ -27,7 +27,13 @@ namespace TremBomApi.Controllers
             
         }
 
+        [HttpPost("{publicacao}/like")]
+        public async Task<IActionResult> Like(int publicacao)
+        {
+            return Ok();
+        }
         [HttpGet("feed")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterFeed([FromQuery] int offset = 0, [FromQuery] int limit = 10)
         {
             try

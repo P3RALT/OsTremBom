@@ -16,8 +16,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Captura o parâmetro '?usuario=nome' presente na URL da página
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
 
-    //! MUDANÇA AQUI: Movido o mapeamento de elementos para o topo do escopo do DOMContentLoaded
-    //! Agora tanto a função 'renderizarPerfil' quanto o 'addEventListener' conseguem usá-los sem erro de ReferenceError.
     const elemento = {
         seguidores: document.getElementById("seguidores"),
         seguindo: document.getElementById("seguindo"),
@@ -27,7 +25,25 @@ window.addEventListener('DOMContentLoaded', async () => {
         preferencias: document.getElementById("preferencias"),
         publicacoesElement: document.getElementById("total-publicacoes")
     };
-
+    const tabs = document.querySelectorAll('#tabs-items .tab-item');
+    // Lógica das tabs: curtidas, grupos e publicações
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            tab.classList.add('active');
+            
+            if (index === 0) {
+                if (usuarioAtual) {
+                    renderizarPerfil(usuarioAtual, usuarioAtual.isOwner);
+                }
+            } else if (index === 1) {
+                carregarCurtidas();
+            } else {
+                document.getElementById("main-grid").innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhum grupo encontrado.</p>`;
+            }
+        });
+    });
     // VERIFICAÇÃO 1: Se existir um parâmetro de usuário na URL, busca o perfil público dele
     if (paramsPerfil && paramsPerfil.trim() !== "") {
         try {
@@ -68,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     function renderizarPerfil(usuario, isOwner) {
         const mainGrid = document.getElementById("main-grid")
         const publicacoes = usuario.publicacoes || [];
-        
+        document.title = `${usuario.nickname} - Os Trem de BH`
         if (publicacoes.length > 0){
             mainGrid.innerHTML = ""
             publicacoes.forEach(post => {
@@ -129,6 +145,48 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
         }
     } 
+
+    // --- NOVA FUNÇÃO: BUSCA E RENDERIZA AS PUBLICAÇÕES CURTIDAS ---
+    async function carregarCurtidas() {
+        const mainGrid = document.getElementById("main-grid");
+        mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Carregando curtidas...</p>`;
+
+        try {
+            const resposta = await fetch(`/api/usuario/${usuarioAtual.nickname}/curtidos`);
+            if (resposta.ok) {
+                const curtidas = await resposta.json();
+                
+                if (curtidas.length > 0) {
+                    mainGrid.innerHTML = "";
+                    curtidas.forEach(post => {
+                        const postCard = document.createElement("div");
+                        postCard.classList.add("photo-item");
+                        
+                        postCard.innerHTML = `
+                            <img src="${post.fotoUrl}" alt="Post Curtido">
+                            <div class="photo-overlay">
+                                <span><i class="fas fa-heart"></i> ${post.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${post.comentarios}</span>
+                            </div>
+                        `;
+
+                        postCard.addEventListener("click", () => {
+                            abrirModalPost(post.id);
+                        });
+
+                        mainGrid.appendChild(postCard);
+                    });
+                } else {
+                    mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhuma publicação encontrada.</p>`;
+                }
+            } else {
+                mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color: red;">Erro ao carregar publicações curtidas.</p>`;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar curtidas:", error);
+            mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color: red;">Erro de conexão do servidor.</p>`;
+        }
+    }
     
 
     /**
@@ -420,6 +478,45 @@ function atualizarListaNaTela(tipo, dados) {
  */
 function fecharModalLista(idModal) {
     document.getElementById(idModal).style.display = "none";
+}
+
+function atualizarListaNaTela(tipo, dados) {
+    const container = document.getElementById(`lista-${tipo}`);
+
+    if (!Array.isArray(dados)) {
+        console.error("Dados inválidos:", dados);
+        return;
+    }
+
+    container.innerHTML = "";
+
+    dados.forEach(dado => {
+        const item = document.createElement("div");
+
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+                <img 
+                    src="${dado.fotoPerfil ?? dado.fotoPerfilUrl}" 
+                    style="
+                        width:50px;
+                        height:50px;
+                        border-radius:50%;
+                        object-fit:cover;
+                    "
+                >
+                <div>
+                    <strong>${dado.nome ?? dado.nickname}</strong>
+                </div>
+            </div>
+        `;
+
+        item.addEventListener("click", () => {
+            const usuario = dado.nome ?? dado.nickname;
+            window.location.href = `/page/profile.html?usuario=${usuario}`;
+        });
+
+        container.appendChild(item);
+    });
 }
 
 // Vincula as funções corrigidas ao escopo do Window do navegador

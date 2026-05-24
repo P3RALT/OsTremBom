@@ -16,6 +16,10 @@ namespace TremBomApi.Models
 
         public int UsuarioId { get; set; }
 
+        [Column("data_like")]
+
+        public DateTime DateLike {get; set;} = DateTime.Now;
+
         [ForeignKey("UsuarioId")]
         public virtual Usuario? Usuario { get; set; }
 

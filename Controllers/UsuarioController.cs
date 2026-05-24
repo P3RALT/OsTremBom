@@ -219,11 +219,52 @@ namespace TremBomApi.Controllers
                 descricaoBio = usuario.Descricao,
                 aniversario = usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
+                isOwner = true,
                 publicacoesCount = totalPublicacoes.FormatarQuantidade(),
                 publicacoes = ultimasPublicacoes,
             };
 
             return Ok(result);
+        }
+
+        [HttpGet("{name}/curtidos")]
+        public async Task<IActionResult> GetCurtidosUsuario(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest("O nome do usuário não foi informado.");
+            }
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound();
+            var likesBrutos = await _context.Likes
+                    .AsNoTracking()
+                    .Where(l => l.UsuarioId == usuario.Id)
+                    .OrderByDescending(l => l.DateLike) 
+                    .Take(10)
+                    .Select(l => new
+                    {
+                        publicacaoId = l.PublicacaoId,
+                        
+                        fotoUrl = _context.PublicacoesFotos
+                            .Where(img => img.PublicacaoId == l.PublicacaoId)
+                            .Select(img => img.FotoUrl)
+                            .FirstOrDefault(),
+                        
+                        likesCount = _context.Likes 
+                            .Count(like => like.PublicacaoId == l.PublicacaoId),
+
+                        comentariosCount = _context.Comentarios
+                            .Count(c => c.PublicacaoId == l.PublicacaoId)
+                    })
+                    .ToListAsync();
+                var ultimasPublicacoesCurtidas = likesBrutos.Select(p => new
+                {
+                    id = p.publicacaoId,
+                    fotoUrlPublicacao = p.fotoUrl, 
+                    likes = p.likesCount.FormatarQuantidade(),
+                    comentarios = p.comentariosCount.FormatarQuantidade()
+                }).ToList();
+                return Ok(ultimasPublicacoesCurtidas);
         }
 
 // Função para buscar um perfil público pelo nickname (GET /api/usuario/nome-do-usuario)
