@@ -74,7 +74,7 @@ buttonSubmit.addEventListener("click", async (e) => {
 
         if (resposta.ok) {
             const resultado = await resposta.json();
-            window.location.href = `../page/post.html?id=${resultado.publicacaoId}`;
+            window.location.href = `../page/feed.html?id=${resultado.publicacaoId}`;
 
             //!
         } else {
