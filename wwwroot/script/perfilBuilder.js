@@ -155,8 +155,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             const resposta = await fetch(`/api/usuario/${usuarioAtual.nickname}/curtidos`);
             if (resposta.ok) {
                 const curtidas = await resposta.json();
-                console.log("DADOS DO BACKEND:", curtidas);
-                
                 if (curtidas.length > 0) {
                     mainGrid.innerHTML = "";
                     curtidas.forEach(post => {
