@@ -50,6 +50,43 @@ window.addEventListener('DOMContentLoaded', () => {
         } finally {
             carregando = false;
         }
+        try{
+            const respostaTrending = await fetch(`/api/publicacao/trending`);
+            if (respostaTrending.ok) {
+                const trending = await respostaTrending.json();
+                renderizarTrending(trending);
+            } else {
+                console.error("Erro ao buscar o trending.");
+            }
+        }catch(error){
+            console.error("Erro na requisição do trending:", error);
+        }
+    }
+
+    function renderizarTrending(trending) {
+        const containerTrending = document.getElementById("sidebar2");
+        if (!containerTrending) return;
+        const titulo = containerTrending.querySelector(".sidebar-logo");
+        containerTrending.innerHTML = "";
+        if (titulo) containerTrending.appendChild(titulo);
+        trending.forEach(item => {
+            const div = document.createElement("div");
+            div.classList.add("trending-item");
+            div.innerHTML = `
+            <a href="../page/local.html?id=${item.id}" style="text-decoration: none; color: inherit;">
+                    <div class="post-card trending-item" style="padding: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fa-solid fa-arrow-trend-up" style="font-size: 16px;"></i>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <span id="trending-title" style="font-weight: bold; line-height: 1.2;">${item.name}</span>
+                            <span id="trending-category">${item.categoria} • ${item.totalLikes} likes</span>
+                        </div>
+                    </div>
+                </div>
+            </a>`
+            containerTrending.appendChild(div);
+
+        });
     }
 
     function renderizarPosts(posts) {

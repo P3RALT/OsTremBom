@@ -69,6 +69,41 @@ namespace TremBomApi.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Like adicionado com sucesso." });
         }
+        
+        [HttpGet("trending")]
+        [AllowAnonymous]
+       public async Task<IActionResult> ObterTrending()
+        {
+            try
+            {
+                var limiteData = DateTime.UtcNow.AddDays(-1);
+
+         var locaisTrending = await _context.Likes
+                .Where(l => l.DateLike >= limiteData) 
+                .GroupBy(l => new { 
+                    l.Publicacao!.LocalId, 
+                    l.Publicacao!.Local!.Nome, 
+                    l.Publicacao!.Local!.Categoria 
+                }) 
+                .Select(g => new 
+                {
+                    Id = g.Key.LocalId, 
+                    Name = g.Key.Nome,
+                    categoria = g.Key.Categoria,
+                    TotalLikes = g.Count()
+                })
+                .OrderByDescending(x => x.TotalLikes) 
+                .Take(10) 
+                .ToListAsync();
+
+            return Ok(locaisTrending);
+                        }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao obter o trending: {ex.Message}");
+            }
+        }
+
         [HttpGet("feed")]
         [AllowAnonymous]
         public async Task<IActionResult> ObterFeed([FromQuery] int offset = 0, [FromQuery] int limit = 10)
