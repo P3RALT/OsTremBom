@@ -110,14 +110,12 @@ namespace TremBomApi.Controllers
         {
             try
             {
-                // Pra lógica de já curtiu ou n, vemos se o usuário tem um id no JWT, se não tive a gente deixa 0
                 var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userIdInt = string.IsNullOrEmpty(usuario) ? 0 : int.Parse(usuario);
 
-                // Busca os dados brutos do banco de dados (Query convertida em SQL válida)
+                // 1. QUERY CORRIGIDA PARA EF CORE (Usando .AsEnumerable())
                 var postsBrutos = await _context.Publicacoes
                     .AsNoTracking()
-                    // Ordena por mais recente dos mais curtidos
                     .OrderByDescending(p => _context.Likes.Count(l => l.PublicacaoId == p.Id))
                     .ThenByDescending(p => p.DataPublicacao)
                     .Skip(offset)
@@ -128,33 +126,34 @@ namespace TremBomApi.Controllers
                         legenda = p.Descricao,
                         localId = p.LocalId,
                         jaCurtiu = userIdInt != 0 && _context.Likes.Any(l => l.UsuarioId == userIdInt && l.PublicacaoId == p.Id),
-                        localNome = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Nome).FirstOrDefault(),
+                        
+                        localNome = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Nome).FirstOrDefault() ?? "Local Desconhecido",
                         localLat = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Latitude).FirstOrDefault(),
-                        localLon =  _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Longitude).FirstOrDefault(),
-                        localCidade = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Cidade).FirstOrDefault(),
+                        localLon = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Longitude).FirstOrDefault(),
+                        localCidade = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Cidade).FirstOrDefault() ?? "",
                         localLikes = _context.Likes.Count(l => l.Publicacao!.LocalId == p.LocalId),
-                        // Dados do Dono do Post
-                        nickname = p.Usuario!.Nickname, 
-                        usuarioAvatar = p.Usuario.FotoPerfilUrl, 
+                        
+                        nickname = _context.Usuarios.Where(u => u.Id == p.UsuarioId).Select(u => u.Nickname).FirstOrDefault() ?? "usuario",
+                        usuarioAvatar = _context.Usuarios.Where(u => u.Id == p.UsuarioId).Select(u => u.FotoPerfilUrl).FirstOrDefault(),
+                        
                         dataPublicacaoOriginal = p.DataPublicacao,
-                        // Pega todas as fotos relacionadas ao post
+                        likesCount = _context.Likes.Count(l => l.PublicacaoId == p.Id),
+                        
+                        // ALTERAÇÃO CRÍTICA AQUI: O .AsEnumerable() resolve o erro 500 sem causar o bug dos 5 posts
                         fotosUrls = _context.PublicacoesFotos
                                             .Where(img => img.PublicacaoId == p.Id)
                                             .Select(img => img.FotoUrl)
-                                            .ToList(),
-
-
-                        likesCount = _context.Likes.Count(l => l.PublicacaoId == p.Id),
+                                            .AsEnumerable() 
                     })
-                    .ToListAsync();
+                    .ToListAsync(); 
 
-                // Transforma/Formata na memória (LINQ to Objects) antes de enviar para o Front-end
+                // 2. MAPEAMENTO FINAL EM MEMÓRIA
                 var postsFormatados = postsBrutos.Select(p => new 
                 {
                     p.id,
                     p.nickname,
                     p.usuarioAvatar,
-                    p.fotosUrls,
+                    fotosUrls = p.fotosUrls.ToList(), // Converte para lista real aqui na memória da aplicação
                     p.legenda,
                     p.localId,
                     p.localCidade,
@@ -164,14 +163,18 @@ namespace TremBomApi.Controllers
                     p.localLikes,
                     p.jaCurtiu,
                     dataPublicacao = new DateTimeOffset(p.dataPublicacaoOriginal).ToUnixTimeMilliseconds(),
-                    likes = p.likesCount.FormatarQuantidade(),
+                    likes = p.likesCount.FormatarQuantidade(), 
                 }).ToList();
 
                 return Ok(postsFormatados);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao buscar feed: {ex.Message}");
+                Console.WriteLine($"Erro crítico ao buscar feed: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
                 return StatusCode(500, "Erro interno no servidor.");
             }
         }

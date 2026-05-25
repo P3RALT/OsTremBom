@@ -40,6 +40,7 @@ namespace TremBomApi.Controllers
             {
                 Tipo = "Usuario",
                 Nome = u.Nickname,
+                id = (int?)null,
                 FotoPerfil = u.FotoPerfilUrl,
                 Seguidores =    (int?) _context.Seguidores
                     .Count(s => s.AlvoUsuarioId == u.Id),
@@ -56,6 +57,7 @@ namespace TremBomApi.Controllers
                     {
                         Tipo = "Local",
                         Nome = l.Nome,
+                        id = (int?)l.Id,
                         // Pega uma foto aleatória de uma publicação vinculada ao local
                         FotoPerfil = _context.PublicacoesFotos
                                     .Where(f => f.Publicacao!.LocalId == l.Id)

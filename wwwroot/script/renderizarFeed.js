@@ -25,43 +25,45 @@ window.addEventListener('DOMContentLoaded', () => {
     let fimDosPosts = false; 
 
     async function carregarPosts() {
-        if (carregando || fimDosPosts) return;
+    if (carregando || fimDosPosts) return;
+    
+    carregando = true;
+    try {
+        // Passa o offset dinâmico atualizado
+        const resposta = await fetch(`/api/publicacao/feed?offset=${offset}&limit=${limit}`);
         
-        carregando = true;
-        try {
-            const resposta = await fetch(`/api/publicacao/feed?offset=${offset}&limit=${limit}`);
+        if (resposta.ok) {
+            const posts = await resposta.json();
             
-            if (resposta.ok) {
-                const posts = await resposta.json();
-                
-                if (posts.length < limit) {
-                    fimDosPosts = true;
-                }
+            if (posts.length > 0) {
+                renderizarPosts(posts);
+                offset += posts.length; // Incrementa com base nos posts recebidos reais
+            }
 
-                if (posts.length > 0) {
-                    renderizarPosts(posts);
-                    offset += limit; 
-                }
-            } else {
-                console.error("Erro ao buscar o feed.");
+            // Se a API retornou menos do que pedimos, a base de dados zerou
+            if (posts.length < limit) {
+                fimDosPosts = true;
             }
-        } catch (error) {
-            console.error("Erro na requisição:", error);
-        } finally {
-            carregando = false;
+        } else {
+            console.error(resposta);
         }
-        try{
-            const respostaTrending = await fetch(`/api/publicacao/trending`);
-            if (respostaTrending.ok) {
-                const trending = await respostaTrending.json();
-                renderizarTrending(trending);
-            } else {
-                console.error("Erro ao buscar o trending.");
-            }
-        }catch(error){
-            console.error("Erro na requisição do trending:", error);
-        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+    } finally {
+        carregando = false;
     }
+
+    // Isolado em um bloco try-catch independente para o erro de um não quebrar o outro
+    try {
+        const respostaTrending = await fetch(`/api/publicacao/trending`);
+        if (respostaTrending.ok) {
+            const trending = await respostaTrending.json();
+            renderizarTrending(trending);
+        }
+    } catch(error) {
+        console.error("Erro na requisição do trending:", error);
+    }
+}
 
     function renderizarTrending(trending) {
         const containerTrending = document.getElementById("sidebar2");
@@ -73,7 +75,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement("div");
             div.classList.add("trending-item");
             div.innerHTML = `
-            <a href="../page/local.html?id=${item.id}" style="text-decoration: none; color: inherit;">
+            <a href="../page/detalhes.html?id=${item.id}" style="text-decoration: none; color: inherit;">
                     <div class="post-card trending-item" style="padding: 10px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <i class="fa-solid fa-arrow-trend-up" style="font-size: 16px;"></i>
