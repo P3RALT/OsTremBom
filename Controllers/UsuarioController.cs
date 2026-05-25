@@ -479,16 +479,14 @@ namespace TremBomApi.Controllers
             // Procura quem este utilizador segue (onde ele é o UsuarioId de origem)
             var lista = await _context.Seguidores
                 .Where(s => s.UsuarioId == usuario.Id)
-                .Select(s => new {
-                    Nickname = _context.Usuarios
-                        .Where(u => u.Id == s.AlvoUsuarioId) 
-                        .Select(u => u.Nickname)
-                        .FirstOrDefault(),
-                    FotoPerfilUrl = _context.Usuarios
-                        .Where(u => u.Id == s.AlvoUsuarioId)
-                        .Select(u => u.FotoPerfilUrl)
-                        .FirstOrDefault()
-                })
+                .Join(_context.Usuarios,
+                    s => s.AlvoUsuarioId,
+                    u => u.Id,
+                    (s, u) => new
+                    {
+                        nickname = u.Nickname,
+                        fotoPerfilUrl = u.FotoPerfilUrl
+                    })
                 .ToListAsync();
 
             return Ok(lista);

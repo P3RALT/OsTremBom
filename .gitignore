@@ -4,3 +4,4 @@ obj/
 *.sqlite
 *.db
 *.lscache
+*.env

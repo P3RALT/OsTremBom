@@ -20,10 +20,6 @@ namespace TremBomApi.Models
         [MaxLength(100)]
         [Column("categoria")]
         public string? Categoria { get; set; }
-
-        [Column("descricao")]
-        public string? Descricao { get; set; }
-
         
         [MaxLength(500)]
         [Column("rua")]
@@ -47,6 +43,12 @@ namespace TremBomApi.Models
         [Column("longitude")]
         public double Longitude { get; set; }
 
+        [Column("resumo")]
+        public required string? Resumo { get; set; }
+
+        [Column("atualizado_em")]
+        public DateTime? ResumoAtualizadoEm { get; set; }
+
         [Column("oq_fazer")]
         public string? OqFazer { get; set; }
 
@@ -55,31 +57,6 @@ namespace TremBomApi.Models
 
         [Column("pq_visitar")]
         public string? PqVisitar { get; set; }
-
-
-        [MaxLength(500)]
-        [Column("imagem_url")]
-        public string? ImagemUrl { get; set; }
-
-        [MaxLength(500)]
-        [Column("imagem_url_2")]
-        public string? ImagemUrl2 { get; set; }
-
-        [MaxLength(500)]
-        [Column("imagem_url_3")]
-        public string? ImagemUrl3 { get; set; }
-
-        [Column("avaliacao_nota")]
-        public double AvaliacaoNota { get; set; } 
-
-        [Column("horario_texto")]
-        public string? HorarioTexto { get; set; } 
-
-        [Column("total_likes")]
-        public int TotalLikes { get; set; }
-
-        [Column("total_comentarios")]
-        public int TotalComentarios { get; set; }
 
         [Column("data_cadastro")]
         public DateTime DataCadastro { get; set; } = DateTime.Now;

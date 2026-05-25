@@ -16,7 +16,6 @@ namespace TremBomApi.Data
         public DbSet<PublicacaoFoto> PublicacoesFotos { get; set; }
         public DbSet<Seguidores> Seguidores { get; set; }
 
-
         // Este método é chamado quando o modelo do banco de dados está sendo criado
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,14 +24,14 @@ namespace TremBomApi.Data
             modelBuilder.Entity<Usuario>()
             .HasIndex(u => u.Nickname)
             .IsUnique(); 
-            // Inserindo os 10 locais importantes de Belo Horizonte (Data Seeding)
+            /* Não precisamos de data seeding mais, já q o sistema agr é responsivo e dinâmico
             modelBuilder.Entity<Local>().HasData(
                 new Local
                 {
                     Id = 1,
                     Nome = "Igreja São Francisco de Assis (Igrejinha da Pampulha)",
                     Categoria = "Cultura e Arquitetura",
-                    Descricao = "Famosa igreja projetada por Oscar Niemeyer, com painéis de Cândido Portinari, localizada na beira da Lagoa da Pampulha.",
+                    Resumo = null,
                     Rua = "Avenida Otacílio Negrão de Lima",
                     Numero = 3000,
                     Bairro = "Pampulha",
@@ -55,7 +54,7 @@ namespace TremBomApi.Data
                     Id = 2,
                     Nome = "Mercado Central de Belo Horizonte",
                     Categoria = "Gastronomia e Compras",
-                    Descricao = "O coração da cultura mineira, com centenas de lojas vendendo queijos, doces, artesanatos e temperos.",
+                    Resumo = null,
                     Rua = "Avenida Augusto de Lima",
                     Numero = 744,
                     Bairro = "Centro",
@@ -78,7 +77,7 @@ namespace TremBomApi.Data
                     Id = 3,
                     Nome = "Praça da Liberdade",
                     Categoria = "Lazer e Cultura",
-                    Descricao = "Praça histórica cercada por belíssimos prédios públicos antigos que hoje formam o Circuito Cultural Praça da Liberdade.",
+                    Resumo = null,
                     Rua = "Praça da Liberdade",
                     Numero = 1,
                     Bairro = "Funcionários",
@@ -101,7 +100,7 @@ namespace TremBomApi.Data
                     Id = 4,
                     Nome = "Mirante do Mangabeiras",
                     Categoria = "Natureza e Vista",
-                    Descricao = "Localizado em uma área de preservação, oferece uma vista panorâmica espetacular de toda a cidade de BH.",
+                    Resumo = null,
                     Rua = "Rua Pedro José Pardo",
                     Numero = 100,
                     Bairro = "Mangabeiras",
@@ -124,7 +123,7 @@ namespace TremBomApi.Data
                     Id = 5,
                     Nome = "Minerão (Estádio Governador Magalhães Pinto)",
                     Categoria = "Esportes e Eventos",
-                    Descricao = "O gigante da Pampulha, palco histórico do futebol mineiro e grandes shows internacionais.",
+                    Resumo = null,
                     Rua = "Avenida Antônio Abrahão Caram",
                     Numero = 1001,
                     Bairro = "São José",
@@ -147,7 +146,7 @@ namespace TremBomApi.Data
                     Id = 6,
                     Nome = "Parque Municipal Américo Renné Giannetti",
                     Categoria = "Natureza e Parque",
-                    Descricao = "O mais antigo parque ambiental de BH, localizado bem no centro da cidade, um verdadeiro refúgio verde.",
+                    Resumo = "O mais antigo parque ambiental de BH, localizado bem no centro da cidade, um verdadeiro refúgio verde.",
                     Rua = "Avenida Afonso Pena",
                     Numero = 1377,
                     Bairro = "Centro",
@@ -170,7 +169,7 @@ namespace TremBomApi.Data
                     Id = 7,
                     Nome = "Praça do Papa",
                     Categoria = "Lazer e Vista",
-                    Descricao = "Localizada nas altas do bairro Mangabeiras, ganhou esse nome após a visita do Papa João Paulo II em 1980.",
+                    Resumo = "Localizada nas altas do bairro Mangabeiras, ganhou esse nome após a visita do Papa João Paulo II em 1980.",
                     Rua = "Praça Israel Pinheiro",
                     Numero = 1,
                     Bairro = "Mangabeiras",
@@ -193,7 +192,7 @@ namespace TremBomApi.Data
                     Id = 8,
                     Nome = "Inhotim (Instituto Contemporâneo)",
                     Categoria = "Arte e Botânica",
-                    Descricao = "Embora fique em Brumadinho (região metropolitana), é a principal extensão turística cultural de quem visita BH. Maior museu a céu aberto do mundo.",
+                    Resumo = "Embora fique em Brumadinho (região metropolitana), é a principal extensão turística cultural de quem visita BH. Maior museu a céu aberto do mundo.",
                     Rua = "Rua B",
                     Numero = 20,
                     Bairro = "Inhotim",
@@ -216,7 +215,7 @@ namespace TremBomApi.Data
                     Id = 9,
                     Nome = "Sesc Palladium",
                     Categoria = "Cultura e Teatro",
-                    Descricao = "Grande centro cultural no centro de BH que recebe shows, peças de teatro, cinema e exposições de arte.",
+                    Resumo = "Grande centro cultural no centro de BH que recebe shows, peças de teatro, cinema e exposições de arte.",
                     Rua = "Rua Rio de Janeiro",
                     Numero = 1046,
                     Bairro = "Centro",
@@ -239,7 +238,7 @@ namespace TremBomApi.Data
                     Id = 10,
                     Nome = "Rua do Amendoim",
                     Categoria = "Curiosidade Local",
-                    Descricao = "Famosa rua ladeira acima onde os carros, quando deixados em ponto morto, parecem subir a rua sozinhos devido a uma ilusão de ótica.",
+                    Resumo = "Famosa rua ladeira acima onde os carros, quando deixados em ponto morto, parecem subir a rua sozinhos devido a uma ilusão de ótica.",
                     Rua = "Rua Professor Otávio Coelho Magalhães",
                     Numero = 10,
                     Bairro = "Mangabeiras",
@@ -257,7 +256,7 @@ namespace TremBomApi.Data
                     DataCadastro = new DateTime(2026, 1, 1),
                     Ativo = true
                 }
-            );
+            );*/
         }
     }
 }

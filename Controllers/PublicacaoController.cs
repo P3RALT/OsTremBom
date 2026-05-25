@@ -225,6 +225,7 @@ namespace TremBomApi.Controllers
                         Nome = nomeEstabelecimento,
                         Rua = rua,
                         Numero = numero,
+                        Resumo = null,
                         Bairro = bairro,
                         Cidade = !string.IsNullOrEmpty(cidade) ? cidade : "Belo Horizonte",
                         Latitude = latitude??0,

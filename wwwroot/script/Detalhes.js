@@ -34,10 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         elementos.endereco.innerText = `${local.rua || local.Rua} ${local.numero || local.Numero}, ${local.bairro || local.Bairro} - ${local.cidade || local.Cidade}` || "Endereço não informado";
         elementos.likesCount.innerText = `${local.localLikes} likes`;
 
-        /*
-        pretendo fazer a descrição ser uma sintese de posts relacionado ao local
-        elementos.descricao.innerText = local.descricao || local.Descricao;
-        */
+        elementos.descricao.innerText = local.resumoIA;
         const galeria = document.getElementById("galeria");
         const fotos = local.fotos ?? [];
 

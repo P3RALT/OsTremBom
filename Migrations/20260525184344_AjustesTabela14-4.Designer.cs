@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260525184344_AjustesTabela14-4")]
+    partial class AjustesTabela144
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -102,6 +105,10 @@ namespace TremBomApi.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("TEXT")
                         .HasColumnName("data_cadastro");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("descricao");
 
                     b.Property<string>("Dicas")
                         .HasColumnType("TEXT")
