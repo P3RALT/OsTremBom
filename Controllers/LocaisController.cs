@@ -44,7 +44,27 @@ namespace TremBomApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> BuscarPorId(int id)
         {
-            var local = await _context.Locais.FirstOrDefaultAsync(l => l.Id == id);
+            var local = await _context.Locais
+                .Where(l => l.Id == id)
+                .Select(l => new
+                {
+                    l.Id,
+                    l.Nome,
+                    l.Rua,
+                    l.Bairro,
+                    l.Numero,
+                    l.Cidade,
+                    l.Latitude,
+                    l.Longitude,
+                    localLikes = _context.Likes.Count(l => l.Publicacao!.LocalId == id),
+                    Fotos = _context.PublicacoesFotos
+                        .Where(f => f.Publicacao!.LocalId == l.Id)
+                        .OrderBy(f => EF.Functions.Random())
+                        .Select(f => f.FotoUrl)
+                        .Take(3)
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (local == null)
             {

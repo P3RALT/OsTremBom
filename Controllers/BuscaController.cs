@@ -56,7 +56,12 @@ namespace TremBomApi.Controllers
                     {
                         Tipo = "Local",
                         Nome = l.Nome,
-                        FotoPerfil = l.ImagemUrl,
+                        // Pega uma foto aleatória de uma publicação vinculada ao local
+                        FotoPerfil = _context.PublicacoesFotos
+                                    .Where(f => f.Publicacao!.LocalId == l.Id)
+                                    .OrderBy(f => EF.Functions.Random())
+                                    .Select(f => f.FotoUrl)
+                                    .FirstOrDefault(),
                         Seguidores = (int?)null,
                         Rua = l.Rua,
                         Bairro = l.Bairro,

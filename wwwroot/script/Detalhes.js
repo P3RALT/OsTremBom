@@ -10,12 +10,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         categoria: document.getElementById('categoria'),
         dicas: document.getElementById('dicas'),
         pqVisitar: document.getElementById('pqVisitar'),
-        horario: document.getElementById('horarioTexto'),
         oqFazer: document.getElementById('oqFazer'),
         fotoPrincipal: document.getElementById('fotoPrincipal'),
         fotosLaterais: document.getElementById('fotosLaterais'),
-        status: document.getElementById('statusAberto'),
-        statusIcon: document.getElementById('statusIcon'),
         likesCount: document.getElementById('likesCount')
     };
 
@@ -28,38 +25,54 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Preenchimento de Textos (Lidando com PascalCase do C# ou camelCase do JSON)
         document.title = local.nome || local.Nome || "Detalhes do Local";
-        //elementos.horario.innerText = local.horarioTexto || local.HorarioTexto || "Consulte o local";
         elementos.nome.innerText = local.nome || local.Nome || "Nome do local";
         const ativo = local.ativo !== undefined ? local.ativo : local.Ativo;
-        elementos.status.innerText = ativo ? "Aberto agora" : "Fechado no momento";
-        elementos.status.style.color = ativo ? "#2e7d32" : "#c1351d";
         elementos.oqFazer.innerText = local.oqFazer || local.OqFazer || "Informação em breve.";
         elementos.pqVisitar.innerText = local.pqVisitar || local.PqVisitar || "Vale a pena conferir!";
         elementos.dicas.innerText = local.dicas || local.Dicas || "Sem dicas no momento.";
-        elementos.statusIcon.color = ativo ? "#2e7d32" : "#c1351d";
         elementos.categoria.innerText = local.categoria || local.Categoria || "Categoria desconhecida";
         elementos.endereco.innerText = `${local.rua || local.Rua} ${local.numero || local.Numero}, ${local.bairro || local.Bairro} - ${local.cidade || local.Cidade}` || "Endereço não informado";
-        elementos.likesCount.innerText = `${local.totalLikes} likes`;
+        elementos.likesCount.innerText = `${local.localLikes} likes`;
 
         /*
         pretendo fazer a descrição ser uma sintese de posts relacionado ao local
         elementos.descricao.innerText = local.descricao || local.Descricao;
-        
-        
         */
-        // Imagens
-        const url1 = local.imagemUrl || local.ImagemUrl;
-        /* esses links n funcionam mais
-        const url2 = local.imagemUrl2 || url1;
-        const url3 = local.imagemUrl3 || url1;
-        */
-       const url2 = url1;
-       const url3 = url1;
-        elementos.fotoPrincipal.innerHTML = `<img src="${url1}" alt="Foto Principal">`;
-        elementos.fotosLaterais.innerHTML = `
-            <img src="${url2}" alt="Foto 2">
-            <img src="${url3}" alt="Foto 3">
-        `;
+        const galeria = document.getElementById("galeria");
+        const fotos = local.fotos ?? [];
+
+        galeria.className = "galeria-mosaico";
+
+        if (fotos.length === 0) {
+            galeria.innerHTML = `<div class="skeleton-foto"></div>`;
+        }
+
+        else if (fotos.length === 1) {
+            galeria.classList.add("galeria-1");
+
+            galeria.innerHTML = `
+                <img src="${fotos[0]}" />
+            `;
+        }
+
+        else if (fotos.length === 2) {
+            galeria.classList.add("galeria-2");
+
+            galeria.innerHTML = `
+                <img src="${fotos[0]}" />
+                <img src="${fotos[1]}" />
+            `;
+        }
+
+        else {
+            galeria.classList.add("galeria-3");
+
+            galeria.innerHTML = `
+                <img src="${fotos[0]}" />
+                <img src="${fotos[1]}" />
+                <img src="${fotos[2]}" />
+            `;
+        }
         // Latitude e longitude aleatórias por enquanto, precisamos converter o endereço para coordenadas geográficas usando uma API de geocoding
         const latitude = local.latitude || local.Latitude || -19.932;
         const longitude = local.longitude || local.Longitude || -43.937;

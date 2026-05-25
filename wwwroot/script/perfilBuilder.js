@@ -69,7 +69,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 renderizarPerfil(usuarioAtual, true);
             } else {
                 // Se não estiver logado e tentar acessar o perfil próprio, redireciona para o login
-                window.location.href = "/page/login.html";
+                window.location.replace("/page/login.html");
             }
         } catch (error) {
             console.error("Erro ao verificar usuário logado:", error);

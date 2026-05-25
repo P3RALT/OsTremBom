@@ -82,7 +82,9 @@ namespace TremBomApi.Controllers
                 // Busca os dados brutos do banco de dados (Query convertida em SQL válida)
                 var postsBrutos = await _context.Publicacoes
                     .AsNoTracking()
-                    .OrderByDescending(p => p.DataPublicacao)
+                    // Ordena por mais recente dos mais curtidos
+                    .OrderByDescending(p => _context.Likes.Count(l => l.PublicacaoId == p.Id))
+                    .ThenByDescending(p => p.DataPublicacao)
                     .Skip(offset)
                     .Take(limit)
                     .Select(p => new 
@@ -95,6 +97,7 @@ namespace TremBomApi.Controllers
                         localLat = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Latitude).FirstOrDefault(),
                         localLon =  _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Longitude).FirstOrDefault(),
                         localCidade = _context.Locais.Where(l => l.Id == p.LocalId).Select(l => l.Cidade).FirstOrDefault(),
+                        localLikes = _context.Likes.Count(l => l.Publicacao!.LocalId == p.LocalId),
                         // Dados do Dono do Post
                         nickname = p.Usuario!.Nickname, 
                         usuarioAvatar = p.Usuario.FotoPerfilUrl, 
@@ -123,6 +126,7 @@ namespace TremBomApi.Controllers
                     p.localNome,
                     p.localLat,
                     p.localLon,
+                    p.localLikes,
                     p.jaCurtiu,
                     dataPublicacao = new DateTimeOffset(p.dataPublicacaoOriginal).ToUnixTimeMilliseconds(),
                     likes = p.likesCount.FormatarQuantidade(),
