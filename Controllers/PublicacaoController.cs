@@ -113,7 +113,7 @@ namespace TremBomApi.Controllers
                 var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userIdInt = string.IsNullOrEmpty(usuario) ? 0 : int.Parse(usuario);
 
-                // 1. QUERY CORRIGIDA PARA EF CORE (Usando .AsEnumerable())
+                // QUERY CORRIGIDA PARA EF CORE (Usando .AsEnumerable())
                 var postsBrutos = await _context.Publicacoes
                     .AsNoTracking()
                     .OrderByDescending(p => _context.Likes.Count(l => l.PublicacaoId == p.Id))
@@ -139,7 +139,6 @@ namespace TremBomApi.Controllers
                         dataPublicacaoOriginal = p.DataPublicacao,
                         likesCount = _context.Likes.Count(l => l.PublicacaoId == p.Id),
                         
-                        // ALTERAÇÃO CRÍTICA AQUI: O .AsEnumerable() resolve o erro 500 sem causar o bug dos 5 posts
                         fotosUrls = _context.PublicacoesFotos
                                             .Where(img => img.PublicacaoId == p.Id)
                                             .Select(img => img.FotoUrl)
@@ -147,7 +146,7 @@ namespace TremBomApi.Controllers
                     })
                     .ToListAsync(); 
 
-                // 2. MAPEAMENTO FINAL EM MEMÓRIA
+                // MAPEAMENTO FINAL EM MEMÓRIA
                 var postsFormatados = postsBrutos.Select(p => new 
                 {
                     p.id,
