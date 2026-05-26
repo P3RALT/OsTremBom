@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Json;
 using TremBomApi.Data;
 using TremBomApi.Models;
+using TremBomApi.Models.DTOs;
 
 namespace TremBomApi.Controllers
 {
@@ -10,37 +12,47 @@ namespace TremBomApi.Controllers
     public class LocaisController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public LocaisController(AppDbContext context) 
+        // Injetando o IConfiguration de forma nativa no construtor da classe
+        public LocaisController(AppDbContext context, IConfiguration configuration) 
         { 
             _context = context;
+            _configuration = configuration;
         }
 
+        /// <summary>
+        /// Busca locais filtrando por Nome ou Rua de forma performática.
+        /// </summary>
         [HttpGet("buscar-criar-post")]
         public async Task<IActionResult> Buscar([FromQuery] string termo)
         {
-        if (string.IsNullOrWhiteSpace(termo))
-            return BadRequest();
+            if (string.IsNullOrWhiteSpace(termo))
+                return BadRequest(new { mensagem = "O termo de busca não pode ser nulo." });
 
-        var resultados = await _context.Locais
-            .Where(l =>
-                l.Nome.ToLower().Contains(termo.ToLower()) ||
-                l.Rua!.ToLower().Contains(termo.ToLower()))
-            .Take(10)
-            .ToListAsync();
+            // OTIMIZAÇÃO: Substituído ToLower().Contains por EF.Functions.Like para preservar o uso de índices no Banco
+            var resultados = await _context.Locais
+                .Where(l => EF.Functions.Like(l.Nome, $"%{termo}%") || 
+                            EF.Functions.Like(l.Rua!, $"%{termo}%"))
+                .Take(10)
+                .ToListAsync();
 
-        return Ok(resultados);
+            return Ok(resultados);
         }
 
-        // GET: api/locais
+        /// <summary>
+        /// Lista todos os locais cadastrados na base de dados.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> ListarTodos()
         {
-            var locais = await _context.Locais.ToListAsync();
+            var locais = await _context.Locais.AsNoTracking().ToListAsync();
             return Ok(locais);
         }
 
-        // GET: api/locais/102
+        /// <summary>
+        /// Busca detalhes de um local por ID e atualiza/gera informações via IA (Groq) se o cache expirar.
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> BuscarPorId(int id)
         {
@@ -49,23 +61,17 @@ namespace TremBomApi.Controllers
             if (local == null)
                 return NotFound(new { mensagem = "Local não encontrado" });
 
-            // Só é válido se o resumo NÃO for nulo, a data NÃO for nula E a data for mais recente que 3 dias atrás.
+            // Validação de Cache (Válido se atualizado nos últimos 3 dias e com campos preenchidos)
             bool cacheValido = local.ResumoAtualizadoEm != null && 
-                       local.ResumoAtualizadoEm > DateTime.UtcNow.AddDays(-3) &&
-                       !string.IsNullOrEmpty(local.Resumo) &&
-                       !string.IsNullOrEmpty(local.OqFazer) && 
-                       !string.IsNullOrEmpty(local.Dicas) && 
-                       !string.IsNullOrEmpty(local.PqVisitar);
+                               local.ResumoAtualizadoEm > DateTime.UtcNow.AddDays(-3) &&
+                               !string.IsNullOrEmpty(local.Resumo) &&
+                               !string.IsNullOrEmpty(local.OqFazer) && 
+                               !string.IsNullOrEmpty(local.Dicas) && 
+                               !string.IsNullOrEmpty(local.PqVisitar);
 
-            string resumo;
-
-            if (cacheValido)
+            if (!cacheValido)
             {
-                resumo = local.Resumo!;
-            }
-            else
-            {
-                // Se o cache expirou (mais de 7 dias) ou nunca existiu, busca as publicações
+                // Busca as publicações vinculadas para abastecer o prompt da IA
                 var descricoes = await _context.Publicacoes
                     .Where(p => p.LocalId == id)
                     .Select(p => p.Descricao)
@@ -76,44 +82,10 @@ namespace TremBomApi.Controllers
                     var texto = string.Join("\n---\n", descricoes);
                     var prompt = $@"
                     Analise as publicações de usuários abaixo sobre o local '{local.Nome}'.
+                    Gere um JSON VÁLIDO contendo exatamente as chaves: 'Resumo', 'OqFazer', 'Dicas', 'PqVisitar'...
+                    Texto das Publicações: {texto}";
 
-                    Gere um JSON VÁLIDO contendo exatamente as chaves:
-                    'Resumo', 'OqFazer', 'Dicas', 'PqVisitar'.
-
-                    REGRAS OBRIGATÓRIAS:
-                    - NÃO omitir nenhuma chave.
-                    - NÃO retornar texto fora do JSON.
-                    - Todos os campos devem ser sempre preenchidos.
-
-                    RESUMO:
-                    - Entre 300 e 400 caracteres (OBRIGATÓRIO).
-                    - Um único parágrafo sem quebra de linha.
-                    - Texto descritivo e natural, sem estilo publicitário exagerado.
-                    - Varie o tamanho das frases, mas sem excesso de metáforas.
-                    - Termine com ponto final.
-
-                    OqFazer:
-                    - Máximo 1 linha.
-                    - Texto objetivo, com atividades reais.
-                    - Terminar com ponto final.
-
-                    Dicas:
-                    - Máximo 1 linha.
-                    - Conselhos práticos reais.
-                    - Terminar com ponto final.
-
-                    PqVisitar:
-                    - Máximo 1 linha.
-                    - Motivo direto e claro.
-                    - Terminar com ponto final.
-
-                    IMPORTANTE:
-                    - Evite frases genéricas de marketing.
-                    - Não use linguagem excessivamente poética ou abstrata.
-
-                    Texto das Publicações:
-                    {texto}
-                    ";
+                    // Chama a IA e atualiza as propriedades do local
                     ResumoLocalIA resultadoIA = await ChamarIA(prompt);
                     local.Resumo = resultadoIA.Resumo;
                     local.OqFazer = resultadoIA.OqFazer;
@@ -122,25 +94,23 @@ namespace TremBomApi.Controllers
                 }
                 else
                 {
-                    resumo = "Nenhuma publicação disponível para resumir.";
+                    local.Resumo = "Nenhuma publicação disponível para resumir.";
                 }
 
-                // Atualiza a própria entidade que já estava na memória
                 local.ResumoAtualizadoEm = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
 
-            // Buscas complementares(Likes e Fotos)
+            // Buscas complementares de engajamento
             var localLikes = await _context.Likes.CountAsync(like => like.Publicacao!.LocalId == id);
 
             var fotos = await _context.PublicacoesFotos
                 .Where(f => f.Publicacao!.LocalId == id)
-                .OrderBy(f => EF.Functions.Random())
+                .OrderBy(f => EF.Functions.Random()) // Seleção aleatória via Banco de dados
                 .Select(f => f.FotoUrl)
                 .Take(3)
                 .ToListAsync();
 
-            // RESPONSE FINAL
             return Ok(new
             {
                 local.Id,
@@ -151,7 +121,7 @@ namespace TremBomApi.Controllers
                 local.Cidade,
                 local.Latitude,
                 local.Longitude,
-                localLikes,
+                LocalLikes = localLikes,
                 Fotos = fotos,
                 resumoIA = local.Resumo,
                 local.OqFazer,
@@ -160,16 +130,15 @@ namespace TremBomApi.Controllers
             });
         }
 
-        // Classe interna para chamar a IA
+        // Método auxiliar privado para comunicação com a API do Groq
         private async Task<ResumoLocalIA> ChamarIA(string prompt)
         {
-            var client = new HttpClient();
-            // Busca na variavel de ambiente ou na configuração a chave da API, para não expor diretamente no código (dotnet user-secrets)
-            var configuration = HttpContext.RequestServices.GetService<IConfiguration>();
-    
-            string apiKey = configuration?["Groq_API"] 
-                        ?? Environment.GetEnvironmentVariable("Groq_API") 
-                        ?? throw new Exception("Chave da API não encontrada");
+            using var client = new HttpClient();
+            
+            string apiKey = _configuration["Groq_API"] 
+                            ?? Environment.GetEnvironmentVariable("Groq_API") 
+                            ?? throw new Exception("Chave da API Groq_API não encontrada.");
+            
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
             var request = new
@@ -178,10 +147,7 @@ namespace TremBomApi.Controllers
                 response_format = new { type = "json_object" }, 
                 messages = new[]
                 {
-                    new {
-                        role = "system",
-                        content = "Você é um assistente de turismo especializado. Sempre responda em JSON válido. Nunca invente fatos não presentes nos textos. Evite linguagem promocional ou exagerada. Use português correto e objetivo."
-                    },
+                    new { role = "system", content = "Você é um assistente de turismo especializado. Responda em JSON válido." },
                     new { role = "user", content = prompt }
                 }
             };
@@ -191,9 +157,9 @@ namespace TremBomApi.Controllers
             {
                 var erroRaw = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Erro na API do Groq: {response.StatusCode} - {erroRaw}");
-            }   
+            } 
+
             var resultadoGroq = await response.Content.ReadFromJsonAsync<GroqResponse>();
-    
             string jsonStringFromIA = resultadoGroq?.Choices?.FirstOrDefault()?.Message?.Content ?? "{}";
 
             var resultadoFinal = System.Text.Json.JsonSerializer.Deserialize<ResumoLocalIA>(jsonStringFromIA, new System.Text.Json.JsonSerializerOptions
@@ -202,8 +168,6 @@ namespace TremBomApi.Controllers
             });
 
             return resultadoFinal ?? new ResumoLocalIA();
-                }
-        
+        }
     }
-        
-} 
+}

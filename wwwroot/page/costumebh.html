@@ -1,94 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Os Trem de BH</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
-  <link rel="manifest" href="../img/site.webmanifest">
-  <link rel="stylesheet" href="../css/Navbar.css">
-  <link rel="stylesheet" href="../css/estilocostumes.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed - Os Trem de BH</title>
+    
+    <link rel="stylesheet" href="../css/estiloperfil.css">
+    <link rel="stylesheet" href="../css/estilofeed.css">   
+    <link rel="stylesheet" href="../css/estilologin.css">   
+    <link rel="stylesheet" href="../css/estilonewpost.css">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- NAVBAR -->
-  <header class="navbar">
-    <div class="logo"><img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo"></div>
-    <nav class="nav-links">
-      <a href="../index">Início</a>
-      <a href="../page/locais.html">Locais</a>
-      <a href="../page/Groups.html">Semanal</a>
-      <a href="../page/login.html" id="linkPerfil">Perfil</a>
-    </nav>
-    <div class="nav-actions">
-      <button class="btn-login" id="btnLoginHeader">Entrar</button>
-      <script src="../script/router.js"></script>
-      <!-- <button class="btn-perfil" id="btnPerfilHeader" style="display: none;">👤 Perfil</button> -->
-      <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    </div>
-  </header>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="close-btn" onclick="toggleMenu()">✕</div>
-      <div class="sidebar-logo">OS TREM DE BH</div>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="../index.html">Início</a>
-      <a href="../page/locais.html">Locais</a>
-      <a href="../page/Groups.html">Grupos</a>
-      <a href="../page/login.html" id="sidebarLinkPerfil">Perfil</a>
-    </nav>
-    <div class="sidebar-footer">
-      <button class="btn-logout" id="btnLogoutSidebar" style="display: none;">Sair</button>
-    </div>
-  </div>
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <span>Os Trem de BH</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" class="nav-item active" id="btn-nav-inicio"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="javascript:void(0)" class="nav-item" id="btn-nav-pesquisar"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-user-group"></i><span>Grupos</span></a>
+            <a href="../page/profile.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+        </nav>
+    </aside>
 
-  <!-- OVERLAY -->
-  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="main-content">
+        <section class="search-page tab-content" id="tab-search" style="display: none;">
+            <div class="search-container" style="padding: 20px; max-width: 450px; margin: 0 auto;">
+                <h2>Pesquisar na Rede</h2>
+                <div class="search-bar-wrapper" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; position:relative;">
+                    <i class="fa fa-search icon"></i>
+                    <input class="input search-input-fix" id="input-search" type="text" required placeholder="Locais, tags ou pessoas...">
+                </div>
+                <div class="search-results">
+                    <div id="resultados"></div>
+                    <p style="margin-top: 30px; color: #8a8d91;" id="default-search-text">Digite algo para começar a <span class="teal">minerar</span> seus resultados...</p>
+                </div>
+            </div>
+        </section>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-   <div class="conteudo">
-    <div class="main-layout">
-        <aside class="sidebar-fixa">
-            <h3>Coisas importantes <br><span>de BH</span></h3>
-            <nav id="side-menu">
-                <a href="#pirulito" class="active">🍭 História do Pirulito</a>
-                <a href="#carnaval">🎭 Carnaval de BH</a>
-                <a href="#pontos">🏛️ Pontos Históricos</a>
-                <a href="#parques">🌳 Parques e Natureza</a>
-                <a href="#cultura">🎨 Cultura e Museus</a>
-                <a href="#gastronomia">🍴 Gastronomia</a>
-            </nav>
+        <section class="feed tab-content active" id="tab-feed">
+             </section>
+    </div>
+
+    <aside class="sidebar2" id="sidebar2" style="border: none !important; margin-right: 60px; background-color: transparent !important;">
+        <div class="sidebar-logo">
+            <span>🔥 Bombando nas últimas 24h</span>
+        </div>
         </aside>
 
-        <main class="conteudo-rolavel">
-            <section class="hero">
-                <h1>Belo Horizonte, uma cidade de histórias...</h1>
-                <p>Descubra os encantos e tradições que tornam BH única.</p>
-            </section>
-
-            <section id="pirulito" class="page-section">
-                <h2>🍭 História do Pirulito</h2>
-                <div class="card-grid">
-                    <div class="card">
-                        <img src="../img/pirulito.jpg" alt="Pirulito">
-                        <h4>História do Pirulito</h4>
-                        <p>Criado nos anos 30...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="carnaval" class="page-section">
-                <h2>🎭 Carnaval de BH</h2>
-                <p>Conteúdo do carnaval aqui...</p>
-            </section>
-        </main>
-    </div>
-</div>
-<script src="../script/costume.js"></script>
+    <script src="../script/toggleMenu.js"></script>
+    <script src="../script/searchFeed.js"></script>
+    <script src="../script/renderizarFeed.js"></script>
 </body>
-  </html>
+</html>

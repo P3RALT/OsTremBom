@@ -5,6 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TremBomApi.Models
 {
+    /*
+     * PROPÓSITO DA MODEL:
+     * Gerencia os estabelecimentos e pontos turísticos. Armazena as coordenadas geográficas 
+     * e os textos de resumo gerados por inteligência artificial.
+     * * PRINCIPAIS ROTAS/FUNÇÕES ATRIBUÍDAS:
+     * - LocaisController (GET /buscar-criar-post): Utiliza o nome e rua com o operador LIKE.
+     * - LocaisController (GET /{id}): Gerencia o cache de resumos alimentado pela API do Groq.
+     * - BuscaController (GET /{name}): Une dados de locais e pessoas em uma única busca unificada.
+     */
+
     [Table("locais")]
     public class Local
     {
@@ -44,7 +54,7 @@ namespace TremBomApi.Models
         public double Longitude { get; set; }
 
         [Column("resumo")]
-        public required string? Resumo { get; set; }
+        public string? Resumo { get; set; } // Removido o 'required' para permitir cadastro inicial sem IA
 
         [Column("atualizado_em")]
         public DateTime? ResumoAtualizadoEm { get; set; }
@@ -64,6 +74,7 @@ namespace TremBomApi.Models
         [Column("ativo")]
         public bool Ativo { get; set; } = true;
 
+        // Propriedade de navegação inversa: Permite acessar os posts do local diretamente
         public virtual ICollection<Publicacao> Publicacoes { get; set; } = new List<Publicacao>();
     }
 }

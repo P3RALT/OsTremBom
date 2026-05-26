@@ -3,31 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Os Trem de BH</title>
+  <title>Grupos e Rolês - Os Trem de BH</title>
+  
   <link rel="stylesheet" href="../css/estiloperfil.css">
   <link rel="stylesheet" href="../css/estilologin.css">
+  <link rel="stylesheet" href="../css/estilosemanal.css">
+  
   <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="../css/estilosemanal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
     <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
         <i class="fa-solid fa-bars"></i>
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
             <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
             <span>Os Trem de BH</span>
         </div>
         <nav class="sidebar-nav">
-            <a href="../page/feed.html" class="nav-item" id="btn-nav-inicio"><i class="fas fa-home"></i> <span>Início</span></a>
-            <a href="../page/feed.html?search=true" class="nav-item" id="btn-nav-pesquisar"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="../page/feed.html" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
             <a href="../page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
             <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
             <a href="../page/Groups.html" class="nav-item active"><i class="fa-solid fa-user-group"></i> <span>Grupos</span></a>
@@ -35,13 +40,10 @@
         </nav>
     </aside>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
     <main class="Conteudo">
         <section class="Sessao01">
             <div class="Carrossel" id="carrossel-locais">
-                 <script src="../script/localCarrosel.js"></script>
-            </div>
+                 </div>
         </section>
         
         <section class="SessaoGrupo" id="sessaoGrupo">
@@ -50,7 +52,7 @@
                     <i class="fa-solid fa-plus" style="font-size:22px;"></i>
                 </button>
                 <div class="pesquisa-grupo-container">
-                    <input class="input" type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos...">
+                    <input class="input" type="text" id="input-pesquisa-grupo" placeholder="Pesquisar grupos ativos...">
                     <i class="fa-solid fa-magnifying-glass icone-lupa"></i>
                 </div>
             </div>
@@ -60,51 +62,48 @@
         <div class="modal-overlay" id="modalCriarGrupo">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Criar Novo Grupo</h2>
+                    <h2>Criar Novo Grupo de Encontro</h2>
                     <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
                 </div>
                 
                 <form class="form-publicacao" id="formCriarGrupo" onsubmit="salvarGrupo(event)">
-                    <label for="grupoNome">Nome do Grupo</label>
-                    <input type="text" id="grupoNome" placeholder="Ex: Rolezeiros da Pampulha" required>
+                    <label for="grupoNome">Nome da Comunidade</label>
+                    <input type="text" id="grupoNome" placeholder="Ex: Pedal da Pampulha Noturno" required>
 
-                    <label for="grupoDescricao">Descrição do Grupo</label>
-                    <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
-
-                    <label for="grupoImagem">Imagem de Capa</label>
-                    <input type="file" id="grupoImagem" accept="image/*">
+                    <label for="grupoDescricao">Objetivos / Descrição do Rolê</label>
+                    <textarea id="grupoDescricao" rows="3" placeholder="Combine horários, pontos de encontro e regras..." required></textarea>
 
                     <div class="form-linha-dupla">
                         <div class="campo-metade">
-                            <label for="grupoLimite">Limite de Membros</label>
-                            <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 20" required>
+                            <label for="grupoLimite">Teto de Membros</label>
+                            <input type="number" id="grupoLimite" min="2" max="100" placeholder="Ex: 15" required>
                         </div>
                         <div class="campo-metade">
-                            <label for="grupoPrivacy">Tipo de Grupo</label>
+                            <label for="grupoPrivacidade">Políticas de Privacidade</label>
                             <select id="grupoPrivacidade" onchange="tratarMudancaPrivacidade()" required>
-                                <option value="publico">Público</option>
-                                <option value="privado">Privado</option>
+                                <option value="publico">Acesso Livre (Público)</option>
+                                <option value="privado">Exige Senha (Privado)</option>
                             </select>
                         </div>
                     </div>
 
                     <div id="container-senha-grupo" style="display: none;">
-                        <label for="grupoSenha">Defina a Senha de Acesso</label>
-                        <input type="password" id="grupoSenha" placeholder="Digite a senha para novos membros">
+                        <label for="grupoSenha">Senha Secreta de Entrada</label>
+                        <input type="password" id="grupoSenha" placeholder="Código para novos integrantes">
                     </div>
 
                     <div class="botoes-recursos-container">
                         <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo" onclick="abrirSubModalMembros()">
                             <i class="fa-solid fa-user-plus"></i> <span id="texto-membros-vinculados">Adicionar Membros</span>
                         </button>
-                                                                        
+                                                                                                        
                         <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo" onclick="abrirSubModalLocais()">
                             <i class="fa-solid fa-location-dot"></i> <span id="texto-local-vinculado">Vincular Local</span>
                         </button>
                         <input type="hidden" id="grupoLocalSelecionadoId" name="local_id" value="">
                     </div>
                     
-                    <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Criar Grupo</button>
+                    <button type="submit" class="btn-publicar" id="btnCriarGrupoSubmit">Confirmar Criação</button>
                 </form>
             </div>
         </div>
@@ -112,11 +111,11 @@
         <div class="sub-modal-overlay" id="subModalLocais">
             <div class="sub-modal-content">
                 <div class="sub-modal-header">
-                    <h3>Selecionar Local</h3>
+                    <h3>Vincular Local ao Rolê</h3>
                     <span class="btn-fechar-sub" onclick="fecharSubModalLocais()">✕</span>
                 </div>
                 <div class="pesquisa-local-box">
-                    <input class="input" type="text" id="input-pesquisa-local" placeholder="Pesquisar locais de BH..." oninput="filtrarLocaisLista()">
+                    <input class="input" type="text" id="input-pesquisa-local" placeholder="Buscar bares, parques..." oninput="filtrarLocaisLista()">
                     <i class="fa-solid fa-magnifying-glass lupa-local"></i>
                 </div>
                 <div class="lista-locais-suspensa" id="lista-locais-dinamica"></div>
@@ -126,16 +125,16 @@
         <div class="sub-modal-overlay" id="subModalMembros">
             <div class="sub-modal-content" style="max-width: 380px;">
                 <div class="sub-modal-header">
-                    <h3>Selecionar Membros</h3>
+                    <h3>Convidar Seguidores</h3>
                     <span class="btn-fechar-sub" onclick="fecharSubModalMembros()">✕</span>
                 </div>
-                <div class="lista-locais-suspensa" id="lista-membros-dinamica">
-                    </div>
+                <div class="lista-locais-suspensa" id="lista-membros-dinamica"></div>
             </div>
         </div>
     </main>
     
+    <script src="../script/toggleMenu.js"></script>
+    <script src="../script/localCarrosel.js"></script>
     <script src="../script/semanal.js"></script>
-    <script src="../script/loginOuPerfil.js"></script>
 </body>
 </html>

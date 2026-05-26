@@ -5,6 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TremBomApi.Models
 {
+    /*
+     * PROPÓSITO DA MODEL:
+     * Gerencia a entidade principal de contas de acesso do aplicativo "Os Trem Bom". Armazena credenciais e dados de perfil.
+     * * PRINCIPAIS ROTAS/FUNÇÕES ATRIBUÍDAS:
+     * - UsuarioController (POST /registrar e /login): Manipula diretamente o estado desta model.
+     * - PerfilController (PUT /atualizar): Atualiza dados da Biografia e preferências gastronômicas/culturais.
+     */
+
     [Table("usuarios")]
     public class Usuario
     {
@@ -52,6 +60,5 @@ namespace TremBomApi.Models
 
         [Column("preferencias")]
         public List<string> Preferencias { get; set; } = new List<string>();
-
     }
 }
