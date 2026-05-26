@@ -103,8 +103,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 `;
 
                 postCard.addEventListener("click", () => {
-                    // Só exemplo por enquanto
-                    abrirModalPost(post.id);
+                    window.location.href = `../page/publicacao.html?id=${post.id}`
                 });
 
                 mainGrid.appendChild(postCard);
@@ -168,11 +167,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                                 <span><i class="fas fa-comment"></i> ${post.comentarios}</span>
                             </div>
                         `;
-
                         postCard.addEventListener("click", () => {
-                            abrirModalPost(post.id);
+                            window.location.href = `../page/publicacao.html?id=${post.id}`
                         });
-
                         mainGrid.appendChild(postCard);
                     });
                 } else {

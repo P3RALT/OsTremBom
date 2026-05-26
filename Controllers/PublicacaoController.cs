@@ -27,6 +27,102 @@ namespace TremBomApi.Controllers
             
         }
 
+        [HttpGet("{publicacao}")]
+        public async Task<IActionResult> PostInfo(int publicacao)
+        {
+            try
+            {
+                var post = await _context.Publicacoes
+                    .FirstOrDefaultAsync(p => p.Id == publicacao);
+
+                if (post == null)
+                {
+                    return NotFound(new { mensagem = "Essa publicação não foi encontrada, uai!" });
+                }
+                var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdInt = string.IsNullOrEmpty(usuario) ? 0 : int.Parse(usuario);
+                // Busca os dados do autor do post
+                var autor = await _context.Usuarios
+                    .Where(u => u.Id == post.UsuarioId)
+                    .Select(u => new { u.Nickname, u.FotoPerfilUrl })
+                    .FirstOrDefaultAsync();
+                // Busca os dados do nome do local e id
+                var localInfo = await _context.Locais
+                    .Where(l => l.Id == post.LocalId)
+                    .Select(l => new { l.Id, l.Nome })
+                    .FirstOrDefaultAsync();
+                // Fotos do local
+                var fotos = await _context.PublicacoesFotos
+                    .Where(f => f.PublicacaoId == publicacao)
+                    .Select(f => f.FotoUrl)
+                    .ToListAsync();
+                // Likes do local
+                var totalLikes = await _context.Likes
+                    .CountAsync(l => l.PublicacaoId == publicacao);
+                // Comentarios (com foto e nome do usuario q comentou)
+                var comentarios = await _context.Comentarios
+                    .Where(c => c.PublicacaoId == publicacao)
+                    .Join(
+                        _context.Usuarios, 
+                        comentario => comentario.UsuarioId,
+                        usuario => usuario.Id,        
+                        (comentario, usuario) => new { comentario, usuario } 
+                    )
+                    .OrderByDescending(j => j.comentario.DataCriacao) 
+                    .Select(j => new
+                    {
+                        username = j.usuario.Nickname,    
+                        userAvatar = j.usuario.FotoPerfilUrl,
+                        texto = j.comentario.Comentario,
+                        tempo = new DateTimeOffset(j.comentario.DataCriacao).ToUnixTimeMilliseconds(),
+                    })
+                    .ToListAsync();
+
+                var resultado = new
+                {
+                    id = post.Id,
+                    username = autor?.Nickname ?? "usuario", 
+                    userAvatar = autor?.FotoPerfilUrl,
+                    jaCurtiu = userIdInt != 0 && _context.Likes.Any(l => l.UsuarioId == userIdInt && l.PublicacaoId == post.Id),
+                    legenda = post.Descricao,
+                    localizacaoNome = localInfo?.Nome??"Desconhecido", 
+                    localizacaoId = localInfo?.Id??0, 
+                    dataPublicacao = new DateTimeOffset(post.DataPublicacao).ToUnixTimeMilliseconds(),
+                    curtidas = totalLikes,
+                    fotos = fotos,
+                    comentarios = comentarios
+                };
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensagem = "Erro ao carregar os detalhes do post.", erro = ex.Message });
+            }
+        }
+
+        [HttpPost("{publicacao}/comentario")]
+        public async Task<IActionResult> Comentar(int publicacao, [FromBody] ComentarioDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Texto)) return BadRequest("O texto do comentário não pode ser vazio, uai!");
+            var publi = await _context.Publicacoes.Where(p => p.Id == publicacao).FirstOrDefaultAsync();
+            if (publi == null) return NotFound();
+            var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usuario)) return Unauthorized();
+            var userInt = int.Parse(usuario);
+            var novoComentario = new Comentarios
+            {
+                Comentario = dto.Texto,
+                PublicacaoId = publicacao, 
+                UsuarioId = userInt,   
+            };
+            _context.Comentarios.Add(novoComentario);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Comentário enviado com sucesso!" });
+            
+        }
+
         [HttpPost("{publicacao}/deslike")]
         public async Task<IActionResult> Deslike(int publicacao)
         {

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Publicação</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/estilopublicacao.css">
+    <link rel="stylesheet" href="../css/estiloperfil.css">
+    <link rel="stylesheet" href="../css/estilofeed.css">
+</head>
+<body>
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <span>Os Trem de BH</span>
+        </div>
+        <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
+        
+        <nav class="sidebar-nav">
+            <a href="../page/feed.html" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="../page/locais.html" class="nav-item active"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-user-group"></i> <span>Grupos</span></a>
+            <a href="../page/profile.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+        </nav>
+    </aside>
+    <main class="post-container">
+        <section class="post-media-side">
+            <div class="custom-carousel">
+                <div class="carousel-track">
+                    <div class="carousel-slide active">
+                        <img src="https://picsum.photos/800/800?random=1" alt="Imagem do post">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="https://picsum.photos/800/800?random=2" alt="Imagem do post">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="https://picsum.photos/800/800?random=3" alt="Imagem do post">
+                    </div>
+                </div>
+                
+                <button class="carousel-btn prev-btn" onclick="moverSlide(-1)">&#10094;</button>
+                <button class="carousel-btn next-btn" onclick="moverSlide(1)">&#10095;</button>
+                
+                <div class="carousel-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="post-info-side">
+            
+            <header class="info-header">
+                <div class="user-info">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Avatar do usuário" class="user-avatar">
+                    <div class="user-meta">
+                        <span class="username">@nickname_usuario</span>
+                        <span class="location"><i class="fa-solid fa-location-dot" id="localization"></i> Central Park, NY</span>
+                    </div>
+                </div>
+                <button class="options-btn"><i class="fa-solid fa-ellipsis"></i></button>
+            </header>
+
+            <div class="comments-scroll-area">
+                
+                <div class="comment-item post-caption">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Avatar do usuário" class="user-avatar">
+                    <div class="comment-text">
+                        <p><strong>@nickname_usuario</strong> Esta é a legenda original da publicação! Curtindo o dia nesse lugar incrível com o sistema novo funcionando 100%. 😎🚀</p>
+                    </div>
+                </div>
+                
+                <hr class="separator">
+
+                <div class="comments-list" id="lista-comentarios">
+                    <div class="comment-item">
+                        <img src="https://i.pravatar.cc/150?img=12" alt="Avatar" class="user-avatar">
+                        <div class="comment-text">
+                            <p><strong>@joao_silva</strong> Caramba, que foto sensacional! Passa as coordenadas desse mapa aí depois.</p>
+                            <span class="comment-time">Há 1 hora</span>
+                        </div>
+                        <button class="like-comment-btn"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+
+                    <div class="comment-item">
+                        <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="user-avatar">
+                        <div class="comment-text">
+                            <p><strong>@maria_dev</strong> Agora sim o carrossel e o scroll infinito estão rodando liso, parabéns!</p>
+                            <span class="comment-time">Há 45 min</span>
+                        </div>
+                        <button class="like-comment-btn"><i class="fa-regular fa-heart"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="info-footer">
+                <div class="action-buttons">
+                    <div class="left-actions">
+                        <button class="action-btn" id="like-main-btn" onclick="togglePostLike()"><i class="fa-regular fa-heart"></i></button>
+                        <button class="action-btn"><i class="fa-regular fa-comment"></i></button>
+                        <button class="action-btn"><i class="fa-regular fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="post-metrics">
+                    <span class="likes-count"><strong>1.240</strong> curtidas</span>
+                    <span class="post-date">26 DE MAIO DE 2026</span>
+                </div>
+            </footer>
+
+            <div class="comment-box-input">
+                <button class="emoji-btn"><i class="fa-regular fa-face-smile"></i></button>
+                <input type="text" id="input-comentario" placeholder="Adicione um comentário..." autocomplete="off">
+                <button class="submit-comment-btn" id="btn-publicar" disabled>Publicar</button>
+            </div>
+
+        </section>
+    </main>
+    <script type="module" src="../script/modules/formatarTempo.js"></script>
+    <script src="../script/publicacao.js"></script>
+</body>
+</html>

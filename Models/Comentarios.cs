@@ -19,11 +19,15 @@ namespace TremBomApi.Models
         [MaxLength(100)]        
         public required string Comentario {get; set; }
 
+        [Column("data_criacao")]
+        public DateTime DataCriacao {get; set; } = DateTime.Now;
+
         [ForeignKey("UsuarioId")]
         public virtual Usuario? Usuario { get; set; }
 
         [ForeignKey("PublicacaoId")]
         public virtual Publicacao? Publicacao { get; set; }
+        
 
     }
 }
