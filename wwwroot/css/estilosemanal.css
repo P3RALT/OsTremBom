@@ -12,17 +12,16 @@
    2. ESTRUTURA PRINCIPAL (Totalmente fluida à direita)
    ========================================================================== */
 .Conteudo {
-    margin-left: 245px;        /* Abre espaço exato para a barra fixa lateral de 245px */
-    width: calc(100% - 245px); /* Ocupa 100% do espaço restante dinamicamente */
+    margin-left: 245px;
+    width: calc(100% - 245px);
     min-height: 100vh;
-    padding: 40px 30px;        /* Espaçamento interno confortável nas laterais */
+    padding: 40px 30px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     background-color: #fafafa;
 }
 
-/* Cabeçalhos Globais de Seção */
 .cabecalho-seccao {
     text-align: left;
     margin-bottom: 20px;
@@ -45,7 +44,7 @@
 }
 
 /* ==========================================================================
-   3. SESSÃO 01 - CARROSSEL DE POINTS (FLUÍDO E SEM ESMAGAR)
+   3. SESSÃO 01 - CARROSSEL DE POINTS
    ========================================================================== */
 .Sessao01 {
     background: transparent;
@@ -61,25 +60,12 @@
     overflow-x: auto;
     padding: 10px 4px 20px 4px;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
 }
 
-.Carrossel::-webkit-scrollbar {
-    height: 5px;
-}
-.Carrossel::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-.Carrossel::-webkit-scrollbar-thumb {
-    background: #dbdbdb;
-    border-radius: 10px;
-}
-.Carrossel:hover::-webkit-scrollbar-thumb {
-    background: #069e6e65;
-    transition: background-color 0.2s;
-}
-
+.Carrossel::-webkit-scrollbar { height: 5px; }
+.Carrossel::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.Carrossel::-webkit-scrollbar-thumb { background: #dbdbdb; border-radius: 10px; }
+.Carrossel:hover::-webkit-scrollbar-thumb { background: #069e6e65; transition: background-color 0.2s; }
 
 .Card {
     width: 240px;
@@ -97,25 +83,9 @@
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.Card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-}
-
-.card-image {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1; 
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 12px;
-}
-
-.card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+.Card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.card-image { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.card-image img { width: 100%; height: 100%; object-fit: cover; }
 
 .btn-favorito {
     position: absolute;
@@ -135,598 +105,230 @@
     color: var(--primary-dark);
 }
 
-.card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.card-rating {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--primary-green);
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.card-content h3 {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin: 2px 0 0 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 1; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.card-category {
-    font-size: 12px;
-    color: #718096;
-}
-
-.btn-reservar {
-    margin-top: 8px;
-    background: var(--primary-green);
-    color: white;
-    border: none;
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    align-self: flex-end; 
-}
+.card-content { display: flex; flex-direction: column; gap: 4px; }
+.card-rating { display: flex; align-items: center; gap: 4px; color: var(--primary-green); font-size: 11px; font-weight: 700; }
+.card-content h3 { font-size: 14px; font-weight: 700; color: var(--primary-dark); margin: 2px 0 0 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.card-category { font-size: 12px; color: #718096; }
+.btn-reservar { margin-top: 8px; background: var(--primary-green); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; align-self: flex-end; }
 
 /* ==========================================================================
    4. SESSÃO PUBLICAÇÕES & CASOS DE ERRO
    ========================================================================== */
-.SessaoPublicacoes {
-    width: 100%;
-    padding: 10px 0px;
-    max-width: 600px;
-}
-
-.header-publicacoes {
-    width: 100%;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-publicacoes h3 {
-    font-size: 13px;
-    font-weight: 700;
-    color: #8e8e8e;
-    letter-spacing: 1px;
-}
-
-.btn-abrir-modal {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: white;
-    color: var(--primary-green);
-    border: 1px solid #dbdbdb;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.linha-separadora {
-    width: 100%;
-    margin-bottom: 24px;
-    border: none;
-    height: 1px;
-    background: #efefef;
-}
-
-.publicacoes-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.nenhuma-publicacao {
-    text-align: left;
-    padding: 30px 24px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #dbdbdb;
-    color: #8e8e8e;
-    font-size: 18px;
-    font-weight: 500;
-    width: 100%;
-    box-sizing: border-box;
-}
+.SessaoPublicacoes { width: 100%; padding: 10px 0px; max-width: 600px; }
+.header-publicacoes { width: 100%; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.header-publicacoes h3 { font-size: 13px; font-weight: 700; color: #8e8e8e; letter-spacing: 1px; }
+.btn-abrir-modal { width: 32px; height: 32px; border-radius: 50%; background: white; color: var(--primary-green); border: 1px solid #dbdbdb; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.linha-separadora { width: 100%; margin-bottom: 24px; border: none; height: 1px; background: #efefef; }
+.publicacoes-container { width: 100%; display: flex; flex-direction: column; gap: 24px; }
+.nenhuma-publicacao { text-align: left; padding: 30px 24px; background: white; border-radius: 12px; border: 1px solid #dbdbdb; color: #8e8e8e; font-size: 18px; font-weight: 500; width: 100%; box-sizing: border-box; }
 
 /* ==========================================================================
-   6. SESSÃO DE GRUPOS - BARRA DE CONTROLE (MÁXIMA CORREÇÃO)
+   5. SESSÃO DE GRUPOS - BARRA DE CONTROLE
    ========================================================================== */
-.SessaoGrupo {
-    width: 100%;
-    padding: 20px 0px;
-    box-sizing: border-box;
-}
-
-/* O Bloco Verde Principal */
+.SessaoGrupo { width: 100%; padding: 20px 0px; box-sizing: border-box; }
 .SessaoGrupo .controle-grupos {
     width: 100%;
-    min-height: 54px;               /* Altura mínima garantida para a pílula verde */
-    background-color: #069e6e1f; /* Força o fundo verde oficial */
-    border-radius: 50px; /* Cantos arredondados estilo pílula */
+    min-height: 54px;
+    background-color: #069e6e1f;
+    border-radius: 50px;
     padding: 10px 24px;
-    display: flex;       /* Alinha itens nas pontas internas */
+    display: flex;
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     margin-bottom: 30px;
 }
-
-/* O Ícone/Botão de mais (+) */
 .SessaoGrupo .btn-acao-grupo {
-    background: none;
-    border: none;
-    color: #2D2E47;      /* Cor escura contrastante */
-    font-size: 26px;     /* Tamanho ideal para leitura */
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px;
-    background-color:transparent;
-    border-radius: 50%;
-    margin: 0;
-    width: auto;
-    height: auto;
+    background: none; border: none; color: #2D2E47; font-size: 26px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; width: auto; height: auto;
 }
-.btn-acao-grupo:hover {
-    transition: background-color 0.2s;
-    background-color: #069e6e65;
-}
-
-/* Container que segura o Input e a Lupa */
-.SessaoGrupo .pesquisa-grupo-container {
-    position: relative;
-    width: 280px;
-    display: flex;
-    align-items: center;
-}
-
-/* O Campo de Entrada Branco */
-#input-pesquisa-grupo {
-    width: 100%;
-    height: 30px;                   /* Altura do campo interno */
-}
-
-
-/* Ícone da Lupa */
-.SessaoGrupo .icone-lupa {
-    position: absolute;
-    right: 14px;
-    color: #718096;
-    font-size: 14px;
-    pointer-events: none;           /* Deixa o clique passar direto para o input */
-    display: inline-block;
-}
-
-/* Grid onde os futuros grupos ficarão */
-.grupos-grid-container {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
+.btn-acao-grupo:hover { background-color: #069e6e65; transition: background-color 0.2s; }
+.SessaoGrupo .pesquisa-grupo-container { position: relative; width: 280px; display: flex; align-items: center; }
+#input-pesquisa-grupo { width: 100%; height: 30px; }
+.SessaoGrupo .icone-lupa { position: absolute; right: 14px; color: #718096; font-size: 14px; pointer-events: none; display: inline-block; }
+.grupos-grid-container { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
 /* ==========================================================================
-   7. ESTILOS DO MODAL DE CRIAÇÃO DE GRUPO (CORREÇÃO DE FLUTUAÇÃO)
+   6. ESTILOS DO MODAL DE CRIAÇÃO DE GRUPO
    ========================================================================== */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.6); z-index: 9999; display: none; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-overlay .modal-content { background-color: #ffffff; width: 90%; max-width: 520px; max-height: 85vh; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; overflow: hidden; animation: modalPopIn 0.25s ease-out; }
 
-/* Camada escura de fundo - ESCONDIDA por padrão e FIXADA sobre o site */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo preto transparente */
-    z-index: 9999;              /* Garante que fica por cima de tudo */
-    display: none;              /* ESCONDE O MODAL TOTALMENTE */
-    align-items: center;
-    justify-content: center;
-}
+@keyframes modalPopIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* Força o modal a aparecer apenas quando tiver a classe .active */
-.modal-overlay.active {
-    display: flex;
-}
+.modal-overlay .modal-header { padding: 20px 24px; border-bottom: 1px solid #efefef; display: flex; justify-content: space-between; align-items: center; background-color: #ffffff; }
+.modal-overlay .modal-header h2 { font-size: 20px; font-weight: 700; color: var(--primary-dark); margin: 0; }
+.modal-overlay .btn-fechar { font-size: 20px; color: #8e8e8e; cursor: pointer; }
+.modal-overlay .btn-fechar:hover { color: var(--primary-dark); }
+.modal-overlay .form-publicacao { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; }
+.modal-overlay .form-publicacao label { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: -8px; display: block; }
 
-/* Caixa Branca Centralizada do Formulário */
-.modal-overlay .modal-content {
-    background-color: #ffffff;
-    width: 90%;
-    max-width: 520px;                     /* Largura máxima elegante */
-    max-height: 85vh;                     /* Evita que passe da altura da tela */
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;                     /* Arredonda as bordas internas */
-    animation: modalPopIn 0.25s ease-out;
-}
-
-@keyframes modalPopIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Topo do Modal */
-.modal-overlay .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid #efefef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffffff;
-}
-
-.modal-overlay .modal-header h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin: 0;
-}
-
-.modal-overlay .btn-fechar {
-    font-size: 20px;
-    color: #8e8e8e;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.modal-overlay .btn-fechar:hover {
-    color: var(--primary-dark);
-}
-
-/* Corpo do Formulário com Rolagem Interna Segura */
-.modal-overlay .form-publicacao {
-    padding: 24px;
-    overflow-y: auto;                     /* Cria scroll se o formulário for comprido */
-    display: flex;
-    flex-direction: column;
-    gap: 16px;                            /* Espaçamento uniforme entre blocos */
-    box-sizing: border-box;
-}
-
-/* Textos de Instrução (Labels) */
-.modal-overlay .form-publicacao label {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: -8px;                  /* Aproxima o label do seu respectivo input */
-    display: block;
-}
-
-/* Estilização Geral de todos os Inputs, Selects e Textareas */
 .modal-overlay .form-publicacao input[type="text"],
 .modal-overlay .form-publicacao input[type="number"],
 .modal-overlay .form-publicacao input[type="password"],
 .modal-overlay .form-publicacao select,
-.modal-overlay .form-publicacao textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #dbdbdb;
-    border-radius: 10px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #262626;
-    background-color: #ffffff;
-    box-sizing: border-box;
-    outline: none;
-    transition: border-color 0.2s;
-}
+.modal-overlay .form-publicacao textarea { width: 100%; padding: 10px 14px; border: 1px solid #dbdbdb; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; color: #262626; background-color: #ffffff; box-sizing: border-box; outline: none; }
+.modal-overlay .form-publicacao input:focus, .modal-overlay .form-publicacao select:focus, .modal-overlay .form-publicacao textarea:focus { border-color: var(--primary-green); }
+.modal-overlay .form-publicacao input[type="file"] { font-family: 'Inter', sans-serif; font-size: 13px; color: #718096; }
 
-.modal-overlay .form-publicacao input:focus,
-.modal-overlay .form-publicacao select:focus,
-.modal-overlay .form-publicacao textarea:focus {
-    border-color: var(--primary-green);
-}
+.modal-overlay .form-linha-dupla { display: flex; gap: 16px; width: 100%; }
+.modal-overlay .campo-metade { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.modal-overlay .botoes-recursos-container { display: flex; gap: 12px; width: 100%; margin-top: 4px; }
 
-/* Input do tipo arquivo (Upload) */
-.modal-overlay .form-publicacao input[type="file"] {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #718096;
-}
+.modal-overlay .btn-recurso-adicionar { flex: 1; background-color: #ffffff; color: var(--primary-dark); border: 1px dashed var(--primary-green); padding: 10px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box; }
+.modal-overlay .btn-recurso-adicionar:hover { background-color: rgba(6, 158, 110, 0.05); }
+.modal-overlay .btn-publicar { width: 100%; background-color: var(--primary-green); color: #ffffff; border: none; padding: 12px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
+.modal-overlay .btn-publicar:hover { background-color: #058a5f; }
 
-/* Layout Duplo (Metade da Tela) */
-.modal-overlay .form-linha-dupla {
-    display: flex;
-    gap: 16px;
-    width: 100%;
-}
-.modal-overlay .campo-metade {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
+#container-senha-grupo { display: none; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; margin-bottom: 8px; box-sizing: border-box; animation: fadeInForm 0.25s ease-out; }
+#container-senha-grupo[style*="display: block"] { display: flex; }
 
-/* Botões Estilizados de Recursos Dinâmicos */
-.modal-overlay .botoes-recursos-container {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-    margin-top: 4px;
-}
-
-.modal-overlay .btn-recurso-adicionar {
-    flex: 1;
-    background-color: #ffffff;
-    color: var(--primary-dark);
-    border: 1px dashed var(--primary-green);
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-sizing: border-box;
-}
-.modal-overlay .btn-recurso-adicionar:hover {
-    background-color: rgba(6, 158, 110, 0.05);
-}
-
-/* Botão Verde Submeter */
-.modal-overlay .btn-publicar {
-    width: 100%;
-    background-color: var(--primary-green);
-    color: #ffffff;
-    border: none;
-    padding: 12px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background-color 0.2s;
-}
-.modal-overlay .btn-publicar:hover {
-    background-color: #058a5f;
-}
-
-/* Recipiente Animado da Senha */
-#container-senha-grupo {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    animation: modalPopIn 0.2s ease-out;
-}
+@keyframes fadeInForm { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ==========================================================================
-   7.1 AJUSTE CRUCIAL PARA O CONTAINER DE SENHA (CORREÇÃO DE SOBREPOSIÇÃO)
-   ========================================================================== */
-#container-senha-grupo {
-    display: none;                  /* Controlado dinamicamente pelo JS */
-    flex-direction: column;
-    gap: 8px;                       /* Espaço entre a label e o input da senha */
-    width: 100%;
-    margin-top: 12px;               /* Empurra o campo para baixo, desgrudando do select */
-    margin-bottom: 8px;             /* Afasta o campo dos botões de baixo */
-    box-sizing: border-box;
-    animation: fadeInForm 0.25s ease-out;
-}
-
-/* Garante que quando o JS mandar exibir, ele use flex e não block */
-#container-senha-grupo[style*="display: block"] {
-    display: flex;
-}
-
-@keyframes fadeInForm {
-    from { 
-        opacity: 0; 
-        transform: translateY(-5px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-/* ==========================================================================
-   8. SUB-MODAL DE VINCULAR LOCAL (FORÇADO PARA FRENTE - FIEL À REF)
+   7. SUB-MODAIS PADRONIZADOS (LOCAIS E MEMBROS)
    ========================================================================== */
 
-/* Camada de fundo que cobre o site inteiro e fica NA FRENTE do primeiro modal */
+/* Camada de fundo fixada que cobre toda a tela */
 body .sub-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* Escurece o modal de trás */
-    z-index: 99999;             /* VALOR MÁXIMO: Fica na frente de absolutamente tudo */
-    display: none;              /* Invisível até receber o .active */
+    background-color: rgba(0, 0, 0, 0.5); /* Escurece o fundo suavemente */
+    z-index: 99999;                       /* Fica sempre à frente do modal principal */
+    display: none;                        /* Controlado pela classe .active no JS */
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
 }
 
-/* Força a exibição imediata quando ativado pelo JavaScript */
+/* Ativa a exibição do modal */
 body .sub-modal-overlay.active {
     display: flex;
 }
 
-/* A Caixinha compacta e arredondada com bordas pretas fortes */
+/* Caixa do Modal - Padronizada conforme a imagem de referência */
 body .sub-modal-overlay .sub-modal-content {
     background-color: #ffffff;
     width: 90%;
-    max-width: 360px;           /* Formato compacto vertical da imagem */
-    border: 3px solid #000000;  /* Borda preta bem marcada da referência */
-    border-radius: 24px;        /* Super arredondado idêntico à imagem */
-    padding: 24px;
+    max-width: 380px;                     /* Largura ideal e compacta */
+    border-radius: 16px;                  /* Cantos suavizados idênticos ao padrão do projeto */
+    padding: 20px 24px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Sombra suave flutuante */
     animation: subModalPop 0.2s ease-out;
 }
 
 @keyframes subModalPop {
-    from { opacity: 0; transform: scale(0.92); }
+    from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Cabeçalho do Sub-Modal */
+/* Cabeçalho do Modal - Com a linha divisória sutil da imagem */
 body .sub-modal-overlay .sub-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #efefef;     /* Linha divisória fina idêntica à referência */
 }
 
 body .sub-modal-overlay .sub-modal-header h3 {
     font-size: 18px;
-    font-weight: 800;
-    color: #000000;            /* Texto estritamente preto */
+    font-weight: 700;                     /* Negrito equilibrado */
+    color: var(--primary-dark);
     margin: 0;
     font-family: 'Inter', sans-serif;
 }
 
+/* Botão de fechar minimalista 'X' */
 body .sub-modal-overlay .btn-fechar-sub {
-    font-size: 20px;
-    color: #000000;
-    cursor: pointer;
-    font-weight: 800;
-}
-
-/* Caixa da barra de pesquisa */
-body .sub-modal-overlay .pesquisa-local-box {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-
-/* Input de pesquisa cinza claro arredondado */
-body .sub-modal-overlay #input-pesquisa-local {
-    width: 100%;
-    height: 42px;
-    background-color: #f3f4f6;  /* Cinza claro idêntico à imagem */
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;        /* Formato pílula */
-    padding: 6px 40px 6px 16px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #000000;
-    outline: none;
-    box-sizing: border-box;
-}
-
-/* Lupa dentro do input */
-body .sub-modal-overlay .lupa-local {
-    position: absolute;
-    right: 16px;
-    color: #9ca3af;
     font-size: 16px;
-    pointer-events: none;
+    color: #a3a3a3;
+    cursor: pointer;
+    font-weight: 400;
+    transition: color 0.15s ease;
 }
 
-/* Container de rolagem dos locais salvos */
+body .sub-modal-overlay .btn-fechar-sub:hover {
+    color: #ef4444;                       /* Feedback visual ao passar o rato */
+}
+
+/* Caixa de Rolagem dos Itens Internos */
 body .sub-modal-overlay .lista-locais-suspensa {
     width: 100%;
-    max-height: 260px;         /* Evita que a janela cresça demais */
+    max-height: 280px;                    /* Altura limite para ativar o scroll */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;                 /* Espaço entre as linhas ovais */
+    gap: 10px;                            /* Espaçamento uniforme entre as linhas */
     padding-right: 4px;
+    margin-top: 4px;
 }
 
-/* Scrollbar interna discreta */
+/* Scrollbar minimalista discreta */
 body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar {
     width: 4px;
 }
 body .sub-modal-overlay .lista-locais-suspensa::-webkit-scrollbar-thumb {
-    background-color: #dbdbdb;
+    background-color: #e5e7eb;
     border-radius: 10px;
 }
 
-/* As Linhas de Itens Orais com Borda Preta da sua imagem */
+/* Linhas Ovais de Membros/Locais com borda bem definida */
 body .sub-modal-overlay .item-local-linha {
     width: 100%;
-    padding: 12px 18px;
+    padding: 10px 16px;
     background-color: #ffffff;
-    border: 2px solid #000000;  /* Borda preta forte da referência */
-    border-radius: 30px;        /* Formato oval perfeito */
+    border: 2px solid #000000;             /* Mantém a identidade forte de contorno preto */
+    border-radius: 30px;                  /* Formato oval clássico do seu projeto */
     display: flex;
     align-items: center;
+    justify-content: space-between;       /* Espaça o conteúdo e o checkbox nas extremidades */
     gap: 14px;
     cursor: pointer;
     box-sizing: border-box;
-    transition: background-color 0.15s;
+    transition: background-color 0.15s ease;
 }
 
 body .sub-modal-overlay .item-local-linha:hover {
-    background-color: #f8fafc;  /* Destaque sutil ao passar o mouse */
+    background-color: #f8fafc;            /* Destaque sutil no hover */
 }
 
-/* Ícones das categorias dentro dos ovais */
 body .sub-modal-overlay .item-local-linha i {
-    font-size: 18px;
-    color: #000000;
-    width: 24px;
+    font-size: 16px;
+    color: var(--primary-dark);
+    width: 20px;
     text-align: center;
 }
 
-/* Nome do local em negrito forte */
 body .sub-modal-overlay .item-local-linha span {
     font-size: 14px;
-    font-weight: 700;           /* Negrito idêntico ao desenho */
-    color: #000000;             /* Força a cor preta nas letras */
+    font-weight: 600;
+    color: var(--primary-dark);
     font-family: 'Inter', sans-serif;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;    /* Corta o texto elegantemente se for muito longo */
+    text-overflow: ellipsis;
 }
 
+/* Componente Checkbox Verde customizado */
+body .sub-modal-overlay input[type="checkbox"] {
+    accent-color: var(--primary-green);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
 /* ==========================================================================
-   5. RESPONSIVIDADE
+   8. RESPONSIVIDADE
    ========================================================================== */
-@media (max-width: 1260px) {
-    .Conteudo {
-        margin-left: 72px;
-        width: calc(100% - 72px);
-        padding: 30px 20px;
-    }
-}
-
-@media (max-width: 800px) {
-    .Conteudo {
-        margin-left: 0;
-        width: 100%;
-        padding-top: 80px; 
-    }
-}
-
-@media (max-width: 480px) {
-    .Card {
-        width: 200px;
-        min-width: 200px;
-    }
-    .Conteudo {
-        padding: 20px 12px;
-    }
-    .SessaoGrupo .pesquisa-grupo-container {
-        width: 180px;
-    }
-}
+@media (max-width: 1260px) { .Conteudo { margin-left: 72px; width: calc(100% - 72px); padding: 30px 20px; } }
+@media (max-width: 800px) { .Conteudo { margin-left: 0; width: 100%; padding-top: 80px; } }
+@media (max-width: 480px) { .Card { width: 200px; min-width: 200px; } .Conteudo { padding: 20px 12px; } .SessaoGrupo .pesquisa-grupo-container { width: 180px; } }
