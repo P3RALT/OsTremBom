@@ -288,25 +288,142 @@ body {
     cursor: default;
 }
 
-/* RESPONSIVIDADE (MOBILE-FIRST ADAPTATION) */
-@media (max-width: 768px) {
-    body {
-        align-items: flex-start;
+@media (min-width: 1150px) and (max-width: 1700px) {
+    .post-container{
+        margin-left: 200px;
     }
+}
+
+@media (max-width: 900px) {
+
+    body {
+        margin: 20px;
+        align-items: flex-start;
+        background: #fff;
+    }
+
     .post-container {
-        flex-direction: column; 
+        flex-direction: column;
         height: auto;
-        border: none;
+        max-width: 100%;
+        overflow: visible;
+    }
+        header {
+        flex-direction:row!important;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* FOTO */
+
+    .post-media-side {
+        width: 100%;
+        height: 100vw;
         border-radius: 0;
     }
-    .post-media-side {
-        height: 100vw;
+
+    .carousel-slide img {
+        border-radius: 20px;
     }
+
+    .carousel-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    /* INFO */
+
     .post-info-side {
-        border-left: none;
+        width: 100%;
         height: auto;
+        background: white;
     }
+
+    .info-header {
+        padding: 14px;
+        margin-left: 0;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .username {
+        font-size: 15px !important;
+    }
+
+    .location {
+        margin-top: 6px;
+        margin-bottom: 0;
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    /* COMENTÁRIOS */
+
     .comments-scroll-area {
-        max-height: 300px;
+        max-height: none;
+        padding: 14px;
     }
+
+    .comment-item {
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .comment-text {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .comment-time {
+        font-size: 11px;
+    }
+
+    /* FOOTER */
+
+    .info-footer {
+        padding: 10px 14px;
+    }
+
+    .action-btn {
+        font-size: 22px;
+    }
+
+    .likes-count {
+        font-size: 13px;
+    }
+
+    .post-date {
+        font-size: 9px;
+    }
+
+    /* INPUT */
+
+    .comment-box-input {
+        margin: 12px;
+        padding: 10px 14px;
+
+        border: 1px solid #e5e5e5;
+        border-radius: 999px;
+
+        background: #fafafa;
+    }
+
+    .comment-box-input input {
+        font-size: 13px;
+    }
+
+    .submit-comment-btn {
+        font-size: 13px;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+        z-index: 9999;
+    }
+
 }

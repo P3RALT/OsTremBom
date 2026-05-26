@@ -51,6 +51,7 @@ namespace TremBomApi.Controllers
                 if (usuarioExistente.Nickname == dto.Nickname)
                     return BadRequest(new { mensagem = "Nickname já registrado." });
             }
+            string ipDoUsuario = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
             // Segurança: Transforma a senha em texto limpo num Hash seguro usando o BCrypt
 
 
@@ -64,7 +65,7 @@ namespace TremBomApi.Controllers
                 SenhaHash = senhaCriptografada,
                 FotoPerfilUrl = dto.FotoPerfilUrl ?? "../img/default-avatar.jpg",
                 Genero = dto.Genero,
-                IpRegistro = dto.ip,
+                IpRegistro = ipDoUsuario,
                 Aniversario = dto.Aniversario,
                 DataCadastro = DateTime.Now,
                 UltimoLogin = DateTime.Now
@@ -88,36 +89,36 @@ namespace TremBomApi.Controllers
         {
         // Procura o utilizador na base de dados pelo E-mail
         // Usamos Include(u => u.Sessoes) caso queiras manipular a lista de sessões diretamente
-        var usuario = await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.Email == dto.Email);
-        
-        if (usuario == null)
-            {
-                return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
-            }
-
-        // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
-        bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + pepper, usuario.SenhaHash);
-        if (!senhaCorreta)
-            {
-                return BadRequest(new { message = "E-mail ou senha incorretos." }); 
-            }
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-            var chaveSecreta = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
             
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+            if (usuario == null)
                 {
-                    new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                    // ADICIONANDO AS COORDENADAS DENTRO DO JWT
-                    new Claim("latitude", dto.lat??"".ToString()),
-                    new Claim("longitude", dto.lon??"".ToString()),
-                    new Claim("nickname", usuario.Nickname)
-                }),
-                Expires = DateTime.UtcNow.AddDays(1), // O token expira em 1 dia
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
+                    return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
+                }
+
+            // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
+            bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + pepper, usuario.SenhaHash);
+            if (!senhaCorreta)
+                {
+                    return BadRequest(new { message = "E-mail ou senha incorretos." }); 
+                }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var chaveSecreta = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+            var tokenDescriptor = new SecurityTokenDescriptor
+{           
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                
+                new Claim("latitude", dto.lat?.ToString() ?? ""),
+                new Claim("longitude", dto.lon?.ToString() ?? ""),
+                
+                new Claim("nickname", usuario.Nickname)
+            }),
+            Expires = DateTime.UtcNow.AddDays(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
             };
             
             var tokenObj = tokenHandler.CreateToken(tokenDescriptor);

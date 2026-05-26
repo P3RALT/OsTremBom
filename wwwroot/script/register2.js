@@ -6,9 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const senhaInput = document.getElementById("senha");
   const confirmarSenhaInput = document.getElementById("conf-senha");
   const error = document.getElementById("error");
-  var final_ip = null;
-  var final_lat = null;
-  var final_lon = null;
+  
+  let final_ip = "0.0.0.0"; // Como o ipinfo foi removido, iniciamos com um valor padrão amigável
+  let final_lat = null;
+  let final_lon = null;
 
   // Recupera o objeto com nickname, email, genero e nascimento da página 1
   const user = JSON.parse(localStorage.getItem("dadosRegistro")) || {};
@@ -18,11 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (file) {
       const reader = new FileReader();
-
       reader.onload = function (e) {
         preview.src = e.target.result;
       };
-
       reader.readAsDataURL(file);
     }
   });
@@ -73,33 +72,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Mudamos para async para podermos usar o await no fetch da API
+  // FUNÇÃO AUXILIAR: Captura a localização real pelo navegador
+  function obterLocalizacaoNavegador() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        console.warn("Geolocalização não é suportada neste navegador.");
+        return resolve(null);
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          });
+        },
+        (err) => {
+          console.warn("Usuário recusou ou falhou em obter a localização:", err.message);
+          resolve(null); // Retorna nulo para não travar o fluxo se ele recusar
+        },
+        {
+          enableHighAccuracy: true, // Força o dispositivo a tentar usar o GPS se disponível
+          timeout: 7000             // Aguarda até 7 segundos antes de estourar timeout
+        }
+      );
+    });
+  }
+
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
     btn.classList.add("loading");
     btn.disabled = true;
     btn.querySelector(".btn-text").style.display = "none";
     btn.querySelector(".btn-loading").style.display = "flex";
+    
     const senhaFinal = senhaInput.value.trim();
 
     const preferenciasLimpas = [...document.querySelectorAll(".tag.selected")].map(t => {
       return t.textContent.replace(/[^\w\sÀ-ÿ]/g, '').trim();
     });
 
-    // Busca a localização do usuário via IP usando a API do ipinfo.io (Vou usar isso pra identificar a cidade do usuário)
-    try {
-      const response = await fetch('https://ipinfo.io/json');
-      const data = await response.json();
-      final_ip = data.ip;
-      if (data.loc) {
-        const [latitude, longitude] = data.loc.split(',');
-        final_lat = parseFloat(latitude);
-        final_lon = parseFloat(longitude);
-      }
-    } catch (error) {
-      console.error("Error fetching IP/Location:", error);
+    // --- TROCA DA API PELO NAVEGADOR AQUI ---
+    const geo = await obterLocalizacaoNavegador();
+    if (geo) {
+      final_lat = geo.lat;
+      final_lon = geo.lon;
     }
-    // --- AJUSTE: Monta o objeto exatamente igual ao UsuarioRegisterDto do C# ---
+
+    // Monta o objeto exatamente igual ao UsuarioRegisterDto do C#
     const finalUser = {
       nickname: user.nickname,
       email: user.email,
@@ -112,22 +132,23 @@ document.addEventListener("DOMContentLoaded", () => {
       lon: final_lon,
       ip: final_ip
     };
+
     try {
       const resposta = await fetch('http://localhost:5207/api/usuario/registrar', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(finalUser)
-});
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(finalUser)
+      });
 
-      const resultado = await resposta.json();
+      const resultado = await resposta.json().catch(() => ({}));
       
       if (resposta.ok) {
-       window.location.replace(`/page/login.html?lat=${encodeURIComponent(finalUser.lat)}&lon=${encodeURIComponent(finalUser.lon)}&ip=${encodeURIComponent(finalUser.ip)}`);
-       localStorage.clear();
+        // Redireciona passando os parâmetros reais coletados. Se forem null, o encode converte para string "null"
+        window.location.replace(`/page/login.html?lat=${encodeURIComponent(finalUser.lat)}&lon=${encodeURIComponent(finalUser.lon)}&ip=${encodeURIComponent(finalUser.ip)}`);
+        localStorage.clear();
       } else {
-        // Exibe o erro retornado pela API
         error.textContent = resultado.mensagem || "Erro ao registrar usuário.";
         error.style.display = "block";
       }
@@ -135,11 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro na requisição:", err);
       error.textContent = "Não foi possível conectar ao servidor.";
       error.style.display = "block";
-    }finally{
-        btn.classList.remove("loading");
-        btn.disabled = false;
-        btn.querySelector(".btn-text").style.display = "block";
-        btn.querySelector(".btn-loading").style.display = "none";
+    } finally {
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      btn.querySelector(".btn-text").style.display = "block";
+      btn.querySelector(".btn-loading").style.display = "none";
     }
-})});
-
+  });
+});

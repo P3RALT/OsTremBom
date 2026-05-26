@@ -12,7 +12,25 @@ function abrirModalGrupo() {
         modal.classList.add('active');
     }
 }
+// ============================================================
+// ESCUTADOR PARA MOSTRAR O NOME DA IMAGEM SELECIONADA
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+    const inputImagem = document.getElementById("grupoImagem");
+    const labelNomeArquivo = document.getElementById("nome-arquivo-selecionado");
 
+    if (inputImagem && labelNomeArquivo) {
+        inputImagem.addEventListener("change", (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                // Pega apenas o nome do arquivo selecionado
+                const nomeArquivo = e.target.files[0].name;
+                labelNomeArquivo.innerText = `📂 Arquivo: ${nomeArquivo}`;
+            } else {
+                labelNomeArquivo.innerText = "";
+            }
+        });
+    }
+});
 // Função para fechar o modal e resetar todos os estados
 function fecharModalGrupo() {
     const modal = document.getElementById('modalCriarGrupo');

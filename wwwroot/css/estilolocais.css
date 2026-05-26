@@ -1,67 +1,80 @@
-
-
 /* ============================================================
     4. GRID DE LAYOUT (A MALHA DOS CARDS)
-    ============================================================ */
-    .grade-de-locais {
-        display: grid;
-        /* Cria colunas dinâmicas: mínimo 300px, máximo ocupa o espaço livre */
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 24px; /* Espaço entre os cards */
-        max-width: 1200px;
-        
-        /* ALTERAÇÕES AQUI: */
-        margin: 0 auto; 
-        padding-top: 40px;    /* Cria um espaço seguro no topo para não colar na tela */
-        padding-left: 20px;   /* Pequena folga na esquerda */
-        padding-right: 20px;  /* Pequena folga na direita */
-    };
-        
+   ============================================================ */
+.grade-de-locais {
+    display: grid;
+    /* Colunas dinâmicas automáticas */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px; 
+    max-width: 1200px;
+    margin: 0 auto; 
+    padding-top: 40px;    
+    padding-left: 20px;   
+    justify-content: center;
+    padding-right: 20px;  
+}
 
 /* ============================================================
     5. COMPONENTE: CARD DE ATRAÇÃO
-    ============================================================ */
+   ============================================================ */
 .card-container {
     background-color: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #dddddd;
-    overflow: hidden; /* Garante que a imagem não saia da borda arredondada */
+    border-radius: 20px;
+    border: 1px solid #dbdbdb;
+    overflow: hidden; /* Corta a imagem nos cantos arredondados do container */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Garante que todos os cards fiquem do mesmo tamanho na fileira */
 }
-.card-link{
-text-decoration: none; /* Remove sublinhado */
+
+.card-link {
+    text-decoration: none; 
+    display: block;
 }
+
 /* Efeito de "levante" ao passar o mouse */
 .card-container:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* Imagem do Local */
+/* Container do Carrossel */
+.post-carousel {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Imagem do Local (Herda os estilos e se adapta) */
 .card-imagem {
     width: 100%;
-    height: 200px;
-    object-fit: cover; /* Ajusta a imagem sem distorcer */
+    height: 220px; /* Reduzimos um tiquinho o padrão para equilibrar */
+    object-fit: cover; 
     display: block;
 }
 
 /* Bloco de texto interno do card */
 .card-conteudo {
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Faz o conteúdo esticar para colar o rodapé embaixo */
 }
 
 .card-tag {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    color: #717171;
+    color: #069E6E;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .card-titulo {
     font-size: 18px;
     font-weight: 700;
-    margin: 8px 0;
+    margin: 6px 0;
     color: #222222;
 }
 
@@ -69,31 +82,65 @@ text-decoration: none; /* Remove sublinhado */
     font-size: 14px;
     color: #5e5e5e;
     line-height: 1.5;
-    /* Limita o texto a 3 linhas com reticências (...) */
+    margin-bottom: 12px;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2; /* Diminuído para 2 linhas para os cards pequenos respirarem */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 /* Rodapé do card (Likes e Comentários) */
 .card-info-social {
-    margin-top: 16px;
+    margin-top: auto; /* Empurra as informações sociais sempre para o rodapé do card */
     padding-top: 12px;
     border-top: 1px solid #ebebeb;
-    font-size: 13px;
+    font-size: 12px;
     color: #222222;
     font-weight: 600;
+    white-space: nowrap; /* Evita que o texto quebre no meio de uma palavra em telas pequenas */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Se o texto for grande demais pro espaço, bota reticências */
 }
 
 /* ============================================================
-    5. ESTADOS (CARREGAMENTO E ERRO)
-    ============================================================ */
+    6. MEDIA QUERIES (Ajustes finos de responsividade)
+   ============================================================ */
+
+/* Em celulares pequenos/médios (telas de até 480px de largura) */
+@media (max-width: 480px) {
+    .grade-de-locais {
+        /* Força apenas 1 card por linha ocupando a tela toda de forma bonita */
+        grid-template-columns: 1fr; 
+        gap: 16px; /* Diminui o espaçamento para sobrar tela */
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .card-imagem {
+        height: 200px; /* Diminui a altura da foto no celular para caber mais conteúdo na tela */
+    }
+
+    .card-titulo {
+        font-size: 16px; /* Texto ligeiramente menor no celular */
+    }
+}
+
+/* Em tablets e telas médias (entre 481px e 768px) */
+@media (min-width: 481px) and (max-width: 1651px) {
+    .grade-de-locais {
+        /* Garante que fiquem exatamente 2 cards por linha */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 20px;
+    }
+}
+
+/* ============================================================
+    7. ESTADOS (CARREGAMENTO E ERRO)
+   ============================================================ */
 .feedback-usuario {
-    grid-column: 1 / -1; /* Ocupa a largura toda da grade */
+    grid-column: 1 / -1; 
     text-align: center;
     padding: 60px;
     font-size: 18px;
     color: #666;
 }
-

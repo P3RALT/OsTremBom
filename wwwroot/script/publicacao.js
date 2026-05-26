@@ -41,6 +41,7 @@ async function carregarDadosDoPost() {
 
 // --- 3. INJETA OS DADOS NO HTML DINAMICAMENTE ---
 function renderizarPost(dados) {
+    document.title = `Post por @${dados.username}`
     // Cabeçalho e Autor do Post
     document.querySelectorAll('.username').forEach(el => el.innerText = `@${dados.username}`);
     document.querySelectorAll('.username').forEach(el => el.addEventListener("click", function (){
@@ -114,7 +115,12 @@ function renderizarPost(dados) {
         itemComentario.innerHTML = `
             <img src="${comentario.userAvatar || 'https://i.pravatar.cc/150?img=11'}" alt="Avatar" class="user-avatar">
             <div class="comment-text">
-                <p><strong>@${comentario.username}</strong> ${comentario.texto}</p>
+                <p>
+                    <a href="../page/profile.html?usuario=${encodeURIComponent(comentario.username)}" style="color: inherit; text-decoration: none;">
+                        <strong>@${comentario.username}</strong>
+                    </a> 
+                    ${comentario.texto}
+                </p>
                 <span class="comment-time">${calcularTempoPassado(comentario.tempo)}</span>
             </div>
             <button class="like-comment-btn"><i class="fa-regular fa-heart"></i></button>

@@ -42,6 +42,40 @@
     color: #718096;
     line-height: 1.5;
 }
+.custom-file-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 18px;
+
+    background: #069E6E;
+    color: white;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+    font-size: 14px;
+
+    transition: 0.2s ease;
+
+    box-shadow: 0 4px 14px rgba(6, 158, 110, 0.2);
+}
+
+.custom-file-upload:hover {
+    transform: translateY(-1px);
+    background: #058b61;
+}
+
+.custom-file-upload:active {
+    transform: scale(0.98);
+}
+
+.custom-file-upload i {
+    font-size: 16px;
+}
 
 /* ==========================================================================
    3. SESSÃO 01 - CARROSSEL DE POINTS
@@ -162,7 +196,7 @@
 .modal-overlay .btn-fechar { font-size: 20px; color: #8e8e8e; cursor: pointer; }
 .modal-overlay .btn-fechar:hover { color: var(--primary-dark); }
 .modal-overlay .form-publicacao { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; }
-.modal-overlay .form-publicacao label { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: -8px; display: block; }
+.modal-overlay .form-publicacao label { font-size: 13px; font-weight: 700; margin-bottom: -8px; display: block; }
 
 .modal-overlay .form-publicacao input[type="text"],
 .modal-overlay .form-publicacao input[type="number"],

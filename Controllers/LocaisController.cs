@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TremBomApi.Data;
 using TremBomApi.Models;
+using TremBomApi.Extensions;
+using System.Globalization;
 
 namespace TremBomApi.Controllers
 {
@@ -35,9 +37,89 @@ namespace TremBomApi.Controllers
         // GET: api/locais
         [HttpGet]
         public async Task<IActionResult> ListarTodos()
-        {
-            var locais = await _context.Locais.ToListAsync();
-            return Ok(locais);
+        {   
+            var userLat = User.FindFirst("latitude")?.Value;
+            var userLon = User.FindFirst("longitude")?.Value;
+            
+            // Busca os dados estruturados do banco
+            var consultaLocais = await _context.Locais
+                .Select(l => new
+                {   
+                    lat = l.Latitude,
+                    lon = l.Longitude,
+                    id = l.Id,
+                    nome = l.Nome,
+                    descricao = "placeholder",
+                    categoria = l.Categoria,
+                    cidade = l.Cidade ?? "Belo Horizonte",
+                    
+                    fotosDoBanco = _context.PublicacoesFotos
+                        .Where(f => f.Publicacao!.LocalId == l.Id)
+                        .OrderBy(f => EF.Functions.Random())
+                        .Select(f => f.FotoUrl)
+                        .Take(3)
+                        .ToArray(), 
+
+                    totalLikes = _context.Likes.Count(like => like.Publicacao!.LocalId == l.Id),
+                    totalComentarios = _context.Comentarios.Count(c => c.Publicacao!.LocalId == l.Id)
+                })
+                .ToListAsync();
+
+            // Calcula as distâncias na memória
+            var locaisProcessados = consultaLocais.Select(l => {
+                double? distKm = null;
+                if (!string.IsNullOrWhiteSpace(userLat) && !string.IsNullOrWhiteSpace(userLon) &&
+                    double.TryParse(userLat, System.Globalization.CultureInfo.InvariantCulture, out double uLat) &&
+                    double.TryParse(userLon, System.Globalization.CultureInfo.InvariantCulture, out double uLon))
+                {
+                    distKm = DistanciaExtensions.CalcularDistancia(uLat, uLon, l.lat, l.lon);
+                }
+
+                string distanciaTexto = "Distância desconhecida";
+                if (distKm.HasValue)
+                {
+                    distanciaTexto = distKm.Value < 1.0
+                        ? $"há {Math.Round(distKm.Value * 1000)} m"
+                        : $"há {Math.Round(distKm.Value, 2)} km";
+                }
+
+                return new
+                {
+                    l.id,
+                    l.nome,
+                    l.descricao,
+                    l.categoria,
+                    l.cidade,
+                    imagemUrl = string.Join(",", l.fotosDoBanco),
+                    l.totalLikes,
+                    l.totalComentarios,
+                    distanciaRaw = distKm, 
+                    distancia = distanciaTexto 
+                };
+            });
+
+            // Sistema de peso (algoritmo)
+            // Primeiro ordena por Likes decrescente (Mais curtido no topo).
+            // Se empatar nos Likes, ordena por Distância crescente (O mais perto vence o desempate).
+            // Se a distância for nula, joga pro final (double.MaxValue).
+            var resultadoOrdenado = locaisProcessados
+                .OrderByDescending(l => l.totalLikes)
+                .ThenBy(l => l.distanciaRaw ?? double.MaxValue);
+
+            // Mapeia para o JSON final limpo para o Front-end
+            var resultadoFinal = resultadoOrdenado.Select(l => new {
+                l.id,
+                l.nome,
+                l.descricao,
+                l.categoria,
+                l.cidade,
+                l.imagemUrl,
+                l.totalLikes,
+                l.totalComentarios,
+                l.distancia
+            });
+
+            return Ok(resultadoFinal);
         }
 
         // GET: api/locais/102

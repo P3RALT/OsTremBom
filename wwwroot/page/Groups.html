@@ -72,7 +72,23 @@
                     <textarea id="grupoDescricao" rows="3" placeholder="Conte qual é o objetivo do grupo..." required></textarea>
 
                     <label for="grupoImagem">Imagem de Capa</label>
-                    <input type="file" id="grupoImagem" accept="image/*">
+                    <label for="grupoImagem" class="custom-file-upload">
+                        <i class="fa-solid fa-image"></i>
+                        <span>Escolher imagem</span>
+                    </label>
+                    <input
+                        type="file"
+                        id="grupoImagem"
+                        accept="image/*"
+                        hidden
+                    >
+                    <span id="nome-arquivo-selecionado" style="display: block; font-size: 13px; color: #069E6E; margin-top: 5px; font-weight: 500;"></span>
+                    <input
+                        type="file"
+                        id="grupoImagem"
+                        accept="image/*"
+                        hidden
+                        >
 
                     <div class="form-linha-dupla">
                         <div class="campo-metade">
@@ -136,6 +152,5 @@
     </main>
     
     <script src="../script/semanal.js"></script>
-    <script src="../script/loginOuPerfil.js"></script>
 </body>
 </html>
