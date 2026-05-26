@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar post - Os Trem de BH</title>
-    <!-- Icones, Fonrtes, e Imagens -->
+    <title>Criar Postagem - Os Trem de BH</title>
+    
     <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
     <link rel="manifest" href="../img/site.webmanifest">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="../css/estiloregister.css">
     <link rel="stylesheet" href="../css/estilologin.css">
     <link rel="stylesheet" href="../css/estilopage.css">
@@ -21,71 +20,70 @@
     <link rel="stylesheet" href="../css/estilonewpost.css">
 </head>
 <body>
-    <!-- MENU -->
+
     <div class="register-box">
-        <button class="btn-voltar" onclick=window.history.back()>&lt;</button>
-        <img src="../img/android-chrome-192x192.png" id="logo" alt="OS TREM DE BH - Logo" class="logo-register">
-        <h2>Criar postagem</h2>
-        <p id="subtitulo-p">Preencha alguns detalhes abaixo e finaliza a criação da sua <span class="teal">conta</span>.</p>
-        <p id="error"></p>
-        <p class="subtitulo">Fotos da postagem</p>
-     <div class="modal-overlay" id="modalCriarGrupo">
+        <button type="button" class="btn-voltar" onclick="window.history.back()">&lt; Voltar</button>
+        <img src="../img/android-chrome-192x192.png" id="logo" alt="Logo" class="logo-register">
+        
+        <h2>Compartilhar Experiência</h2>
+        <p id="subtitulo-p">Conte para a comunidade qual foi o seu último <span class="teal">achado</span> em BH!</p>
+        
+        <div class="modal-overlay" id="modalCriarGrupo">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Criar Novo Local</h2>
+                    <h2>Cadastrar Local Inédito</h2>
                     <span class="btn-fechar" onclick="fecharModalGrupo()">✕</span>
                 </div>
                 
                 <form class="form-publicacao" id="formCriarGrupo">
-                    <label for="nomeEndereco">Nome do local</label>
-                    <input type="text" id="nomeEndereco" placeholder="Ex: Bar do seu zé, Parque Fulano..." required>
-                    <label for="cepEndereco">Cep</label>
-                    <input 
-                        type="text"
-                        id="cepEndereco"
-                        maxlength="9"
-                        placeholder="Ex: 30000-000"
-                        required
-                    >
-                    <label for="ruaEndereco">Rua</label>
-                    <input type="text" id="ruaEndereco" disabled placeholder="Ex: Av. Afonso Vaz de Melo" required>
+                    <label for="nomeEndereco">Nome do Estabelecimento</label>
+                    <input type="text" id="nomeEndereco" placeholder="Ex: Estufa Cozinha Belorizontina" required>
+                    
+                    <label for="cepEndereco">Código Postal (CEP)</label>
+                    <input type="text" id="cepEndereco" maxlength="9" placeholder="Ex: 30120-010" required>
+                    
+                    <label for="ruaEndereco">Rua / Logradouro</label>
+                    <input type="text" id="ruaEndereco" placeholder="Logradouro autocompletado pela API" required>
+                    
                     <label for="numeroEndereco">Número</label>
-                    <input type="number" id="numeroEndereco" placeholder="Ex: 11" required>
-                    <button type="submit" class="btn-publicar" id="btnCriarLocalSubmit" disabled>Criar Local</button>
+                    <input type="number" id="numeroEndereco" placeholder="Ex: 450" required>
+                    
+                    <button type="button" class="btn-publicar" id="btnCriarLocalSubmit" disabled>Salvar Local</button>
                 </form>
             </div>
         </div>
-        <!-- FORMULÁRIO DE CRIAÇÃO DE POSTAGEM -->
+
         <form id="registro-form">
+            <p class="subtitulo">Fotos do Rolê (Selecione múltiplas se desejar)</p>
+            
             <div class="photo-upload">
                 <div class="main-preview-container">
                     <button type="button" class="nav-arrow prev" id="prev-photo" style="display: none;">&#10094;</button>
                     
                     <label for="foto-input" class="upload-icon-label">
                         <i class="fa-solid fa-plus" id="preview-icon"></i>
-                        <img id="preview" src="" alt="Preview da postagem" style="display: none;">
+                        <img id="preview" src="" alt="Preview" style="display: none;">
                     </label>
                     
-                    <button type="button" id="btn-deletar-foto" class="btn-deletar" style="display: none;">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                                    
+                    <button type="button" id="btn-deletar-foto" class="btn-deletar" style="display: none;"><i class="fa-solid fa-trash"></i></button>
                     <button type="button" class="nav-arrow next" id="next-photo" style="display: none;">&#10095;</button>
                 </div>
 
-                <input type="file" id="foto-input" accept="image/png, image/jpeg" multiple>
-
-                <div class="thumbnail-carousel" id="thumbnail-container">
-                    </div>
+                <input type="file" id="foto-input" accept="image/png, image/jpeg" multiple style="display: none;">
+                <div class="thumbnail-carousel" id="thumbnail-container"></div>
             </div>
-            <p class="subtitulo">Endereço/Nome do estabelecimento</p>
-            <input type="text" class='input' id="nome-estabelecimento" placeholder="Nome do estabelecimento">
+
+            <p class="subtitulo">Onde foi esse trem?</p>
+            <input type="text" class="input" id="nome-estabelecimento" placeholder="Digite para buscar ou registrar o local...">
             <div id="resultados"></div>
-            <p class="subtitulo">Descrição</p>
-            <input type="text" class='input' id="descricao" placeholder="Descreva sua postagem">
-            <button class="btn-login" id="btn-postar" type="submit" disabled>Postar</button>
+            
+            <p class="subtitulo">Legenda / O que achou do lugar?</p>
+            <input type="text" class="input" id="descricao" placeholder="Diga o que achou do atendimento, preço, chopp...">
+            
+            <button class="btn-login" id="btn-postar" type="submit" disabled>Publicar no Feed</button>
         </form>
     </div>
+
     <script src="../script/newPost.js"></script>
 </body>
 </html>

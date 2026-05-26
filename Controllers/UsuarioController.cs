@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TremBomApi.Models;
-using TremBomApi.Data; // <-- 1. Adicionado para reconhecer o AppDbContext
+using TremBomApi.Models.DTOs;
+using TremBomApi.Data;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
-using Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -18,46 +18,33 @@ namespace TremBomApi.Controllers
     [Route("api/[controller]")] 
     public class UsuarioController : ControllerBase
     {
-        // 2. Usando o contexto real: AppDbContext
-        
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly string _pepper = "PePpErSeCrEto123!@#"; 
 
-        // Segurança²:  Usa um "pepper" (uma string secreta fixa) para adicionar uma camada extra de proteção contra ataques de força bruta
-        string pepper  = "PePpErSeCrEto123!@#"; // ((Em produção a gente esconde isso, mas já q é um trabalho, a gente releva))
-
-        // 3. O construtor recebe o AppDbContext por injeção
         public UsuarioController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
-            
         }
 
-// REGISTRO
+        /// <summary>
+        /// Registra um novo usuário criptografando a senha com BCrypt + Pepper de segurança.
+        /// </summary>
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] UsuarioRegisterDto dto)
         {
-            // Validação: Verifica se o e-mail inserido já existe na tabela de Usuários
-
-            // vou mudar essa verificação pra ser feita no JavaScript também
             var usuarioExistente = await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.Email == dto.Email || u.Nickname == dto.Nickname);
-            if (usuarioExistente != null)
+                .AnyAsync(u => u.Email == dto.Email || u.Nickname == dto.Nickname);
+            
+            if (usuarioExistente)
             {
-                if (usuarioExistente.Email == dto.Email)
-                    return BadRequest(new { mensagem = "Email já registrado." });
-                    
-                if (usuarioExistente.Nickname == dto.Nickname)
-                    return BadRequest(new { mensagem = "Nickname já registrado." });
+                return BadRequest(new { mensagem = "E-mail ou Nickname já cadastrados no sistema." });
             }
             string ipDoUsuario = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
-            // Segurança: Transforma a senha em texto limpo num Hash seguro usando o BCrypt
 
+            string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(dto.Senha + _pepper);
 
-            string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(dto.Senha + pepper);
-
-            // Mapeamento: Cria a entidade Usuario com os dados recebidos do formulário
             var novoUsuario = new Usuario
             {
                 Nickname = dto.Nickname,
@@ -71,60 +58,61 @@ namespace TremBomApi.Controllers
                 UltimoLogin = DateTime.Now
             };
 
-            // Preferências: Loop para adicionar cada interesse selecionado ao utilizador
-            foreach (var pref in dto.Preferencias) 
+            if (dto.Preferencias != null)
             {
-                novoUsuario.Preferencias.Add(pref);
+                foreach (var pref in dto.Preferencias) 
+                {
+                    novoUsuario.Preferencias.Add(pref);
+                }
             }
 
-            // Adiciona o novo utilizador ao DbSet correto e salva no Banco de Dados
             _context.Usuarios.Add(novoUsuario);
             await _context.SaveChangesAsync();
-            return Created(string.Empty, new{});}
+            return Created(string.Empty, new { mensagem = "Usuário registrado com sucesso!" });
+        }
         
-
-// LOGIN 
+        /// <summary>
+        /// Realiza a autenticação do usuário emitindo um Cookie seguro HTTPOnly contendo o Token JWT.
+        /// </summary>
         [HttpPost("login")]  
         public async Task<IActionResult> Login([FromBody] UsuarioLoginDto dto)
         {
         // Procura o utilizador na base de dados pelo E-mail
         // Usamos Include(u => u.Sessoes) caso queiras manipular a lista de sessões diretamente
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Email == dto.Email);
-            
-            if (usuario == null)
-                {
-                    return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
-                }
+        var usuario = await _context.Usuarios
+            .FirstOrDefaultAsync(u => u.Email == dto.Email);
+        
+        if (usuario == null)
+            {
+                return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
+            }
 
-            // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
-            bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + pepper, usuario.SenhaHash);
-            if (!senhaCorreta)
-                {
-                    return BadRequest(new { message = "E-mail ou senha incorretos." }); 
-                }
+        // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
+        bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + _pepper, usuario.SenhaHash);
+        if (!senhaCorreta)
+            {
+                return BadRequest(new { message = "E-mail ou senha incorretos." }); 
+            }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenHandler = new JwtSecurityTokenHandler();
             var chaveSecreta = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
             var tokenDescriptor = new SecurityTokenDescriptor
-{           
-            Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                
-                new Claim("latitude", dto.lat?.ToString() ?? ""),
-                new Claim("longitude", dto.lon?.ToString() ?? ""),
-                
-                new Claim("nickname", usuario.Nickname)
-            }),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                    // ADICIONANDO AS COORDENADAS DENTRO DO JWT
+                    new Claim("latitude", dto.lat??"".ToString()),
+                    new Claim("longitude", dto.lon??"".ToString()),
+                    new Claim("nickname", usuario.Nickname)
+                }),
+                Expires = DateTime.UtcNow.AddDays(1), // O token expira em 1 dia
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
             };
             
             var tokenObj = tokenHandler.CreateToken(tokenDescriptor);
             string jwtToken = tokenHandler.WriteToken(tokenObj);
 
-            // EMITE O COOKIE HTTPONLY
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
@@ -133,16 +121,16 @@ namespace TremBomApi.Controllers
                 Expires = DateTime.UtcNow.AddDays(7)
             };
 
-        Response.Cookies.Append("JwtToken", jwtToken, cookieOptions);
-        // Utiliza dados do usuario 
-        usuario.UltimoLogin = DateTime.Now;
-        _context.Usuarios.Update(usuario);
-        // Salvar no Banco de Dados
-        await _context.SaveChangesAsync();
-        return Ok();
+            Response.Cookies.Append("JwtToken", jwtToken, cookieOptions);
+            
+            usuario.UltimoLogin = DateTime.Now;
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+            
+            return Ok(new { mensagem = "Login efetuado com sucesso!" });
+        }
     }
-} 
-//Controller para pegar dados de perfis
+
     [ApiController]
     [Route("api/usuario")]
     public class PerfilController : ControllerBase
@@ -154,341 +142,267 @@ namespace TremBomApi.Controllers
             _context = context;
         }
 
-// Função para mostrar os dados do perfil do usuário logado (GET /api/usuario?logado=true)
+        /// <summary>
+        /// Coleta os dados completos de perfil da conta autenticada logada.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetUsuarioLogado([FromQuery] bool logado = false)
         {
-            if (!logado)
-            {
-                return BadRequest("Para acessar esta rota sem um nome, o parâmetro 'logado=true' deve ser fornecido.");
-            }
+            if (!logado) return BadRequest("Parâmetro 'logado=true' obrigatório.");
 
-            // Pega o ID do token de autenticação
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            if (string.IsNullOrEmpty(userIdStr)) 
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId)) 
                 return Unauthorized();
 
-            if (!int.TryParse(userIdStr, out int userId))
-                return BadRequest("ID de usuário inválido.");
-
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
-            
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
             if (usuario == null) return NotFound();
-            // Últimas 10 publicações
+
             var ultimasPublicacoes = await _context.Publicacoes
+                .AsNoTracking()
                 .Where(p => p.UsuarioId == usuario.Id)
-                .OrderByDescending(p => p.DataPublicacao) // Garante que venham as mais novas primeiro
+                .OrderByDescending(p => p.DataPublicacao)
                 .Take(10)
                 .Select(p => new
                 {
                     id = p.Id,
-                    // Pega a URL da primeira imagem vinculada a essa publicação (se houver)
-                    fotoUrl = _context.PublicacoesFotos
-                        .Where(img => img.PublicacaoId == p.Id)
-                        .Select(img => img.FotoUrl)
-                        .FirstOrDefault(),
-                    
-                    // Conta a quantidade de registros de likes para esta publicação
-                    likes = _context.Likes 
-                        .Count(l => l.PublicacaoId == p.Id).FormatarQuantidade(),
-
-                    // Conta a quantidade de registros de comentários para esta publicação
-                    comentarios = _context.Comentarios
-                        .Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
+                    fotoUrl = p.Fotos.Select(f => f.FotoUrl).FirstOrDefault(),
+                    likes = p.Likes.Count.FormatarQuantidade(),
+                    comentarios = _context.Comentarios.Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
                 })
                 .ToListAsync();
             
-            // Contagem de seguidores
-            var totalSeguidores = await _context.Seguidores
-            .CountAsync(s => s.AlvoUsuarioId == usuario.Id);
-            // Contagem de quem ele segue
-            var totalSeguindo = await _context.Seguidores
-             .CountAsync(s => s.UsuarioId == usuario.Id);
-            // Total de publicações
+            var totalSeguidores = await _context.Seguidores.CountAsync(s => s.AlvoUsuarioId == usuario.Id);
+            var totalSeguindo = await _context.Seguidores.CountAsync(s => s.UsuarioId == usuario.Id);
             var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
-            var result = new
+
+            return Ok(new
             {
                 id = usuario.Id,
                 seguindo = totalSeguindo.FormatarQuantidade(),
                 seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
                 fotoPerfilUrl = usuario.FotoPerfilUrl,
-                preferencias = usuario.Preferencias,
+                usuario.Preferencias,
                 descricaoBio = usuario.Descricao,
-                aniversario = usuario.Aniversario,
+                usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
                 isOwner = true,
                 publicacoesCount = totalPublicacoes.FormatarQuantidade(),
-                publicacoes = ultimasPublicacoes,
-            };
-
-            return Ok(result);
+                publicacoes = ultimasPublicacoes
+            });
         }
 
+        /// <summary>
+        /// Obtém a lista dos últimos posts curtidos por um usuário específico.
+        /// </summary>
         [HttpGet("{name}/curtidos")]
         public async Task<IActionResult> GetCurtidosUsuario(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return BadRequest("O nome do usuário não foi informado.");
-            }
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (string.IsNullOrEmpty(name)) return BadRequest("Nome não informado.");
+            
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound();
-            var likesBrutos = await _context.Likes
-                    .AsNoTracking()
-                    .Where(l => l.UsuarioId == usuario.Id)
-                    .OrderByDescending(l => l.DateLike) 
-                    .Take(10)
-                    .Select(l => new
-                    {
-                        publicacaoId = l.PublicacaoId,
-                        
-                        fotoUrl = _context.PublicacoesFotos
-                            .Where(img => img.PublicacaoId == l.PublicacaoId)
-                            .Select(img => img.FotoUrl)
-                            .FirstOrDefault(),
-                        
-                        likesCount = _context.Likes 
-                            .Count(like => like.PublicacaoId == l.PublicacaoId),
 
-                        comentariosCount = _context.Comentarios
-                            .Count(c => c.PublicacaoId == l.PublicacaoId)
-                    })
-                    .ToListAsync();
-                var ultimasPublicacoesCurtidas = likesBrutos.Select(p => new
+            var likesBrutos = await _context.Likes
+                .AsNoTracking()
+                .Where(l => l.UsuarioId == usuario.Id)
+                .OrderByDescending(l => l.DateLike) 
+                .Take(10)
+                .Select(l => new
                 {
-                    id = p.publicacaoId,
-                    fotoUrlPublicacao = p.fotoUrl, 
-                    likes = p.likesCount.FormatarQuantidade(),
-                    comentarios = p.comentariosCount.FormatarQuantidade()
-                }).ToList();
-                return Ok(ultimasPublicacoesCurtidas);
+                    publicacaoId = l.PublicacaoId,
+                    fotoUrl = l.Publicacao!.Fotos.Select(f => f.FotoUrl).FirstOrDefault(),
+                    likesCount = l.Publicacao.Likes.Count,
+                    comentariosCount = _context.Comentarios.Count(c => c.PublicacaoId == l.PublicacaoId)
+                })
+                .ToListAsync();
+
+            var formatados = likesBrutos.Select(p => new
+            {
+                id = p.publicacaoId,
+                fotoUrlPublicacao = p.fotoUrl,
+                likes = p.likesCount.FormatarQuantidade(),
+                comentarios = p.comentariosCount.FormatarQuantidade()
+            }).ToList();
+
+            return Ok(formatados);
         }
 
-// Função para buscar um perfil público pelo nickname (GET /api/usuario/nome-do-usuario)
+        /// <summary>
+        /// Obtém dados de um perfil público baseado no apelido (Nickname).
+        /// </summary>
         [HttpGet("{name}")]
         public async Task<IActionResult> GetUsuarioPorNome(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return BadRequest("O nome do usuário não foi informado.");
-            }
+            if (string.IsNullOrEmpty(name)) return BadRequest("Nome não informado.");
 
-            // Busca o usuário pelo nickname na URL
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
-            
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound();
-            // Contagem de seguidores   
-            var totalSeguidores = await _context.Seguidores
-            .CountAsync(s => s.AlvoUsuarioId == usuario.Id);
-            // Contagem de quem ele segue
-            var totalSeguindo = await _context.Seguidores
-             .CountAsync(s => s.UsuarioId == usuario.Id);
-            // Total de publicações
+
+            var totalSeguidores = await _context.Seguidores.CountAsync(s => s.AlvoUsuarioId == usuario.Id);
+            var totalSeguindo = await _context.Seguidores.CountAsync(s => s.UsuarioId == usuario.Id);
             var totalPublicacoes = await _context.Publicacoes.CountAsync(p => p.UsuarioId == usuario.Id);
 
-            // Últimas 10 publicações
             var ultimasPublicacoes = await _context.Publicacoes
+                .AsNoTracking()
                 .Where(p => p.UsuarioId == usuario.Id)
-                .OrderByDescending(p => p.DataPublicacao) // Garante que venham as mais novas primeiro
+                .OrderByDescending(p => p.DataPublicacao)
                 .Take(10)
                 .Select(p => new
                 {
                     id = p.Id,
-                    // Pega a URL da primeira imagem vinculada a essa publicação (se houver)
-                    fotoUrl = _context.PublicacoesFotos
-                        .Where(img => img.PublicacaoId == p.Id)
-                        .Select(img => img.FotoUrl)
-                        .FirstOrDefault(),
-                    
-                    // Conta a quantidade de registros de likes para esta publicação
-                    likes = _context.Likes 
-                        .Count(l => l.PublicacaoId == p.Id).FormatarQuantidade(),
-
-                    // Conta a quantidade de registros de comentários para esta publicação
-                    comentarios = _context.Comentarios
-                        .Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
+                    fotoUrl = p.Fotos.Select(f => f.FotoUrl).FirstOrDefault(),
+                    likes = p.Likes.Count.FormatarQuantidade(),
+                    comentarios = _context.Comentarios.Count(c => c.PublicacaoId == p.Id).FormatarQuantidade()
                 })
                 .ToListAsync();
 
-            // Pega o ID de quem está logado (se houver alguém logado)
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            bool ehODonoDoPerfil = false;
-
-            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int loggedInId))
+            bool ehODonoDoPerfil = !string.IsNullOrEmpty(userIdStr) && userIdStr == usuario.Id.ToString();
+            
+            bool segue = false;
+            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int loggedId))
             {
-                // Se o ID do token for igual ao ID do usuário do banco, ele é o dono!
-                ehODonoDoPerfil = usuario.Id == loggedInId;
+                segue = await _context.Seguidores.AnyAsync(s => s.UsuarioId == loggedId && s.AlvoUsuarioId == usuario.Id);
             }
-            // Verifica se a pessoa já segue
-            var jaSegue = userIdStr!= null?await _context.Seguidores
-                                .FirstOrDefaultAsync(s => s.UsuarioId == int.Parse(userIdStr) && s.AlvoUsuarioId == usuario.Id):null;
 
-            // Retorna os dados com a flag de controle
-            var result = new
+            return Ok(new
             {
                 id = usuario.Id,
                 seguindo = totalSeguindo.FormatarQuantidade(),
                 seguidores = totalSeguidores.FormatarQuantidade(),
                 nickname = usuario.Nickname,
                 fotoPerfilUrl = usuario.FotoPerfilUrl,
-                preferencias = usuario.Preferencias,
+                usuario.Preferencias,
                 descricaoBio = usuario.Descricao,
-                aniversario = usuario.Aniversario,
+                usuario.Aniversario,
                 vistoPorUltimo = usuario.UltimoLogin,
                 isOwner = ehODonoDoPerfil,
                 publicacoesCount = totalPublicacoes.FormatarQuantidade(),
                 publicacoes = ultimasPublicacoes,
-                segue = jaSegue!=null
-            };
-
-            return Ok(result);
+                segue = segue
+            });
         }
 
-// Função para seguir um usuário (POST /api/usuario/seguir/nome-do-usuario)
+        /// <summary>
+        /// Segue uma conta de usuário.
+        /// </summary>
         [HttpPost("seguir/{name}")]
         public async Task<IActionResult> SeguirUsuario(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return BadRequest("O nome do usuário não foi informado.");
-            }
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound();
+
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdStr == null) return Unauthorized();
-            // Convertendo o id obtido da sessão em int
+
             var parsedUserIdStr = int.Parse(userIdStr);
-            var jaSegue = await _context.Seguidores
-                                .FirstOrDefaultAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
-            if (jaSegue != null) return BadRequest("Você já segue essa conta.");
-            Seguidores result = new Seguidores
-            {
-                AlvoUsuarioId = usuario.Id,
-                UsuarioId = parsedUserIdStr,
-            };
-            // Atualizando a db com o novo seguidor
-            _context.Seguidores.Add(result);
+            if (parsedUserIdStr == usuario.Id) return BadRequest("Você não pode seguir a si mesmo.");
+
+            var jaSegue = await _context.Seguidores.AnyAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
+            if (jaSegue) return BadRequest("Você já segue essa conta.");
+
+            var novoSeguidor = new Seguidores { AlvoUsuarioId = usuario.Id, UsuarioId = parsedUserIdStr };
+            _context.Seguidores.Add(novoSeguidor);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(new { mensagem = "Conta seguida com sucesso." });
         }
 
-    // Função para deixar de seguir um usuário (DELETE /api/usuario/unfollow/nome-do-usuario)
+        /// <summary>
+        /// Deixa de seguir uma conta (Unfollow).
+        /// </summary>
         [HttpDelete("unfollow/{name}")]
         public async Task<IActionResult> UnfollowUsuario(string name)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                return BadRequest("O nome do usuário não foi informado.");
-            }
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound();
+
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdStr == null) return Unauthorized();
-            // Convertendo o id obtido da sessão em int
+
             var parsedUserIdStr = int.Parse(userIdStr);
-            try
-            {
-            // Procura a linha que precisa ser deletada
-                var linhasAfetadas = await _context.Seguidores
-                .Where(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id)
-                .ExecuteDeleteAsync();
-                if (linhasAfetadas == 0)
-                {
-                    return BadRequest("Você já não seguia este usuário.");
-                }
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }catch (Exception ex)
-            {
-                return StatusCode(500, $"Erro interno ao deixar de seguir: {ex.Message}");
-            }
+            
+            var registro = await _context.Seguidores
+                .FirstOrDefaultAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
+            
+            if (registro == null) return BadRequest("Você não segue este usuário.");
+
+            _context.Seguidores.Remove(registro);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-// -------------------------------
-// PROFILE
-// --------------------------------
-// Função para atualizar o perfil do usuário logado (PUT /api/usuario/atualizar)
+        /// <summary>
+        /// Atualiza informações parciais de perfil (Biografia e Preferências).
+        /// </summary>
         [HttpPut("atualizar")]
         public async Task<IActionResult> AtualizarPerfil([FromBody] UsuarioEdicaoDto dto)
         {
-            // Pega o ID do usuário logado pelo Token JWT
-            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
             var userId = int.Parse(userIdStr);
-            
-            // Busca o usuário original do banco
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
-            if (usuario == null) return NotFound("Usuário não encontrado.");
+            var usuario = await _context.Usuarios.Include(u => u.Preferencias).FirstOrDefaultAsync(u => u.Id == userId);
+            if (usuario == null) return NotFound("Usuário não cadastrado.");
 
-            // Atualiza os campos apenas se eles forem enviados
-            if (!string.IsNullOrEmpty(dto.FotoPerfilUrl))
-            {
-                usuario.FotoPerfilUrl = dto.FotoPerfilUrl;
-            }
-            
-            usuario.Descricao = dto.DescricaoBio; // Permite deixar em branco se o usuário apagar
+            if (!string.IsNullOrEmpty(dto.FotoPerfilUrl)) usuario.FotoPerfilUrl = dto.FotoPerfilUrl;
+            usuario.Descricao = dto.DescricaoBio; 
 
-            // Atualiza as tags (Preferências)
             if (dto.Preferencias != null)
             {
                 usuario.Preferencias.Clear();
-                foreach (var pref in dto.Preferencias)
-                {
-                    usuario.Preferencias.Add(pref);
-                }
+                foreach (var pref in dto.Preferencias) usuario.Preferencias.Add(pref);
             }
 
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
-
             return Ok(new { mensagem = "Perfil atualizado com sucesso uai!" });
         }
-    
 
-// Funcao para mostrar a lista de seguidores de um perfil público (GET /api/usuario/nome-do-usuario/seguidores)
+        /// <summary>
+        /// Retorna a lista de seguidores de um perfil.
+        /// </summary>
         [HttpGet("{name}/seguidores")]
         public async Task<IActionResult> GetSeguidores(string name)
         {
             // 1. Busca o usuário dono do perfil para pegar o ID dele
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound("Usuário não encontrado.");
 
-            // 2. Procura na tabela de seguidores quem tem como alvo o ID desse usuário
+            // 2. CORREÇÃO: Busca usando a propriedade de navegação 'SeguidorUsuario' que mapeia quem seguiu
             var lista = await _context.Seguidores
+                .AsNoTracking()
                 .Where(s => s.AlvoUsuarioId == usuario.Id)
                 .Select(s => new {
-                    Nickname = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.Nickname).FirstOrDefault(),
-                    FotoPerfilUrl = _context.Usuarios.Where(u => u.Id == s.UsuarioId).Select(u => u.FotoPerfilUrl).FirstOrDefault()
+                    Nickname = s.SeguidorUsuario!.Nickname,
+                    FotoPerfilUrl = s.SeguidorUsuario.FotoPerfilUrl
                 }).ToListAsync();
 
             return Ok(lista);
         }
 
-        // Funcao para mostrar a lista de quem a pessoa segue de um perfil público
+        /// <summary>
+        /// Retorna a lista de quem o perfil selecionado está seguindo.
+        /// </summary>
         [HttpGet("{name}/seguindo")]
         public async Task<IActionResult> GetSeguindo(string name)
         {
-            // Busca o utilizador dono do perfil para obter o ID dele
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            // Busca o usuário dono do perfil para obter o ID dele
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound("Utilizador não encontrado.");
 
-            // Procura quem este utilizador segue (onde ele é o UsuarioId de origem)
+            // CORREÇÃO: Busca usando a propriedade 'AlvoUsuario' para saber quem foi seguido
             var lista = await _context.Seguidores
+                .AsNoTracking()
                 .Where(s => s.UsuarioId == usuario.Id)
-                .Join(_context.Usuarios,
-                    s => s.AlvoUsuarioId,
-                    u => u.Id,
-                    (s, u) => new
-                    {
-                        nickname = u.Nickname,
-                        fotoPerfilUrl = u.FotoPerfilUrl
-                    })
+                .Select(s => new
+                {
+                    nickname = s.AlvoUsuario!.Nickname,
+                    fotoPerfilUrl = s.AlvoUsuario.FotoPerfilUrl
+                })
                 .ToListAsync();
 
             return Ok(lista);
         }
-
-}}
+    }
+}

@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TremBomApi.Data; // Ajuste para o namespace correto do seu AppDbContext
+using TremBomApi.Data;
 using TremBomApi.Models;
+using TremBomApi.Models.DTOs;
 
 namespace TremBomApi.Controllers
 {
@@ -15,17 +16,18 @@ namespace TremBomApi.Controllers
     {
         private readonly AppDbContext _context;
 
-        // O construtor injeta o contexto do banco de dados automaticamente
         public GruposController(AppDbContext context)
         {
             _context = context;
         }
 
-        // POST: api/Grupos
+        /// <summary>
+        /// Cria um novo grupo e vincula os membros iniciais enviados.
+        /// </summary>
+    
         [HttpPost]
         public async Task<IActionResult> CriarGrupo([FromBody] GrupoDto dto)
         {
-            // Validação básica se os dados enviados respeitam as regras do DTO
             if (dto == null)
             {
                 return BadRequest("Os dados do grupo não foram enviados corretamente.");
@@ -38,52 +40,51 @@ namespace TremBomApi.Controllers
 
             try
             {
-                // 1. Mapeia o DTO para a Entidade principal do Banco de Dados
+                // 1. Mapeia o DTO para a Entidade do Banco de Dados
                 var novoGrupo = new Grupo
                 {
                     Nome = dto.Nome,
                     Descricao = dto.Descricao,
                     LimiteMembros = dto.LimiteMembros,
                     Privacidade = dto.Privacidade,
-                    Senha = dto.Privacidade == "privado" ? dto.Senha : null, // Só salva senha se for privado
+                    // Garante que se não for "privado", a senha nunca será salva
+                    Senha = dto.Privacidade?.ToLower() == "privado" ? dto.Senha : null, 
                     LocalId = dto.LocalId
                 };
 
-                // 2. Adiciona o grupo ao contexto e salva para gerar o ID do grupo
+                // 2. Adiciona e salva para gerar o ID do grupo
                 _context.Grupos.Add(novoGrupo);
                 await _context.SaveChangesAsync(); 
 
-                // 3. Vincula os membros selecionados na tabela associativa (se houver algum)
+                // 3. Vincula os membros (se houver algum na lista)
                 if (dto.MembrosIds != null && dto.MembrosIds.Count > 0)
                 {
-                    // REGRA DE SEGURANÇA: Valida se a quantidade de convidados não estoura o limite do grupo
-                    // (+1 representa o dono do grupo que está criando)
+                    // Validação do limite configurado para o grupo (+1 é o criador)
                     if (dto.MembrosIds.Count + 1 > dto.LimiteMembros)
                     {
-                        return BadRequest($"A quantidade de membros convidados excede o limite máximo de {dto.LimiteMembros} pessoas configurado para este grupo.");
+                        return BadRequest($"A quantidade de membros convidados excede o limite máximo de {dto.LimiteMembros} pessoas.");
                     }
 
                     foreach (var usuarioId in dto.MembrosIds)
                     {
                         var vinculoMembro = new GrupoMembro
                         {
-                            GrupoId = novoGrupo.Id, // ID gerado automaticamente no passo anterior
+                            GrupoId = novoGrupo.Id, 
                             UsuarioId = usuarioId
                         };
                         
                         _context.GrupoMembros.Add(vinculoMembro);
                     }
 
-                    // Salva as associações de membros no banco
+                    // Salva todos os vínculos criados no laço de repetição
                     await _context.SaveChangesAsync();
                 }
 
-                // Retorna o status 201 (Created) e o objeto criado
+                // Retorna 201 Created com a rota para buscar o grupo futuramente
                 return CreatedAtAction(nameof(CriarGrupo), new { id = novoGrupo.Id }, novoGrupo);
             }
             catch (Exception ex)
             {
-                // Tratamento de erro didático para te ajudar no console caso algo falhe
                 return StatusCode(500, $"Erro interno ao salvar o grupo: {ex.Message}");
             }
         }

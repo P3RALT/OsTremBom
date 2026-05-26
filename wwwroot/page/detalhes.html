@@ -3,151 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title class="nomeLocal">Carregando...</title>
+  <title>Detalhes do Local - Os Trem de BH</title>
+  
   <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png">
   <link rel="manifest" href="../img/site.webmanifest">
+  
   <link rel="stylesheet" href="../css/estiloperfil.css">
   <link rel="stylesheet" href="../css/estilodetalhes.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>    
 </head>
 <body>
-    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-logo">
-                <img src="/img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
-            <span>Os Trem de BH</span></div>
-            <div class="sidebar-logo-mobile" style="display:none;"><i class="fa-solid fa-mountain-sun"></i></div>
-            
-            <nav class="sidebar-nav">
-                <a href="/page/feed.html" class="nav-item active"><i class="fas fa-home"></i> <span>Início</span></a>
-                <!-- Se search=true no JavaScript, a gente renderiza a página de pesquisa-->
-                <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
-                <a href="/page/locais.html" class="nav-item"><i class="fas fa-compass"></i> <span>Explorar</span></a>
-                <a href="/page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
-                <a href="/page/Groups.html" class="nav-item"><i class="fa-solid fa-user-group"></i> <span>Grupos</span></a>
-                <a href="../page/profile.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
 
-            </nav>
-        </aside>
+    <button class="mobile-menu-btn" id="menu-button" onclick="toggleMenu()">
+         <i class="fa-solid fa-bars"></i>
+    </button>
+    
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
+    
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../img/android-chrome-192x192.png" alt="OS TREM DE BH - Logo">
+            <span>Os Trem de BH</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../page/feed.html" class="nav-item"><i class="fas fa-home"></i> <span>Início</span></a>
+            <a href="../page/feed.html?search=true" class="nav-item"><i class="fas fa-search"></i> <span>Pesquisar</span></a>
+            <a href="../page/locais.html" class="nav-item active"><i class="fas fa-compass"></i> <span>Explorar</span></a>
+            <a href="../page/newpost.html" class="nav-item"><i class="fas fa-square-plus"></i> <span>Criar</span></a>
+            <a href="../page/Groups.html" class="nav-item"><i class="fa-solid fa-user-group"></i> <span>Grupos</span></a>
+            <a href="../page/profile.html" class="nav-item"><i class="fas fa-circle-user"></i> <span>Perfil</span></a>
+        </nav>
+    </aside>
+
     <div class="main-content">
         <div class="header-local">
-            <h1 id="nomeLocal">Carregando...</h1>
+            <h1 id="nomeLocal">Carregando Estabelecimento...</h1>
             
             <div class="header-actions">
-                <button class="btn-header"><i class="fa-solid fa-heart" style="color: #069e6e;"></i><span id="likesCount"></span></button>
+                <button class="btn-header"><i class="fa-solid fa-heart" style="color: #069e6e;"></i> <span id="likesCount">0</span></button>
                 <button class="btn-header"><i class="fa-solid fa-share-nodes"></i></button>
             </div>
         </div>
+        
         <div class="status-local content-width">
-
-            <p id="categoria" class="categoria-badge">
-                Carregando...
-            </p>
+            <p id="categoria" class="categoria-badge">Carregando Categoria...</p>
         </div>
+        
         <section class="galeria-mosaico" id="galeria"></section>
+        
         <div class="content-width">
             <div class="margin" style="display: flex; align-items: center; gap: 16px;">
-                <h1 class="title" style="margin: 0;">Descrição</h1>
-                <p style="padding: 6px 14px; border-radius: 20px; border: none; background: #069e6e36;">Resumido por IA</p>
+                <h1 class="title" style="margin: 0;">Resumo do Destino</h1>
+                <p style="padding: 6px 14px; font-size:12px; font-weight:bold; border-radius: 20px; background: #069e6e36; color:#069e6e;">IA Inteligência Artificial</p>
             </div>
-            <p id="descricaoLocal" style="text-align:justify">Carregando...</p>
-            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="oqFazer"></span></div>
-            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="pqVisitar"></span></div>
-            <div style="padding-top: 20px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="dicas"></span></div>
-            </div>
-            <div class="content-width">
-                <h1 class="title margin">Endereço</h1>
-                <p id="enderecoLocal">Carregando...</p>
-            </div>
-                <div id="expanded-map" class="expanded-map-container">
-                        <div id="full-map" class="full-map"></div>
-                </div>
-        <div class="content-width">
-        <h1 class="title margin">Posts</h1>
-
-        <div class="posts-container">
-
-            <!-- POST -->
-            <div class="post-card">
-
-                <div class="post-header">
-                    <img
-                        src="https://i.pravatar.cc/100?img=32"
-                        alt="Perfil"
-                        class="post-profile-pic"
-                    >
-
-                    <div class="post-user-info">
-                        <span class="post-username">@mariana</span>
-                        <span class="post-date">Há 2 semanas</span>
+            
+            <p id="descricaoLocal" style="text-align:justify; line-height: 1.6;">Aguardando retorno da IA...</p>
+            
+            <div style="padding-top: 15px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="oqFazer"></span></div>
+            <div style="padding-top: 15px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="pqVisitar"></span></div>
+            <div style="padding-top: 15px;"><i class="fa-solid fa-circle-check" style="color: #069e6e;"></i> <span id="dicas"></span></div>
+        </div>
+        
+        <div class="content-width" style="margin-top: 30px;">
+            <h1 class="title margin">Endereço e Localização</h1>
+            <p id="enderecoLocal" style="margin-bottom: 15px; font-weight: 500;"></p>
+        </div>
+        
+        <div id="expanded-map" class="expanded-map-container" style="width:100%; height:350px; border-radius:12px; overflow:hidden;">
+            <div id="full-map" style="width: 100%; height: 100%;"></div>
+        </div>
+        
+        <div class="content-width" style="margin-top: 40px;">
+            <h1 class="title margin">Avaliações da Comunidade</h1>
+            <div class="posts-container" id="postsLocaisContainer">
+                <div class="post-card">
+                    <div class="post-header">
+                        <img src="https://i.pravatar.cc/100?img=32" alt="Perfil" class="post-profile-pic">
+                        <div class="post-user-info">
+                            <span class="post-username">@mariana_bh</span>
+                            <span class="post-date">Há 2 semanas</span>
+                        </div>
                     </div>
+                    <p class="post-text">Achei o ambiente sensacional! Muito aconchegante e tipicamente mineiro.</p>
                 </div>
-
-                <p class="post-text">
-                    Achei o ambiente super tranquilo e seguro.
-                    Tem bastante coisa pra fazer perto também.
-                </p>
-
-                <img
-                    src="/img/imagemcentroPage.jpg"
-                    alt="Post"
-                    class="post-image"
-                >
-
-                <div class="post-actions">
-                    <div class="action-left">
-                        <i class="fa-regular fa-heart"></i>
-                        <i class="fa-regular fa-comment"></i>
-                    </div>
-                </div>
-                <span class="likes">2.540 curtidas</span>
             </div>
-
-            <!-- POST -->
-            <div class="post-card">
-
-                <div class="post-header">
-                    <img
-                        src="https://i.pravatar.cc/100?img=12"
-                        alt="Perfil"
-                        class="post-profile-pic"
-                    >
-
-                    <div class="post-user-info">
-                        <span class="post-username">@joaopedro</span>
-                        <span class="post-date">Há 5 dias</span>
-                    </div>
-                </div>
-
-                <p class="post-text">
-                    Lugar muito bonito, principalmente no pôr do sol.
-                </p>
-
-                <img
-                    src="/img/imagemcentroPage.jpg"
-                    alt="Post"
-                    class="post-image"
-                >
-
-                <div class="post-actions">
-                    <div class="action-left">
-                        <i class="fa-regular fa-heart"></i>
-                        <i class="fa-regular fa-comment"></i>
-                    </div>
-                </div>
-                <span class="likes">2.540 curtidas</span>
-            </div>
-
         </div>
     </div>
+
+    <script src="../script/toggleMenu.js"></script>
     <script src="../script/Detalhes.js"></script>
-    </body>
+</body>
 </html>

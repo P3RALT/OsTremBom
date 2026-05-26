@@ -1,9 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace TremBomApi.Models
 {
+    /*
+     * PROPÓSITO DA MODEL (Objetos de Transferência - DTOs de Entrada/Saída):
+     * Classes auxiliares que não vão para o Banco de Dados como tabelas, mas servem de contrato
+     * de validação para receber requisições complexas do front-end ou estruturar respostas customizadas.
+     */
+
     public class PublicacaoRequest
     {
         [Required(ErrorMessage = "O local é obrigatório")]
