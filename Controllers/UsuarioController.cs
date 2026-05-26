@@ -34,6 +34,7 @@ namespace TremBomApi.Controllers
             
         }
 
+// REGISTRO
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] UsuarioRegisterDto dto)
         {
@@ -81,11 +82,8 @@ namespace TremBomApi.Controllers
             return Created(string.Empty, new{});}
         
 
-        // LOGIN 
-        [HttpPost("login")]
-        
-
-        
+// LOGIN 
+        [HttpPost("login")]  
         public async Task<IActionResult> Login([FromBody] UsuarioLoginDto dto)
         {
         // Procura o utilizador na base de dados pelo E-mail

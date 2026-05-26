@@ -15,6 +15,8 @@ namespace TremBomApi.Data
         public DbSet<Publicacao> Publicacoes { get; set; }
         public DbSet<PublicacaoFoto> PublicacoesFotos { get; set; }
         public DbSet<Seguidores> Seguidores { get; set; }
+        public DbSet<Grupo> Grupos { get; set; }
+        public DbSet<GrupoMembro> GrupoMembros { get; set; }
 
         // Este método é chamado quando o modelo do banco de dados está sendo criado
         protected override void OnModelCreating(ModelBuilder modelBuilder)
