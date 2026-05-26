@@ -4,8 +4,6 @@
 let membrosSelecionadosGlobal = []; // Armazena os IDs/Nomes dos membros convidados
 let seguidoresDoBancoGlobal = [];   // Armazena a lista de seguidores carregada pelo GET
 let locaisDoBancoGlobal = [];       // Armazena os locais vindos do banco de dados temporariamente
-// Mude temporariamente para testar a tela de aviso:
-seguidoresDoBancoGlobal = [];
 
 // Função para abrir o modal de criação de grupo
 function abrirModalGrupo() {
@@ -87,33 +85,47 @@ function fecharSubModalMembros() {
     }
 }
 
-// Faz o fetch GET na sua Controller C# para buscar quem o usuário segue
+// INTEGRAÇÃO: Faz o fetch real sincronizado com o sistema de rotas do seu perfil
 async function carregarSeguidoresParaVinculo() {
     try {
-        const resposta = await fetch('http://localhost:5207/api/Usuarios/Seguindo');
-        if (!resposta.ok) throw new Error();
-        seguidoresDoBancoGlobal = await resposta.json();
+        // 1. Descobre quem é o usuário logado no sistema
+        const respostaUser = await fetch('/api/usuario?logado=true');
+        if (!respostaUser.ok) throw new Error("Usuário não logado");
+        const usuarioLogado = await respostaUser.json();
+        
+        // 2. Bate na rota de relacionamento correta usando o nickname dinâmico
+        const nickname = encodeURIComponent(usuarioLogado.nickname);
+        const respostaSeguindo = await fetch(`/api/usuario/${nickname}/seguindo`);
+        if (!respostaSeguindo.ok) throw new Error("Erro na rota de seguindo");
+        
+        // 3. Mapeia os dados recebidos para o padrão id e nome usado na renderização
+        const dadosBrutos = await respostaSeguindo.json();
+        seguidoresDoBancoGlobal = dadosBrutos.map(dado => ({
+            id: dado.id,
+            nome: dado.nome ?? dado.nickname
+        }));
     } catch (erro) {
-        console.warn("API Offline. Carregando dados simulados de seguidores.");
-        // Fallback ativo se a API estiver desligada
-        // TESTE: Mude o array abaixo para vazio [] para testar a mensagem de aviso na tela!
-       
+        console.warn("API Offline ou Erro de autenticação. Carregando dados simulados.", erro);
+        // Fallback ativo para desenvolvimento local caso o banco falte
+        seguidoresDoBancoGlobal = [
+            { id: 101, nome: "Uai Mateus" },
+            { id: 102, nome: "Chica da Silva" },
+            { id: 103, nome: "Trem Bão da Pampulha" },
+            { id: 104, nome: "Arnaldo BH" }
+        ];
     }
 }
 
-// Renderiza os membros em caixas ovais pretas com Checkbox
-// SUBSTITUA APENAS ESTA FUNÇÃO NO SEU SCRIPT ORIGINAL:
+// Renderiza os membros em caixas ovais com Checkbox e adiciona aviso se estiver vazia
 function renderizarListaMembrosModal(lista, limiteMaximo) {
     const listaContainer = document.getElementById('lista-membros-dinamica');
-    
-    // Se o contêiner não existir na tela, tenta usar o outro ID do seu HTML
     const containerReal = listaContainer || document.getElementById('lista-membros-dinamica-modal');
     
-    if (!containerReal) return; // Proteção para não travar o código se o ID não for encontrado
+    if (!containerReal) return; 
     
     containerReal.innerHTML = "";
 
-    // SE A LISTA ESTIVER VAZIA: Mostra o aviso amigável sem quebrar o layout
+    // SE A LISTA ESTIVER VAZIA: Mostra o aviso amigável sem quebrar o layout do modal
     if (lista.length === 0) {
         containerReal.innerHTML = `
             <div style="text-align: center; padding: 30px 10px; color: #718096; font-family: 'Inter', sans-serif;">
@@ -124,7 +136,7 @@ function renderizarListaMembrosModal(lista, limiteMaximo) {
         return;
     }
 
-    // Se houver seguidores, desenha as caixas normalmente
+    // Se houver seguidores, desenha as caixas ovais normalmente
     lista.forEach(seguidor => {
         const divLinha = document.createElement('div');
         divLinha.className = 'item-local-linha';
@@ -195,13 +207,13 @@ async function salvarGrupo(event) {
     };
     
     try {
-        const resposta = await fetch('http://localhost:5207/api/Grupos', {
+        const response = await fetch('http://localhost:5207/api/Grupos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dadosGrupo)
         });
 
-        if (!resposta.ok) throw new Error("Erro ao salvar o grupo no servidor.");
+        if (!response.ok) throw new Error("Erro ao salvar o grupo no servidor.");
 
         alert('Grupo criado e salvo com sucesso no banco de dados!');
         fecharModalGrupo();
@@ -252,7 +264,12 @@ async function carregarLocaisParaVinculo() {
         locaisDoBancoGlobal = locais; 
         renderizarListaLocais(locais);
     } catch {
-    
+        // Fallback de segurança para locais caso a API falhe
+        const locaisFallback = [
+            { id: 1, nome: "Mercado Central", categoria: "gastronomia" },
+            { id: 2, nome: "Praça da Liberdade", categoria: "cultura" },
+            { id: 3, nome: "Mirante das Mangabeiras", categoria: "parque" }
+        ];
         locaisDoBancoGlobal = locaisFallback;
         renderizarListaLocais(locaisFallback);
     }
