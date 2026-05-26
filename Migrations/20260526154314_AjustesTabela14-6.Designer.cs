@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TremBomApi.Data;
 
@@ -10,9 +11,11 @@ using TremBomApi.Data;
 namespace TremBomApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526154314_AjustesTabela14-6")]
+    partial class AjustesTabela146
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
@@ -35,12 +38,10 @@ namespace TremBomApi.Migrations
                         .HasColumnName("data_criacao");
 
                     b.Property<int>("PublicacaoId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("publicacao_id");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("usuario_id");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -49,55 +50,6 @@ namespace TremBomApi.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("comentarios");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Grupo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LimiteMembros")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("LocalId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Privacidade")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Senha")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocalId");
-
-                    b.ToTable("Grupos");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.GrupoMembro", b =>
-                {
-                    b.Property<int>("GrupoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("GrupoId", "UsuarioId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("GrupoMembros");
                 });
 
             modelBuilder.Entity("TremBomApi.Models.Likes", b =>
@@ -245,8 +197,7 @@ namespace TremBomApi.Migrations
 
                     b.Property<string>("FotoUrl")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("foto_url");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("PublicacaoId")
                         .HasColumnType("INTEGER");
@@ -266,16 +217,14 @@ namespace TremBomApi.Migrations
                         .HasColumnName("id");
 
                     b.Property<int>("AlvoUsuarioId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("alvo_usuario_id");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("SegueDesde")
                         .HasColumnType("TEXT")
                         .HasColumnName("segueDesde");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("usuario_id");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -355,7 +304,7 @@ namespace TremBomApi.Migrations
             modelBuilder.Entity("TremBomApi.Models.Comentarios", b =>
                 {
                     b.HasOne("TremBomApi.Models.Publicacao", "Publicacao")
-                        .WithMany("Comentarios")
+                        .WithMany()
                         .HasForeignKey("PublicacaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -363,7 +312,7 @@ namespace TremBomApi.Migrations
                     b.HasOne("TremBomApi.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Publicacao");
@@ -371,38 +320,10 @@ namespace TremBomApi.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("TremBomApi.Models.Grupo", b =>
-                {
-                    b.HasOne("TremBomApi.Models.Local", "Local")
-                        .WithMany()
-                        .HasForeignKey("LocalId");
-
-                    b.Navigation("Local");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.GrupoMembro", b =>
-                {
-                    b.HasOne("TremBomApi.Models.Grupo", "Grupo")
-                        .WithMany("Membros")
-                        .HasForeignKey("GrupoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grupo");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("TremBomApi.Models.Likes", b =>
                 {
                     b.HasOne("TremBomApi.Models.Publicacao", "Publicacao")
-                        .WithMany("Likes")
+                        .WithMany()
                         .HasForeignKey("PublicacaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -410,7 +331,7 @@ namespace TremBomApi.Migrations
                     b.HasOne("TremBomApi.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Publicacao");
@@ -440,7 +361,7 @@ namespace TremBomApi.Migrations
             modelBuilder.Entity("TremBomApi.Models.PublicacaoFoto", b =>
                 {
                     b.HasOne("TremBomApi.Models.Publicacao", "Publicacao")
-                        .WithMany("Fotos")
+                        .WithMany()
                         .HasForeignKey("PublicacaoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -450,40 +371,26 @@ namespace TremBomApi.Migrations
 
             modelBuilder.Entity("TremBomApi.Models.Seguidores", b =>
                 {
-                    b.HasOne("TremBomApi.Models.Usuario", "AlvoUsuario")
+                    b.HasOne("TremBomApi.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("AlvoUsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TremBomApi.Models.Usuario", "SeguidorUsuario")
+                    b.HasOne("TremBomApi.Models.Usuario", "Usuario2")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AlvoUsuario");
+                    b.Navigation("Usuario");
 
-                    b.Navigation("SeguidorUsuario");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Grupo", b =>
-                {
-                    b.Navigation("Membros");
+                    b.Navigation("Usuario2");
                 });
 
             modelBuilder.Entity("TremBomApi.Models.Local", b =>
                 {
                     b.Navigation("Publicacoes");
-                });
-
-            modelBuilder.Entity("TremBomApi.Models.Publicacao", b =>
-                {
-                    b.Navigation("Comentarios");
-
-                    b.Navigation("Fotos");
-
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

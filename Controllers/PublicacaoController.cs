@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http; // ADICIONADO: Essencial para o IFormFile compilar!
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ using System.Web;
 using TremBomApi.Data;
 using TremBomApi.Extensions;
 using TremBomApi.Models;
+using TremBomApi.Models.DTOs; // ADICIONADO: Para enxergar o ComentarioDto
 
 namespace TremBomApi.Controllers
 {
@@ -31,7 +34,6 @@ namespace TremBomApi.Controllers
         /// <summary>
         /// Remove o Like aplicado anteriormente a uma publicação.
         /// </summary>
-        
         [HttpPost("{publicacao}/deslike")]
         public async Task<IActionResult> Deslike(int publicacao)
         {
@@ -55,7 +57,6 @@ namespace TremBomApi.Controllers
         /// <summary>
         /// Adiciona um Like a uma publicação específica.
         /// </summary>
-        
         [HttpPost("{publicacao}/like")]
         public async Task<IActionResult> Like(int publicacao)
         {
@@ -85,7 +86,6 @@ namespace TremBomApi.Controllers
         /// <summary>
         /// Retorna os 10 locais que mais receberam likes nas últimas 24 horas.
         /// </summary>
-        
         [HttpGet("trending")]
         [AllowAnonymous]
         public async Task<IActionResult> ObterTrending()
@@ -94,12 +94,13 @@ namespace TremBomApi.Controllers
             {
                 var limiteData = DateTime.UtcNow.AddDays(-1);
 
+                // CORREÇÃO: Agrupamento otimizado garantindo que nulos não quebrem a árvore do LINQ
                 var locaisTrending = await _context.Likes
-                    .Where(l => l.DateLike >= limiteData) 
+                    .Where(l => l.DateLike >= limiteData && l.Publicacao != null && l.Publicacao.Local != null) 
                     .GroupBy(l => new { 
-                        l.Publicacao!.LocalId, 
-                        l.Publicacao!.Local!.Nome, 
-                        l.Publicacao!.Local!.Categoria 
+                        l.Publicacao.LocalId, 
+                        l.Publicacao.Local.Nome, 
+                        l.Publicacao.Local.Categoria 
                     }) 
                     .Select(g => new 
                     {
@@ -123,7 +124,6 @@ namespace TremBomApi.Controllers
         /// <summary>
         /// Retorna o feed de publicações ordenado por relevância (likes) e data.
         /// </summary>
-        
         [HttpGet("feed")]
         [AllowAnonymous]
         public async Task<IActionResult> ObterFeed([FromQuery] int offset = 0, [FromQuery] int limit = 10)
@@ -133,10 +133,9 @@ namespace TremBomApi.Controllers
                 var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userIdInt = string.IsNullOrEmpty(usuario) ? 0 : int.Parse(usuario);
 
-                // OTIMIZAÇÃO: Consultamos os posts fazendo JOIN direto com Local e Usuário via propriedades de navegação
                 var postsBrutos = await _context.Publicacoes
                     .AsNoTracking()
-                    .OrderByDescending(p => p.Likes.Count) // Ordenação mais rápida usando propriedades mapeadas
+                    .OrderByDescending(p => p.Likes.Count) 
                     .ThenByDescending(p => p.DataPublicacao)
                     .Skip(offset)
                     .Take(limit)
@@ -155,12 +154,10 @@ namespace TremBomApi.Controllers
                         usuarioAvatar = p.Usuario!.FotoPerfilUrl,
                         dataPublicacaoOriginal = p.DataPublicacao,
                         likesCount = p.Likes.Count,
-                        // Correção do BUG: Carrega a lista sem invocar métodos em memória do LINQ to Entities
                         fotosUrls = p.Fotos.Select(f => f.FotoUrl).ToList()
                     })
                     .ToListAsync(); 
 
-                // Processamento de formatação final leve executado em memória
                 var postsFormatados = postsBrutos.Select(p => new 
                 {
                     p.id,
@@ -176,7 +173,7 @@ namespace TremBomApi.Controllers
                     p.localLikes,
                     p.jaCurtiu,
                     dataPublicacao = new DateTimeOffset(p.dataPublicacaoOriginal).ToUnixTimeMilliseconds(),
-                    likes = p.likesCount.FormatarQuantidade() // Extensão customizada do seu projeto
+                    likes = p.likesCount.FormatarQuantidade() 
                 }).ToList();
 
                 return Ok(postsFormatados);
@@ -190,7 +187,6 @@ namespace TremBomApi.Controllers
         /// <summary>
         /// Cria uma publicação enviando imagens (via Multipart Form) e registrando coordenadas geográficas.
         /// </summary>
-        
         [HttpPost("criar")]
         public async Task<IActionResult> CriarPost(
             [FromForm] List<IFormFile> imagens,
@@ -305,12 +301,12 @@ namespace TremBomApi.Controllers
                             }
 
                             var urlRelativa = $"/img/posts-imgs/{nomeArquivo}";
-                            var imagemPost = new PublicacaoFoto
+                            var imagePost = new PublicacaoFoto
                             {
                                 PublicacaoId = novaPublicacao.Id,
                                 FotoUrl = urlRelativa
                             };
-                            _context.PublicacoesFotos.Add(imagemPost);
+                            _context.PublicacoesFotos.Add(imagePost);
                         }
                     }
                     await _context.SaveChangesAsync();
@@ -322,6 +318,31 @@ namespace TremBomApi.Controllers
             {
                 return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// ADICIONADO: Insere um novo comentário atrelado a uma publicação específica.
+        /// </summary>
+        [HttpPost("{publicacaoId}/comentar")]
+        public async Task<IActionResult> Comentar(int publicacaoId, [FromBody] ComentarioDto dto)
+        {
+            var postExiste = await _context.Publicacoes.AnyAsync(p => p.Id == publicacaoId);
+            if (!postExiste) return NotFound("Publicação não localizada.");
+
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(usuarioIdClaim)) return Unauthorized();
+
+            var novoComentario = new Comentarios
+            {
+                PublicacaoId = publicacaoId,
+                UsuarioId = int.Parse(usuarioIdClaim),
+                Comentario = dto.Texto, // Conecta a propriedade do DTO com a Model
+            };
+
+            _context.Comentarios.Add(novoComentario);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Comentário adicionado com sucesso!", comentarioId = novoComentario.Id });
         }
     }
 }
