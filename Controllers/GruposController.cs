@@ -21,72 +21,143 @@ namespace TremBomApi.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Cria um novo grupo e vincula os membros iniciais enviados.
-        /// </summary>
-    
+        [HttpGet]
+        public async Task<IActionResult> ListarGrupos()
+        {
+            var grupos = await _context.Grupos
+                .Include(g => g.Local)
+                .Include(g => g.Membros)
+                .OrderByDescending(g => g.Id)
+                .ToListAsync();
+
+            return Ok(grupos);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterGrupoPorId(int id)
+        {
+            var grupo = await _context.Grupos.Include(g => g.Local).FirstOrDefaultAsync(g => g.Id == id);
+            if (grupo == null) return NotFound();
+            return Ok(grupo);
+        }
+
+        // =======================================================
+        // CRIAR GRUPO (AGORA SALVA IMAGEM CORRETAMENTE)
+        // =======================================================
         [HttpPost]
         public async Task<IActionResult> CriarGrupo([FromBody] GrupoDto dto)
         {
-            if (dto == null)
-            {
-                return BadRequest("Os dados do grupo não foram enviados corretamente.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Nome))
-            {
-                return BadRequest("O nome do grupo é obrigatório.");
-            }
-
             try
             {
-                // 1. Mapeia o DTO para a Entidade do Banco de Dados
+                int idUsuarioLogado = 1; // Simula usuário logado
+
                 var novoGrupo = new Grupo
                 {
                     Nome = dto.Nome,
                     Descricao = dto.Descricao,
                     LimiteMembros = dto.LimiteMembros,
                     Privacidade = dto.Privacidade,
-                    // Garante que se não for "privado", a senha nunca será salva
                     Senha = dto.Privacidade?.ToLower() == "privado" ? dto.Senha : null, 
-                    LocalId = dto.LocalId
+                    LocalId = dto.LocalId,
+                    ImagemUrl = dto.ImagemUrl, // GRAVA A IMAGEM!
+                    CriadorId = idUsuarioLogado // GRAVA O DONO!
                 };
 
-                // 2. Adiciona e salva para gerar o ID do grupo
                 _context.Grupos.Add(novoGrupo);
                 await _context.SaveChangesAsync(); 
 
-                // 3. Vincula os membros (se houver algum na lista)
+                // Vincula o criador ao grupo
+                var membroCriador = new GrupoMembro
+                {
+                    GrupoId = novoGrupo.Id, 
+                    UsuarioId = idUsuarioLogado
+                };
+                _context.GrupoMembros.Add(membroCriador);
+
                 if (dto.MembrosIds != null && dto.MembrosIds.Count > 0)
                 {
-                    // Validação do limite configurado para o grupo (+1 é o criador)
-                    if (dto.MembrosIds.Count + 1 > dto.LimiteMembros)
-                    {
-                        return BadRequest($"A quantidade de membros convidados excede o limite máximo de {dto.LimiteMembros} pessoas.");
-                    }
-
                     foreach (var usuarioId in dto.MembrosIds)
                     {
-                        var vinculoMembro = new GrupoMembro
-                        {
-                            GrupoId = novoGrupo.Id, 
-                            UsuarioId = usuarioId
-                        };
-                        
-                        _context.GrupoMembros.Add(vinculoMembro);
+                        if (usuarioId == idUsuarioLogado) continue;
+                        _context.GrupoMembros.Add(new GrupoMembro { GrupoId = novoGrupo.Id, UsuarioId = usuarioId });
                     }
-
-                    // Salva todos os vínculos criados no laço de repetição
-                    await _context.SaveChangesAsync();
                 }
 
-                // Retorna 201 Created com a rota para buscar o grupo futuramente
-                return CreatedAtAction(nameof(CriarGrupo), new { id = novoGrupo.Id }, novoGrupo);
+                await _context.SaveChangesAsync();
+                
+                // RETORNA UM OBJETO ANÔNIMO (Isso evita o Erro Crítico 500 de Loop de JSON)
+                return Ok(new { id = novoGrupo.Id, mensagem = "Criado com sucesso!" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro interno ao salvar o grupo: {ex.Message}");
+                // Devolve a mensagem real de erro para o Front-end
+                return StatusCode(500, $"Erro do Servidor: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
+
+        // =======================================================
+        // EDITAR GRUPO (PERMITE MUDAR TÍTULO, CAPA, VAGAS, ETC)
+        // =======================================================
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditarGrupo(int id, [FromBody] GrupoDto dto)
+        {
+            var grupo = await _context.Grupos.FirstOrDefaultAsync(g => g.Id == id);
+            if (grupo == null) return NotFound("Grupo não encontrado para edição.");
+
+            // Verifica se é o dono editando
+            int idUsuarioLogado = 1; 
+            if (grupo.CriadorId != idUsuarioLogado && grupo.CriadorId != 0) 
+                return Forbid("Apenas o criador do grupo pode alterar as configurações.");
+
+            try
+            {
+                grupo.Nome = dto.Nome;
+                grupo.Descricao = dto.Descricao;
+                grupo.LimiteMembros = dto.LimiteMembros;
+                grupo.Privacidade = dto.Privacidade;
+                grupo.LocalId = dto.LocalId;
+                
+                if (dto.Privacidade?.ToLower() == "privado") grupo.Senha = dto.Senha;
+                else grupo.Senha = null;
+
+                // Só substitui a imagem se o usuário escolheu uma nova
+                if (!string.IsNullOrWhiteSpace(dto.ImagemUrl))
+                {
+                    grupo.ImagemUrl = dto.ImagemUrl;
+                }
+
+                _context.Grupos.Update(grupo);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { mensagem = "Configurações salvas!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro do Servidor: {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
+
+        [HttpPost("{id}/entrar")]
+        public async Task<IActionResult> EntrarNoGrupo(int id, [FromBody] EntradaGrupoDto pedido)
+        {
+            var grupo = await _context.Grupos.Include(g => g.Membros).FirstOrDefaultAsync(g => g.Id == id);
+            if (grupo == null) return NotFound("Grupo não encontrado.");
+
+            if (grupo.Privacidade?.ToLower() == "privado")
+            {
+                if (string.IsNullOrWhiteSpace(pedido.Senha) || grupo.Senha != pedido.Senha)
+                    return BadRequest("Senha de acesso incorreta.");
+            }
+
+            int idUsuarioLogado = 1; 
+            if (grupo.Membros.Any(m => m.UsuarioId == idUsuarioLogado)) return Ok("Já é membro.");
+            if (grupo.Membros.Count >= grupo.LimiteMembros) return BadRequest("Limite de vagas atingido.");
+
+            _context.GrupoMembros.Add(new GrupoMembro { GrupoId = grupo.Id, UsuarioId = idUsuarioLogado });
+            await _context.SaveChangesAsync();
+            return Ok("Inscrito com sucesso!");
+        }
     }
+
+    public class EntradaGrupoDto { public string? Senha { get; set; } }
 }

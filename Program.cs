@@ -66,6 +66,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlite("Data Source=TremBom.db"));
 
+
+    builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    // Isso impede que o C# tente listar o grupo dentro do membro infinitamente
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+
 var app = builder.Build();
 
 // ==========================================================================

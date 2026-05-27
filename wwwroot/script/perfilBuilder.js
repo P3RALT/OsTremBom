@@ -4,16 +4,10 @@
  * de relacionamentos (seguir/deixar de seguir) e as operações do modal de edição.
  */
 
-// Variável global para armazenar os dados consolidados do usuário retornados pela API
 let usuarioAtual = null;
 
-/**
- * Aguarda o carregamento completo do documento HTML (DOM) antes de realizar
- * as requisições iniciais e montar os componentes da tela.
- */
 window.addEventListener('DOMContentLoaded', async () => {
     const editProfile = document.getElementById("edit-profile");
-    // Captura o parâmetro '?usuario=nome' presente na URL da página
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
 
     const elemento = {
@@ -25,12 +19,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         preferencias: document.getElementById("preferencias"),
         publicacoesElement: document.getElementById("total-publicacoes")
     };
+
     const tabs = document.querySelectorAll('#tabs-items .tab-item');
-    // Lógica das tabs: curtidas, grupos e publicações
+    
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => {
             tabs.forEach(t => t.classList.remove('active'));
-            
             tab.classList.add('active');
             
             if (index === 0) {
@@ -40,35 +34,29 @@ window.addEventListener('DOMContentLoaded', async () => {
             } else if (index === 1) {
                 carregarCurtidas();
             } else {
-                document.getElementById("main-grid").innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhum grupo encontrado.</p>`;
+                // TAB GRUPOS: Aciona a função de busca dos grupos em que o usuário está vinculado
+                carregarGruposDoPerfil();
             }
         });
     });
-    // VERIFICAÇÃO 1: Se existir um parâmetro de usuário na URL, busca o perfil público dele
+
     if (paramsPerfil && paramsPerfil.trim() !== "") {
         try {
             const resposta = await fetch(`/api/usuario/${encodeURIComponent(paramsPerfil)}`);
             if (resposta.ok) {
                 usuarioAtual = await resposta.json();
-                // Renderiza o perfil definindo a flag isOwner baseada na resposta da API
                 renderizarPerfil(usuarioAtual, usuarioAtual.isOwner);
-            } else {
-                console.error("Usuário não encontrado na API.");
             }
         } catch (e) {
             console.error("Erro ao carregar perfil:", e);
         }
-    } 
-    // VERIFICAÇÃO 2: Se não houver parâmetro na URL, assume que está acessando o próprio perfil logado
-    else {
+    } else {
         try {
             const resposta = await fetch('/api/usuario?logado=true');
             if (resposta.ok) {
                 usuarioAtual = await resposta.json();
-                // Sendo o perfil do usuário logado, a flag isOwner é forçada como true
                 renderizarPerfil(usuarioAtual, true);
             } else {
-                // Se não estiver logado e tentar acessar o perfil próprio, redireciona para o login
                 window.location.replace("/page/login.html");
             }
         } catch (error) {
@@ -76,22 +64,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    /**
-     * Injeta os dados do usuário do banco de dados nos respectivos elementos HTML.
-     * @param {Object} usuario - Objeto contendo as informações vindas da API.
-     * @param {Boolean} isOwner - Identifica se o usuário visualizando é o dono do perfil.
-     */
     function renderizarPerfil(usuario, isOwner) {
-        const mainGrid = document.getElementById("main-grid")
+        const mainGrid = document.getElementById("main-grid");
         const publicacoes = usuario.publicacoes || [];
-        document.title = `${usuario.nickname} - Os Trem de BH`
+        document.title = `${usuario.nickname} - Os Trem de BH`;
+        
+        // Remove classes de grid de grupos se houver, mantendo a original do perfil
+        mainGrid.className = "photo-grid";
+
         if (publicacoes.length > 0){
-            mainGrid.innerHTML = ""
+            mainGrid.innerHTML = "";
             publicacoes.forEach(post => {
                 const postCard = document.createElement("div");
                 postCard.classList.add("photo-item");
                 
-                // Fallback adicionado para evitar que o src fique "undefined" caso a foto falte.
                 const fotoCard = post.fotoUrl || "../img/placeholder-post.png"; 
                 
                 postCard.innerHTML = `
@@ -103,37 +89,30 @@ window.addEventListener('DOMContentLoaded', async () => {
                 `;
 
                 postCard.addEventListener("click", () => {
-                    window.location.href = `../page/publicacao.html?id=${post.id}`
+                    window.location.href = `../page/publicacao.html?id=${post.id}`;
                 });
-
                 mainGrid.appendChild(postCard);
             });
-        }
-        // Se não houver postagens, renderiza o estado vazio limpando o container anterior.
-        else {
+        } else {
             mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhuma publicação ainda.</p>`;
         } 
 
-        // Atualização de textos simples com valores padrão (fallbacks) de segurança
         if (elemento.seguidores) elemento.seguidores.textContent = usuario.seguidores || 0;
         if (elemento.seguindo) elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
         if (elemento.descricaoBio) elemento.descricaoBio.textContent = usuario.descricaoBio || "";
         if (elemento.publicacoesElement) elemento.publicacoesElement.textContent = usuario.publicacoesCount || 0;
         
-        // Atualiza o atributo src da imagem de avatar
         if (elemento.fotoPerfil) {
             elemento.fotoPerfil.src = usuario.fotoPerfilUrl || "../img/default-avatar.jpg";
         }
 
-        // Renderiza as badges (tags) de preferências percorrendo o array recebido da API
         if (elemento.preferencias && usuario.preferencias) {
             elemento.preferencias.innerHTML = usuario.preferencias
                 .map(pref => `<span class="categoria-badge">${pref}</span>`)
                 .join('');
         }
         
-        // Injeção condicional dos botões de ação na div #edit-profile
         if (isOwner) {
             editProfile.innerHTML = `<button class="btn-edit" id="edit">Editar perfil</button>`;
         } else {
@@ -145,9 +124,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     } 
 
-    // --- NOVA FUNÇÃO: BUSCA E RENDERIZA AS PUBLICAÇÕES CURTIDAS ---
     async function carregarCurtidas() {
         const mainGrid = document.getElementById("main-grid");
+        mainGrid.className = "photo-grid";
         mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Carregando curtidas...</p>`;
 
         try {
@@ -168,358 +147,253 @@ window.addEventListener('DOMContentLoaded', async () => {
                             </div>
                         `;
                         postCard.addEventListener("click", () => {
-                            window.location.href = `../page/publicacao.html?id=${post.id}`
+                            window.location.href = `../page/publicacao.html?id=${post.id}`;
                         });
                         mainGrid.appendChild(postCard);
                     });
                 } else {
                     mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhuma publicação encontrada.</p>`;
                 }
-            } else {
-                mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color: red;">Erro ao carregar publicações curtidas.</p>`;
             }
         } catch (error) {
             console.error("Erro ao buscar curtidas:", error);
-            mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color: red;">Erro de conexão do servidor.</p>`;
         }
     }
-    
 
-    /**
-     * Escuta todos os cliques ocorridos dentro do container #edit-profile (técnica de Event Delegation).
-     * Gerencia ações dos botões "Editar", "Seguir" e "Deixar de seguir".
-     */
+    // --- NOVA FUNÇÃO: BUSCA E RENDERIZA OS GRUPOS DO USUÁRIO NO PERFIL ---
+    async function carregarGruposDoPerfil() {
+        const mainGrid = document.getElementById("main-grid");
+        // Transforma dinamicamente o grid do perfil no mesmo grid de cartões da página de grupos
+        mainGrid.className = "grupos-grid-container"; 
+        mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Buscando seus grupos, uai...</p>`;
+
+        try {
+            const resposta = await fetch(`/api/usuario/${usuarioAtual.nickname}/grupos`);
+            if (resposta.ok) {
+                const grupos = await resposta.json();
+                if (grupos.length > 0) {
+                    mainGrid.innerHTML = "";
+                    grupos.forEach(grupo => {
+                        const totalMembros = grupo.membros ? grupo.membros.length + 1 : 1;
+                        const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
+                        const nomeLocal = grupo.local ? grupo.local.nome : "Belo Horizonte";
+                        const fotoCapa = grupo.imagemUrl || grupo.fotoUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
+
+                        const card = document.createElement('div');
+                        card.className = 'Card';
+                        
+                        card.innerHTML = `
+                            <div class="card-image">
+                                <img src="${fotoCapa}" alt="${grupo.nome}">
+                                <div class="btn-favorito">
+                                    <i class="${ePrivado ? 'fa-solid fa-lock' : 'fa-solid fa-users'}"></i>
+                                </div>
+                                <span class="badge-membros-layout">${totalMembros} membros</span>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-rating">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <h3>${grupo.nome}</h3>
+                                <span class="card-category">${nomeLocal}</span>
+                                <button class="btn-reservar" onclick="window.location.href='/page/Groups.html'">
+                                    Ver no Painel
+                                </button>
+                            </div>
+                        `;
+                        mainGrid.appendChild(card);
+                    });
+                } else {
+                    mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Você ainda não entrou em nenhum grupo.</p>`;
+                }
+            }
+        } catch (error) {
+            console.error("Erro ao buscar grupos do perfil:", error);
+            mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color:red;">Erro ao conectar.</p>`;
+        }
+    }
+
     if (editProfile) {
         editProfile.addEventListener('click', async (event) => {
             const target = event.target;
-            
-            // Tratamento preventivo de segurança para evitar quebras se o usuário não tiver sido carregado
             if (!usuarioAtual) return;
 
-            // CASO 1: Clique no botão Editar perfil
             if (target.id === 'edit') {
                 abrirModal();
             }
 
-            // CASO 2: Clique em botões de relacionamento (Follow ou Unfollow)
             if (target.id === 'follow' || target.id === "unfollow") {
-                target.disabled = true; // Desabilita o clique para evitar requisições duplicadas
+                target.disabled = true;
                 try {
-                    // Sub-caso A: Executar Unfollow
                     if (target.id === "unfollow") {
                         const resposta = await fetch(`/api/usuario/unfollow/${encodeURIComponent(usuarioAtual.nickname)}`, {
                             method: 'DELETE',
                             credentials: 'include'
                         });
                         if (resposta.ok) {
-                            // Altera visualmente o botão para Seguir
                             editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
-                            
-                            //! Mudança aqui: Agora usamos o 'elemento.seguidores' global do escopo DOM com segurança
                             if (elemento.seguidores) {
                                 const textoAtual = elemento.seguidores.textContent.trim().toLowerCase();
-                                // Se a contagem não estiver abreviada (ex: 15.4k), atualiza o número em tempo real (-1)
                                 if (!textoAtual.includes('k')) {
                                     let contagemAtual = parseInt(textoAtual) || 0;
-                                    contagemAtual = Math.max(0, contagemAtual - 1); // Evita números negativos
-                                    elemento.seguidores.textContent = contagemAtual;
+                                    elemento.seguidores.textContent = Math.max(0, contagemAtual - 1);
                                 }
                             }
                         }
-                    } 
-                    // Sub-caso B: Executar Follow
-                    else {
+                    } else {
                         const resposta = await fetch(`/api/usuario/seguir/${encodeURIComponent(usuarioAtual.nickname)}`, {
                             method: 'POST',
                             credentials: 'include'
                         });
                         if (resposta.ok) {
-                            // Altera visualmente o botão para Deixar de Seguir
                             editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
-                            
-                            //! Mudança aqui: Atualizando com o ponteiro correto de escopo
                             if (elemento.seguidores) {
                                 const textoAtual = elemento.seguidores.textContent.trim().toLowerCase();
-                                // Se a contagem não estiver abreviada, atualiza o número em tempo real (+1)
                                 if (!textoAtual.includes('k')) {
                                     let contagemAtual = parseInt(textoAtual) || 0;
-                                    contagemAtual += 1;
-                                    elemento.seguidores.textContent = contagemAtual;
+                                    elemento.seguidores.textContent = contagemAtual + 1;
                                 }
                             }
                         }
                     }
                 } catch (e) {
-                    console.error("Erro na requisição de relacionamento:", e);
+                    console.error(e);
                 } finally {
-                    target.disabled = false; // Devolve o controle do botão ao usuário
+                    target.disabled = false;
                 }
             }
         });
     }
 });
 
-/**
- * =========================================================================
- * FUNÇÕES DE CONTROLE DO MODAL (Exportadas para o escopo global Window)
- * =========================================================================
-*/
-// Armazenará temporariamente a string da imagem em Base64
+let dadosSeguidoresBrutos = [];
+let dadosSeguindoBrutos = [];
+
+async function abrirModalLista(tipo) {
+    const nicknameElemento = document.getElementById("nickname");
+    const nicknamePerfil = nicknameElemento ? nicknameElemento.textContent.trim() : "";
+
+    if (!nicknamePerfil) return;
+
+    document.getElementById(`modal-${tipo}`).style.display = "flex";
+    document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; padding:20px;">Carregando...</p>`;
+
+    try {
+        const resposta = await fetch(`/api/usuario/${encodeURIComponent(nicknamePerfil)}/${tipo}`);
+        if (resposta.ok) {
+            const dados = await resposta.json();
+            if (tipo === 'seguidores') dadosSeguidoresBrutos = dados;
+            else dadosSeguindoBrutos = dados;
+            atualizarListaNaTela(tipo, dados);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function atualizarListaNaTela(tipo, dados) {
+    const container = document.getElementById(`lista-${tipo}`);
+    if (!container || !Array.isArray(dados)) return;
+
+    container.innerHTML = "";
+    dados.forEach(dado => {
+        const item = document.createElement("div");
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+                <img src="${dado.fotoPerfil ?? dado.fotoPerfilUrl}" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
+                <div><strong>${dado.nome ?? dado.nickname}</strong></div>
+            </div>`;
+        item.addEventListener("click", () => {
+            window.location.href = `/page/profile.html?usuario=${dado.nome ?? dado.nickname}`;
+        });
+        container.appendChild(item);
+    });
+}
+
+function fecharModalLista(idModal) {
+    document.getElementById(idModal).style.display = "none";
+}
+
 let fotoBase64Temporaria = "";
 
-/**
- * Captura as informações renderizadas na interface e popula o formulário
- * interativo do modal antes de exibi-lo.
- */
 function abrirModal() {
     try {
-        // 1. Coleta e define a foto atual na prévia
         const imgElement = document.querySelector("#foto-perfil-usuario img");
-        const fotoAtual = imgElement ? imgElement.getAttribute("src") : "";
-        document.getElementById("avatar-preview").src = fotoAtual;
-        fotoBase64Temporaria = ""; // Reseta o upload temporário
+        document.getElementById("avatar-preview").src = imgElement ? imgElement.getAttribute("src") : "";
+        fotoBase64Temporaria = "";
 
-        // 2. Coleta a biografia e configura o textarea com o contador
-        const bioElement = document.getElementById("descricao-bio");
-        const bioAtual = bioElement ? bioElement.innerText : "";
+        const bioAtual = document.getElementById("descricao-bio") ? document.getElementById("descricao-bio").innerText : "";
         const textareaBio = document.getElementById("edit-bio");
         textareaBio.value = bioAtual;
-        atualizarContador(textareaBio); // Define o número inicial do contador de letras
+        atualizarContador(textareaBio);
 
-        // 3. Lê as tags que o usuário já tem na tela e marca os badges como selecionados
         const badgesNaTela = document.querySelectorAll("#preferencias .categoria-badge");
         const listaTagsAtuais = Array.from(badgesNaTela).map(b => b.innerText.trim().toLowerCase());
 
-        const opcoesTags = document.querySelectorAll(".tag-opcao");
-        opcoesTags.forEach(botaoTag => {
-            const textoTag = botaoTag.innerText.trim().toLowerCase();
-            // Se o usuário já tiver essa tag no perfil, adiciona a classe visual de selecionada
-            if (listaTagsAtuais.includes(textoTag)) {
+        document.querySelectorAll(".tag-opcao").forEach(botaoTag => {
+            if (listaTagsAtuais.includes(botaoTag.innerText.trim().toLowerCase())) {
                 botaoTag.classList.add("selecionada");
             } else {
                 botaoTag.classList.remove("selecionada");
             }
         });
 
-        // Exibe o modal na tela
         document.getElementById("modal-editar").style.display = "flex";
     } catch (error) {
-        console.error("Erro ao abrir modal:", error);
+        console.error(error);
     }
 }
 
-/**
- * Oculta o modal de edição.
- */
 function fecharModal() {
     document.getElementById("modal-editar").style.display = "none";
 }
 
-/**
- * Ativa ou desativa a classe CSS de seleção visual ao clicar em uma tag.
- * @param {HTMLElement} elementoTag - O elemento span da tag clicada.
- */
 function toggleTagSelecao(elementoTag) {
     elementoTag.classList.toggle("selecionada");
 }
 
-/**
- * Calcula em tempo real quantos caracteres restam da descrição.
- * @param {HTMLTextAreaElement} textarea - O campo de texto da bio.
- */
 function atualizarContador(textarea) {
-    const limite = 150;
-    const qtdDigitada = textarea.value.length;
-    const restante = limite - qtdDigitada;
-    document.getElementById("contador-caracteres").textContent = restante;
+    document.getElementById("contador-caracteres").textContent = 150 - textarea.value.length;
 }
 
-/**
- * Lê o arquivo de imagem selecionado pelo usuário, exibe a prévia circular 
- * na tela e converte o arquivo para Base64.
- * @param {HTMLInputElement} input - O input de arquivo oculto.
- */
 function atualizarPreviaImagem(input) {
     if (input.files && input.files[0]) {
         const leitor = new FileReader();
-        
-        // Evento executado assim que o JavaScript terminar de ler o arquivo
         leitor.onload = function(e) {
-            // Define o resultado da leitura (Base64) como src da prévia visual
             document.getElementById("avatar-preview").src = e.target.result;
-            fotoBase64Temporaria = e.target.result; // Guarda o texto da imagem para enviar no formulário
+            fotoBase64Temporaria = e.target.result;
         };
-        
-        // Executa a leitura do arquivo de imagem transformando-o em texto data URL
         leitor.readAsDataURL(input.files[0]);
     }
 }
 
-/**
- * Processa as modificações, junta as tags selecionadas e envia via PUT para a API.
- */
 async function salvarPerfil(event) {
     event.preventDefault(); 
-
-    const bioText = document.getElementById("edit-bio").value;
-
-    // Coleta o texto de todos os badges que possuem a classe "selecionada"
     const badgesSelecionados = document.querySelectorAll(".tag-opcao.selecionada");
-    const listaTags = Array.from(badgesSelecionados).map(badge => badge.innerText.trim());
-
-    // Se o usuário escolheu uma foto nova, envia o Base64. Se não, deixa em branco (o C# manterá a antiga)
     const dadosEdicao = {
         fotoPerfilUrl: fotoBase64Temporaria || null,
-        descricaoBio: bioText,
-        preferencias: listaTags
+        descricaoBio: document.getElementById("edit-bio").value,
+        preferencias: Array.from(badgesSelecionados).map(badge => badge.innerText.trim())
     };
 
     try {
         const response = await fetch("/api/usuario/atualizar", {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dadosEdicao)
         });
-
         if (response.ok) {
-            alert("Perfil updated successfully!");
+            alert("Perfil salvo com sucesso!");
             fecharModal();
             window.location.reload(); 
-        } else {
-            alert("Não foi possível salvar as alterações.");
         }
     } catch (error) {
-        console.error("Erro de comunicação com o servidor:", error);
+        console.error(error);
     }
 }
 
-let dadosSeguidoresBrutos = [];
-let dadosSeguindoBrutos = [];
-
-/**
- * Abre o modal correspondente e aciona a busca de dados na API.
- */
-async function abrirModalLista(tipo) {
-    const nicknameElemento = document.getElementById("nickname");
-    const nicknamePerfil = nicknameElemento ? nicknameElemento.textContent.trim() : "";
-
-    if (!nicknamePerfil) {
-        console.error("Não foi possível achar o nickname na tela.");
-        return;
-    }
-
-    // CORREÇÃO: Aplica a exibição flex usando a nova classe isolada do container
-    document.getElementById(`modal-${tipo}`).style.display = "flex";
-
-    // Mostra um feedback visual de carregamento na lista correspondente
-    document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; padding:20px;">Carregando dados, uai...</p>`;
-
-    try {
-        const resposta = await fetch(`/api/usuario/${encodeURIComponent(nicknamePerfil)}/${tipo}`);
-        if (resposta.ok) {
-            const dados = await resposta.json();
-            
-            if (tipo === 'seguidores') dadosSeguidoresBrutos = dados;
-            else dadosSeguindoBrutos = dados;
-            atualizarListaNaTela(tipo, dados);
-        } else {
-            document.getElementById(`lista-${tipo}`).innerHTML = `<p class="ajuda-texto" style="text-align:center; color:red; padding:20px;">Erro ao carregar a lista.</p>`;
-        }
-    } catch (error) {
-        console.error("Erro na requisição da lista:", error);
-    }
-}
-function atualizarListaNaTela(tipo, dados) {
-    const container = document.getElementById(`lista-${tipo}`);
-
-    if (!Array.isArray(dados)) {
-        console.error("Dados inválidos:", dados);
-        return;
-    }
-
-    container.innerHTML = "";
-
-    dados.forEach(dado => {
-        const item = document.createElement("div");
-
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
-                <img 
-                    src="${dado.fotoPerfil ?? dado.fotoPerfilUrl}" 
-                    style="
-                        width:50px;
-                        height:50px;
-                        border-radius:50%;
-                        object-fit:cover;
-                    "
-                >
-                <div>
-                    <strong>${dado.nome ?? dado.nickname}</strong>
-                </div>
-            </div>
-        `;
-
-        item.addEventListener("click", () => {
-            const usuario = dado.nome ?? dado.nickname;
-            window.location.href = `/page/profile.html?usuario=${usuario}`;
-        });
-
-        container.appendChild(item);
-    });
-}
-/**
- * Oculta o modal de lista limpando o display.
- */
-function fecharModalLista(idModal) {
-    document.getElementById(idModal).style.display = "none";
-}
-
-function atualizarListaNaTela(tipo, dados) {
-    const container = document.getElementById(`lista-${tipo}`);
-
-    if (!Array.isArray(dados)) {
-        console.error("Dados inválidos:", dados);
-        return;
-    }
-
-    container.innerHTML = "";
-
-    dados.forEach(dado => {
-        const item = document.createElement("div");
-
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
-                <img 
-                    src="${dado.fotoPerfil ?? dado.fotoPerfilUrl}" 
-                    style="
-                        width:50px;
-                        height:50px;
-                        border-radius:50%;
-                        object-fit:cover;
-                    "
-                >
-                <div>
-                    <strong>${dado.nome ?? dado.nickname}</strong>
-                </div>
-            </div>
-        `;
-
-        item.addEventListener("click", () => {
-            const usuario = dado.nome ?? dado.nickname;
-            window.location.href = `/page/profile.html?usuario=${usuario}`;
-        });
-
-        container.appendChild(item);
-    });
-}
-
-// Vincula as funções corrigidas ao escopo do Window do navegador
 window.abrirModalLista = abrirModalLista;
 window.fecharModalLista = fecharModalLista;
-
-// Exporta as novas funções criadas para que fiquem visíveis globalmente no arquivo HTML
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
 window.toggleTagSelecao = toggleTagSelecao;
