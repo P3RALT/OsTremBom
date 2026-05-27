@@ -372,6 +372,32 @@ namespace TremBomApi.Controllers
         }
 
         /// <summary>
+        /// Retorna a lista de todos os grupos vinculados a um usuário específico (tanto os que ele criou quanto os que ele entrou).
+        /// </summary>
+        [HttpGet("{name}/grupos")]
+        public async Task<IActionResult> GetGruposUsuario(string name)
+        {
+            // Validação inicial caso o nome venha vazio
+            if (string.IsNullOrEmpty(name)) return BadRequest("Nome não informado.");
+
+            // 1. Busca o usuário no banco de dados usando o Nickname vindo da URL
+            var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound("Usuário não cadastrado no sistema.");
+
+            // 2. Busca os grupos aplicando a regra: ser o Criador OU ser um dos Membros inscritos
+            var gruposDoUsuario = await _context.Grupos
+                .AsNoTracking()
+                .Include(g => g.Local)   // Carrega os dados do Ponto de Encontro (evita vir nulo no front)
+                .Include(g => g.Membros) // Carrega os membros para sabermos o total de participantes
+                .Where(g => g.CriadorId == usuario.Id || g.Membros.Any(m => m.UsuarioId == usuario.Id))
+                .OrderByDescending(g => g.Id) // Organiza para mostrar os mais novos primeiro
+                .ToListAsync();
+
+            // Retorna a lista de grupos com o status 200 OK
+            return Ok(gruposDoUsuario);
+        }
+
+        /// <summary>
         /// Retorna a lista de seguidores de um perfil.
         /// </summary>
         [HttpGet("{name}/seguidores")]

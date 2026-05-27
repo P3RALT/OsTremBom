@@ -59,6 +59,7 @@
             <div class="grupos-grid-container" id="grupos-container"></div>
         </section>
 
+        <!-- MODAL DE CRIAÇÃO/EDIÇÃO DE GRUPOS -->
         <div class="modal-overlay" id="modalCriarGrupo">
             <div class="modal-content">
                 <div class="modal-header">
@@ -104,7 +105,7 @@
                         <button type="button" class="btn-recurso-adicionar" id="btn-add-membros-grupo" onclick="abrirSubModalMembros()">
                             <i class="fa-solid fa-user-plus"></i> <span id="texto-membros-vinculados">Adicionar Membros</span>
                         </button>
-                                                                                                                        
+                                                                                                                                                                                                                                                                                                
                         <button type="button" class="btn-recurso-adicionar" id="btn-add-local-grupo" onclick="abrirSubModalLocais()">
                             <i class="fa-solid fa-location-dot"></i> <span id="texto-local-vinculado">Vincular Local</span>
                         </button>
@@ -140,6 +141,7 @@
             </div>
         </div>
 
+        <!-- MODAL INFORMATIVO: DETALHES DO ROLÊ -->
         <div class="modal-overlay" id="modalDetalhesGrupo">
             <div class="modal-content" style="max-width: 480px; padding-bottom: 20px;">
                 <div class="modal-header">
@@ -170,6 +172,9 @@
                         </p>
                         <p style="margin: 6px 0 0 22px; font-size: 13px; color: #718096; text-transform: capitalize;" id="detalheLocalCategoria"></p>
                     </div>
+
+                    <!-- CONTAINER ADICIONADO: O JavaScript vai injetar o botão de ação aqui dentro -->
+                    <div id="container-botao-detalhe" style="margin-top: 4px; width: 100%;"></div>
                 </div>
             </div>
         </div>

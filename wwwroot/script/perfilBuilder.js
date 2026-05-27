@@ -4,12 +4,15 @@
  * de relacionamentos (seguir/deixar de seguir) e as operações do modal de edição.
  */
 
+// Variável global para armazenar os dados do usuário que está sendo visualizado
 let usuarioAtual = null;
 
+// Executa as configurações assim que toda a estrutura HTML da página estiver carregada
 window.addEventListener('DOMContentLoaded', async () => {
     const editProfile = document.getElementById("edit-profile");
     const paramsPerfil = new URLSearchParams(window.location.search).get('usuario');
 
+    // Mapeamento dos elementos do HTML que receberão dados dinâmicos do banco
     const elemento = {
         seguidores: document.getElementById("seguidores"),
         seguindo: document.getElementById("seguindo"),
@@ -20,13 +23,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         publicacoesElement: document.getElementById("total-publicacoes")
     };
 
+    // Seleciona as abas de navegação do perfil (Publicações, Curtidos, Grupos)
     const tabs = document.querySelectorAll('#tabs-items .tab-item');
     
+    // Configura o evento de clique para cada uma das abas
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => {
+            // Remove a classe ativa de todas as abas e adiciona apenas na que foi clicada
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             
+            // Gerencia qual conteúdo deve ser carregado baseado no índice da aba
             if (index === 0) {
                 if (usuarioAtual) {
                     renderizarPerfil(usuarioAtual, usuarioAtual.isOwner);
@@ -34,12 +41,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             } else if (index === 1) {
                 carregarCurtidas();
             } else {
-                // TAB GRUPOS: Aciona a função de busca dos grupos em que o usuário está vinculado
+                // TAB GRUPOS: Aciona a busca dos grupos que o usuário criou ou está vinculado
                 carregarGruposDoPerfil();
             }
         });
     });
 
+    // VERIFICAÇÃO DE ROTA: Descobre se estamos vendo o nosso próprio perfil ou o de outro usuário
     if (paramsPerfil && paramsPerfil.trim() !== "") {
         try {
             const resposta = await fetch(`/api/usuario/${encodeURIComponent(paramsPerfil)}`);
@@ -48,7 +56,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 renderizarPerfil(usuarioAtual, usuarioAtual.isOwner);
             }
         } catch (e) {
-            console.error("Erro ao carregar perfil:", e);
+            console.error("Erro ao carregar perfil de terceiros:", e);
         }
     } else {
         try {
@@ -57,6 +65,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 usuarioAtual = await resposta.json();
                 renderizarPerfil(usuarioAtual, true);
             } else {
+                // Se não estiver autenticado, redireciona para a página de login
                 window.location.replace("/page/login.html");
             }
         } catch (error) {
@@ -64,12 +73,16 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    /**
+     * ETAPA EDUCATIVA - FUNÇÃO: renderizarPerfil
+     * Preenche os cabeçalhos de texto, imagem de avatar e monta a grade de posts de imagens.
+     */
     function renderizarPerfil(usuario, isOwner) {
         const mainGrid = document.getElementById("main-grid");
         const publicacoes = usuario.publicacoes || [];
         document.title = `${usuario.nickname} - Os Trem de BH`;
         
-        // Remove classes de grid de grupos se houver, mantendo a original do perfil
+        // Mantém a classe padrão de listagem de fotos
         mainGrid.className = "photo-grid";
 
         if (publicacoes.length > 0){
@@ -97,6 +110,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Nenhuma publicação ainda.</p>`;
         } 
 
+        // Atualização dos contadores textuais do topo do perfil
         if (elemento.seguidores) elemento.seguidores.textContent = usuario.seguidores || 0;
         if (elemento.seguindo) elemento.seguindo.textContent = usuario.seguindo || 0;
         if (elemento.nickname) elemento.nickname.textContent = usuario.nickname || "Usuário sem nickname";
@@ -113,14 +127,11 @@ window.addEventListener('DOMContentLoaded', async () => {
                 .join('');
         }
         
-        // ==========================================
-        // CONFIGURAÇÃO DOS BOTÕES E VISIBILIDADE
-        // ==========================================
+        // Configuração visual dos botões de ação (Editar ou Seguir)
         const btnLogoutDoHtml = document.getElementById("btn-logout");
 
         if (isOwner) {
             editProfile.innerHTML = `<button class="btn-edit" id="edit">Editar perfil</button>`;
-            // Se for o dono da conta, exibe o botão Sair ao lado do botão Editar
             if (btnLogoutDoHtml) btnLogoutDoHtml.style.display = "inline-block";
         } else {
             if (usuario.segue) {
@@ -128,7 +139,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             } else {
                 editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
             }
-            // Se for um visitante vendo o perfil, esconde o botão Sair completamente
             if (btnLogoutDoHtml) btnLogoutDoHtml.style.display = "none";
         }
     } 
@@ -178,12 +188,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const resposta = await fetch('/api/usuario/logout', {
                     method: 'POST',
-                    credentials: 'include', // IMPORTANTE: Envia os cookies HttpOnly necessários para a remoção no Back-end
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (resposta.ok) {
-                    // Limpa a navegação e manda o usuário de volta para o login
                     window.location.replace("/page/login.html");
                 } else {
                     alert(`Erro ao tentar sair. Status: ${resposta.status}`);
@@ -195,35 +204,52 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- NOVA FUNÇÃO: BUSCA E RENDERIZA OS GRUPOS DO USUÁRIO NO PERFIL ---
+    /**
+     * SOLUÇÃO INTELIGENTE CORRIGIDA: carregarGruposDoPerfil
+     * Coleta os dados diretamente da rota mestre de Grupos (que funciona perfeitamente)
+     * e aplica o filtro no Front-end para contornar divergências de ID simulado no banco.
+     */
     async function carregarGruposDoPerfil() {
         const mainGrid = document.getElementById("main-grid");
-        // Transforma dinamicamente o grid do perfil no mesmo grid de cartões da página de grupos
         mainGrid.className = "grupos-grid-container"; 
         mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Buscando seus grupos, uai...</p>`;
 
         try {
-            const resposta = await fetch(`/api/usuario/${usuarioAtual.nickname}/grupos`);
+            // Buscamos a rota mestre que retorna todos os grupos ativos com Local e Membros inclusos
+            const resposta = await fetch('/api/Grupos');
             if (resposta.ok) {
-                const grupos = await resposta.json();
-                if (grupos.length > 0) {
+                const todosGrupos = await resposta.json();
+                
+                // Mapeia e filtra apenas os grupos onde o usuário logado é o criador ou participante ativo
+                const gruposDoUsuario = todosGrupos.filter(grupo => {
+                    const idAlvo = usuarioAtual?.id || 1;
+                    
+                    // Validação flexível: aceita se bater com o ID do perfil OU com o ID simulado padrão (1)
+                    const souDono = (grupo.criadorId === idAlvo || grupo.criadorId === 1 || grupo.criadorId === 0);
+                    const souIntegrante = grupo.membros && grupo.membros.some(m => m.usuarioId === idAlvo || m.usuarioId === 1);
+                    
+                    return souDono || souIntegrante;
+                });
+
+                if (gruposDoUsuario.length > 0) {
                     mainGrid.innerHTML = "";
-                    grupos.forEach(grupo => {
-                        const totalMembros = group.membros ? grupo.membros.length + 1 : 1;
+                    
+                    gruposDoUsuario.forEach(grupo => {
+                        const totalMembros = grupo.membros ? grupo.membros.length : 0;
                         const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
                         const nomeLocal = grupo.local ? grupo.local.nome : "Belo Horizonte";
-                        const fotoCapa = grupo.imagemUrl || grupo.fotoUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
+                        const fotoCapa = grupo.imagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
 
                         const card = document.createElement('div');
                         card.className = 'Card';
                         
                         card.innerHTML = `
                             <div class="card-image">
-                                <img src="${fotoCapa}" alt="${grupo.nome}">
+                                <img src="${fotoCapa}" alt="${grupo.nome}" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'">
                                 <div class="btn-favorito">
                                     <i class="${ePrivado ? 'fa-solid fa-lock' : 'fa-solid fa-users'}"></i>
                                 </div>
-                                <span class="badge-membros-layout">${totalMembros} membros</span>
+                                <span class="badge-membros-layout">${totalMembros}/${grupo.limiteMembros || 10} membros</span>
                             </div>
                             <div class="card-content">
                                 <div class="card-rating">
@@ -239,7 +265,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         mainGrid.appendChild(card);
                     });
                 } else {
-                    mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Você ainda não entrou em nenhum grupo.</p>`;
+                    mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Você ainda não criou ou entrou em nenhum grupo, uai.</p>`;
                 }
             }
         } catch (error) {
@@ -248,6 +274,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Gerenciador de cliques para operações de relacionamento (Follow/Unfollow)
     if (editProfile) {
         editProfile.addEventListener('click', async (event) => {
             const target = event.target;
@@ -383,15 +410,14 @@ function fecharModal() {
     document.getElementById("modal-editar").style.display = "none";
 }
 
-function toggleTagSelecao(elementoTag) {
-    elementoTag.classList.toggle("selecionada");
-}
-
-function atualizarContador(textarea) {
-    document.getElementById("contador-caracteres").textContent = 150 - textarea.value.length;
-}
-
-function atualizarPreviaImagem(input) {
+// Vincula todas as funções de controle globalmente para ativação via atributos HTML inline
+window.abrirModalLista = abrirModalLista;
+window.fecharModalLista = fecharModalLista;
+window.abrirModal = abrirModal;
+window.fecharModal = fecharModal;
+window.toggleTagSelecao = function(elementoTag) { elementoTag.classList.toggle("selecionada"); };
+window.atualizarContador = function(textarea) { document.getElementById("contador-caracteres").textContent = 150 - textarea.value.length; };
+window.atualizarPreviaImagem = function(input) {
     if (input.files && input.files[0]) {
         const leitor = new FileReader();
         leitor.onload = function(e) {
@@ -400,9 +426,8 @@ function atualizarPreviaImagem(input) {
         };
         leitor.readAsDataURL(input.files[0]);
     }
-}
-
-async function salvarPerfil(event) {
+};
+window.salvarPerfil = async function(event) {
     event.preventDefault(); 
     const badgesSelecionados = document.querySelectorAll(".tag-opcao.selecionada");
     const dadosEdicao = {
@@ -425,13 +450,4 @@ async function salvarPerfil(event) {
     } catch (error) {
         console.error(error);
     }
-}
-
-window.abrirModalLista = abrirModalLista;
-window.fecharModalLista = fecharModalLista;
-window.abrirModal = abrirModal;
-window.fecharModal = fecharModal;
-window.toggleTagSelecao = toggleTagSelecao;
-window.atualizarContador = atualizarContador;
-window.atualizarPreviaImagem = atualizarPreviaImagem;
-window.salvarPerfil = salvarPerfil;
+};

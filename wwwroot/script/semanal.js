@@ -71,12 +71,11 @@ function abrirModalParaEdicao(idGrupo) {
 
     modoEdicaoGlobal = true;
     idGrupoEditandoGlobal = idGrupo;
-    imagemBase64Global = grupo.imagemUrl || null; // Preserva imagem antiga
+    imagemBase64Global = grupo.imagemUrl || null;
 
     document.querySelector("#modalCriarGrupo h2").innerText = "Editar Configurações do Grupo";
     document.getElementById("btnCriarGrupoSubmit").innerText = "Salvar Alterações";
 
-    // Preenche Formulário
     document.getElementById('grupoNome').value = grupo.nome || "";
     document.getElementById('grupoDescricao').value = grupo.descricao || "";
     document.getElementById('grupoLimite').value = grupo.limiteMembros || "";
@@ -97,8 +96,13 @@ function abrirModalParaEdicao(idGrupo) {
         labelArquivo.innerText = "📂 O grupo já possui uma foto de capa.";
     }
 
+    // GARANTIA EM EDIÇÃO: Força a conversão do ID mapeado para Inteiro puro
     if (grupo.membros) {
-        membrosSelecionadosGlobal = grupo.membros.map(m => ({ id: m.usuarioId, nome: `Membro ID ${m.usuarioId}` }));
+        membrosSelecionadosGlobal = grupo.membros.map(m => ({ 
+            id: parseInt(m.usuarioId), 
+            nome: `Membro ID ${m.usuarioId}` 
+        })).filter(m => !isNaN(m.id));
+        
         atualizarElementoTexto('texto-membros-vinculados', `Membros: (${membrosSelecionadosGlobal.length})`, '700');
     }
 
@@ -161,7 +165,6 @@ function renderizarGrupos(lista) {
         const categoryLocal = grupo.local ? grupo.local.categoria : "Rolê";
         const fotoCapa = grupo.imagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500"; 
         
-        // Verifica se é Criador (Libera Engrenagem) e se já é Membro (Muda o Botão)
         const eCriador = (grupo.criadorId === ID_USUARIO_LOGADO || grupo.criadorId === 0);
         const souMembro = eCriador || (grupo.membros && grupo.membros.some(m => m.usuarioId === ID_USUARIO_LOGADO));
 
@@ -202,9 +205,6 @@ function renderizarGrupos(lista) {
     });
 }
 
-// =========================================================================
-// ABRIR MODAL INFORMATIVO COM OS DADOS (CHAMADO APÓS ENTRAR OU SE JÁ FOR MEMBRO)
-// =========================================================================
 function abrirDetalhesGrupo(id) {
     const grupo = gruposDoBancoGlobal.find(g => g.id === id);
     if (!grupo) return;
@@ -220,12 +220,28 @@ function abrirDetalhesGrupo(id) {
     document.getElementById('detalheLocalNome').innerText = grupo.local ? grupo.local.nome : "A combinar com a galera";
     document.getElementById('detalheLocalCategoria').innerText = grupo.local ? grupo.local.categoria : "Diversos";
 
+    const containerBotao = document.getElementById('container-botao-detalhe');
+    if (containerBotao) {
+        const eCriador = (grupo.criadorId === ID_USUARIO_LOGADO || grupo.criadorId === 0);
+        const souMembro = eCriador || (grupo.membros && grupo.membros.some(m => m.usuarioId === ID_USUARIO_LOGADO));
+        const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
+
+        if (souMembro) {
+            containerBotao.innerHTML = `
+                <button class="trem-lista-btn-entrar" style="background-color: #2D2E47; width: 100%; cursor: default; padding: 12px;" disabled>
+                    <i class="fa-solid fa-circle-check" style="margin-right: 6px;"></i> Você já está neste Grupo
+                </button>`;
+        } else {
+            containerBotao.innerHTML = `
+                <button class="trem-lista-btn-entrar" style="width: 100%; padding: 12px;" onclick="entrarNoGrupo(${grupo.id}, ${ePrivado})">
+                    <i class="fa-solid fa-user-plus" style="margin-right: 6px;"></i> Entrar no Grupo
+                </button>`;
+        }
+    }
+
     document.getElementById('modalDetalhesGrupo')?.classList.add('active');
 }
 
-// =========================================================================
-// POST: ENTRAR EM NOVO GRUPO
-// =========================================================================
 async function entrarNoGrupo(id, ePrivado) {
     let senhaDigitada = null;
     if (ePrivado) {
@@ -247,8 +263,8 @@ async function entrarNoGrupo(id, ePrivado) {
         }
 
         alert("Inscrito com sucesso no grupo!");
-        await carregarGruposDoBanco(); // Atualiza a lista no background
-        abrirDetalhesGrupo(id); // Abre a tela de detalhes
+        await carregarGruposDoBanco(); 
+        abrirDetalhesGrupo(id); 
 
     } catch (erro) {
         alert("Erro na conexão com o servidor.");
@@ -256,13 +272,18 @@ async function entrarNoGrupo(id, ePrivado) {
 }
 
 // =========================================================================
-// SALVAR DADOS (CRIAÇÃO E EDIÇÃO) COM ALERT DE ERRO REAL
+// SALVAR DADOS (CRIAÇÃO E EDIÇÃO) COM SANEAMENTO DE INTEIROS EXTRA SEGURO
 // =========================================================================
 async function salvarGrupo(event) {
     event.preventDefault();
     
     const inputLocalId = document.getElementById('grupoLocalSelecionadoId');
     const inputLimite = document.getElementById('grupoLimite');
+
+    // CORREÇÃO CRÍTICA: Filtra o array mapeando os IDs para inteiros puros e limpando valores nulos ou falsos (NaN)
+    const idsSaneados = membrosSelecionadosGlobal
+        .map(m => parseInt(m.id))
+        .filter(id => !isNaN(id) && id > 0);
 
     const dadosGrupo = {
         nome: document.getElementById('grupoNome').value,
@@ -271,14 +292,13 @@ async function salvarGrupo(event) {
         privacidade: document.getElementById('grupoPrivacidade').value,
         senha: document.getElementById('grupoSenha').value || null,
         localId: (inputLocalId && inputLocalId.value) ? parseInt(inputLocalId.value) : null,
-        membrosIds: membrosSelecionadosGlobal.map(m => m.id),
+        membrosIds: idsSaneados, // Envia o array limpo de inteiros puros para o C#
         imagemUrl: imagemBase64Global
     };
     
     let url = '/api/Grupos';
     let metodoHttp = 'POST';
 
-    // Se estiver em modo edição, muda a URL para PUT
     if (modoEdicaoGlobal && idGrupoEditandoGlobal) {
         url = `/api/Grupos/${idGrupoEditandoGlobal}`;
         metodoHttp = 'PUT';
@@ -296,7 +316,7 @@ async function salvarGrupo(event) {
             throw new Error(msgErroServidor); 
         }
         
-        alert(modoEdicaoGlobal ? 'Grupo atualizado com sucesso!' : 'Grupo criado com sucesso!');
+        alert(modoEdicaoGlobal ? 'Grupo aktualizado com sucesso!' : 'Grupo criado com sucesso!');
         fecharModalGrupo();
         await carregarGruposDoBanco();
         
@@ -306,13 +326,9 @@ async function salvarGrupo(event) {
     }
 }
 
-// =========================================================================
-// DELETE: EXCLUIR COMUNIDADE PERMANENTEMENTE (APENAS CRIADOR)
-// =========================================================================
 async function excluirGrupo(id) {
-    // Alerta de confirmação nativo antes de realizar a exclusão no banco
     const confirmarExclusao = confirm("Uai! Tem certeza que deseja apagar este grupo permanentemente? Todos os membros serão removidos e essa ação não pode ser desfeita.");
-    if (!confirmarExclusao) return; // Se clicar em Cancelar, interrompe o processo imediatamente
+    if (!confirmarExclusao) return;
 
     try {
         const response = await fetch(`/api/Grupos/${id}`, {
@@ -326,7 +342,7 @@ async function excluirGrupo(id) {
         }
 
         alert("Grupo excluído com sucesso uai!");
-        await carregarGruposDoBanco(); // Recarrega a listagem atualizada sem dar refresh na página inteira
+        await carregarGruposDoBanco(); 
     } catch (erro) {
         console.error("Erro ao deletar grupo:", erro);
         alert(`Não foi possível deletar o grupo: ${erro.message}`);
@@ -371,7 +387,6 @@ function filtrarLocaisLista() {
     renderizarListaLocais(filtrados);
 }
 
-// === Submodais de Locais e Membros ===
 async function abrirSubModalMembros() {
     const inputLimite = document.getElementById("grupoLimite");
     const limiteMaximo = parseInt(inputLimite?.value || 0);
@@ -388,6 +403,9 @@ async function abrirSubModalMembros() {
 
 function fecharSubModalMembros() { document.getElementById('subModalMembros')?.classList.remove('active'); }
 
+// =========================================================================
+// MAPEAMENTO SEGURO DE ORIGEM DOS SEGUIDORES
+// =========================================================================
 async function carregarSeguidoresParaVinculo() {
     try {
         const respostaUser = await fetch('/api/usuario?logado=true');
@@ -395,7 +413,16 @@ async function carregarSeguidoresParaVinculo() {
         const nickname = encodeURIComponent(usuarioLogado.nickname);
         const respostaSeguindo = await fetch(`/api/usuario/${nickname}/seguindo`);
         const dadosBrutos = await respostaSeguindo.json();
-        seguidoresDoBancoGlobal = dadosBrutos.map(dado => ({ id: dado.id, nome: dado.nome || dado.nickname }));
+        
+        // CORREÇÃO CRÍTICA: Garante a varredura de campos id/usuarioId e converte na hora para Inteiro puro
+        seguidoresDoBancoGlobal = dadosBrutos.map(dado => {
+            const idBruto = dado.id ?? dado.usuarioId ?? dado.Id ?? 0;
+            return { 
+                id: parseInt(idBruto), 
+                nome: dado.nome || dado.nickname 
+            };
+        }).filter(s => !isNaN(s.id) && s.id > 0); // Remove falhas ou registros sem identificador válido
+
     } catch {
         seguidoresDoBancoGlobal = [{ id: 101, nome: "Uai Mateus" }, { id: 102, nome: "Chica da Silva" }];
     }
@@ -408,7 +435,7 @@ function renderizarListaMembrosModal(lista, limiteMaximo) {
     lista.forEach(seguidor => {
         const div = document.createElement('div');
         div.className = 'item-local-linha';
-        const jaAdicionado = membrosSelecionadosGlobal.some(m => m.id === seguidor.id);
+        const jaAdicionado = membrosSelecionadosGlobal.some(m => parseInt(m.id) === parseInt(seguidor.id));
         div.innerHTML = `<div style="display:flex; gap:14px;"><i class="fa-solid fa-user"></i><span>${seguidor.nome}</span></div><input type="checkbox" ${jaAdicionado ? 'checked' : ''}>`;
         
         const check = div.querySelector('input');
@@ -419,7 +446,7 @@ function renderizarListaMembrosModal(lista, limiteMaximo) {
                 check.checked = false; return;
             }
             if (check.checked) membrosSelecionadosGlobal.push(seguidor);
-            else membrosSelecionadosGlobal = membrosSelecionadosGlobal.filter(m => m.id !== seguidor.id);
+            else membrosSelecionadosGlobal = membrosSelecionadosGlobal.filter(m => parseInt(m.id) !== parseInt(seguidor.id));
             
             atualizarElementoTexto('texto-membros-vinculados', membrosSelecionadosGlobal.length > 0 ? `Membros: (${membrosSelecionadosGlobal.length})` : "Adicionar Membros", '700');
         };
@@ -437,7 +464,7 @@ function fecharSubModalLocais() { document.getElementById('subModalLocais')?.cla
 async function carregarLocaisParaVinculo() {
     try {
         const resposta = await fetch('/api/Locais');
-        locaisDoBancoGlobal = await response.json(); 
+        locaisDoBancoGlobal = await resposta.json(); 
         renderizarListaLocais(locaisDoBancoGlobal);
     } catch {
         locaisDoBancoGlobal = [{ id: 110, nome: "Forno da Saudade", categoria: "bar" }];
@@ -461,5 +488,5 @@ function renderizarListaLocais(lista) {
     });
 }
 
-// Vincula a função de exclusão globalmente ao escopo da janela do navegador
+// Vincula as funções necessárias globalmente ao escopo window
 window.excluirGrupo = excluirGrupo;
