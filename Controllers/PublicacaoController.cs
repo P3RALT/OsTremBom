@@ -182,17 +182,28 @@ namespace TremBomApi.Controllers
         {
             try
             {
+                // 1. Validações Iniciais
                 var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(usuario)) return Unauthorized();
+                
                 if (string.IsNullOrEmpty(nomeEstabelecimento) || string.IsNullOrEmpty(descricao))
                 {
                     return BadRequest("Nome do estabelecimento e descrição são obrigatórios.");
                 }
 
-                int idLocalFinal = 0;
+                // 2. Instancia a Publicação Base
+                var novaPublicacao = new Publicacao
+                {
+                    Descricao = descricao,
+                    UsuarioId = int.Parse(usuario),
+                    DataPublicacao = DateTime.UtcNow,
+                    Fotos = new List<PublicacaoFoto>() // Inicializa a lista mapeada na sua classe
+                };
 
+                // 3. Regra de Negócio do Local/Endereço
                 if (enderecoId == null || enderecoId <= 0)
                 {
+                    // LOCAL INÉDITO: Buscar Coordenadas Geográficas via Nominatim (OpenStreetMap)
                     double? latitude = null;
                     double? longitude = null;
 
@@ -234,6 +245,7 @@ namespace TremBomApi.Controllers
                         }
                     }
 
+                    // Cria o objeto do novo local
                     var novoLocal = new Local
                     {
                         Nome = nomeEstabelecimento,
@@ -246,25 +258,17 @@ namespace TremBomApi.Controllers
                         Resumo = null
                     };
 
-                    _context.Locais.Add(novoLocal);
-                    await _context.SaveChangesAsync(); 
-                    idLocalFinal = novoLocal.Id; 
+                    // ASSOCIAÇÃO POR OBJETO: O EF Core salva o Local primeiro automaticamente 
+                    // e injeta a FK gerada dentro da tabela de publicações.
+                    novaPublicacao.Local = novoLocal; 
                 }
                 else
                 {
-                    idLocalFinal = enderecoId.Value;
+                    // LOCAL EXISTENTE: Associa diretamente pelo ID numérico recebido
+                    novaPublicacao.LocalId = enderecoId.Value;
                 }
 
-                var novaPublicacao = new Publicacao
-                {
-                    Descricao = descricao,
-                    UsuarioId = int.Parse(usuario),
-                    LocalId = idLocalFinal,
-                    DataPublicacao = DateTime.UtcNow
-                };
-                _context.Publicacoes.Add(novaPublicacao);
-                await _context.SaveChangesAsync();
-
+                // 4. Processamento e Salvamento Físico das Imagens no Servidor
                 string pasta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "posts-imgs");
                 if (!Directory.Exists(pasta)) Directory.CreateDirectory(pasta);
 
@@ -274,7 +278,8 @@ namespace TremBomApi.Controllers
                     {
                         if (image.Length > 0)
                         {
-                            var nomeArquivo = $"{idLocalFinal}-" + Guid.NewGuid() + Path.GetExtension(image.FileName);
+                            // GUID puro garante que o nome do arquivo nunca se repita
+                            var nomeArquivo = Guid.NewGuid() + Path.GetExtension(image.FileName);
                             var caminhoCompleto = Path.Combine(pasta, nomeArquivo);
 
                             using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
@@ -283,21 +288,35 @@ namespace TremBomApi.Controllers
                             }
 
                             var urlRelativa = $"/img/posts-imgs/{nomeArquivo}";
+                            
+                            // Instancia a classe da tabela de fotos (PublicacaoFoto)
                             var imagePost = new PublicacaoFoto
                             {
-                                PublicacaoId = novaPublicacao.Id,
                                 FotoUrl = urlRelativa
+                                // Deixamos o PublicacaoId vazio (0). O EF resolve o vínculo sozinho.
                             };
-                            _context.PublicacoesFotos.Add(imagePost);
+
+                            // Adiciona direto na lista de navegação que existe na classe Publicacao
+                            novaPublicacao.Fotos.Add(imagePost);
                         }
                     }
-                    await _context.SaveChangesAsync();
                 }
 
+                // 5. SALVAMENTO ÚNICO NO BANCO DE DADOS
+                // Adiciona a publicação na árvore de contexto. O EF Core faz o rastreamento 
+                // do local interno e das fotos da lista de uma vez só.
+                _context.Publicacoes.Add(novaPublicacao);
+                
+                // Abre uma transação em lote ultra-rápida, evitando o "database is locked"
+                await _context.SaveChangesAsync();
+
+                // Retorna o ID gerado pelo banco com sucesso
                 return Ok(new { mensagem = "Post processado com sucesso!", publicacaoId = novaPublicacao.Id });
             }
             catch (Exception ex)
             {
+                // Captura qualquer erro inesperado e joga no log interno do servidor antes de responder
+                Console.WriteLine($"[Erro Critico CriarPost]: {ex.Message}");
                 return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
             }
         }
