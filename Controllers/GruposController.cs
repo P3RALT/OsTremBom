@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using TremBomApi.Data;
 using TremBomApi.Models;
 using TremBomApi.Models.DTOs;
+using Microsoft.AspNetCore.Authorization; // Importante para o Authorize funcionar
+using System.Security.Claims; // Importante para ler o ID do usuário
 
 namespace TremBomApi.Controllers
 {
@@ -19,6 +21,14 @@ namespace TremBomApi.Controllers
         public GruposController(AppDbContext context)
         {
             _context = context;
+        }
+
+        // Método auxiliar educativo para extrair o ID do usuário do Token sem poluir o código
+        private int ObterIdUsuarioLogado()
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) throw new UnauthorizedAccessException("Usuário não autenticado.");
+            return int.Parse(userIdStr);
         }
 
         [HttpGet]
@@ -42,14 +52,16 @@ namespace TremBomApi.Controllers
         }
 
         // =======================================================
-        // CRIAR GRUPO (AGORA SALVA IMAGEM CORRETAMENTE)
+        // CRIAR GRUPO
         // =======================================================
         [HttpPost]
+        [Authorize] // Exige que o usuário esteja logado
         public async Task<IActionResult> CriarGrupo([FromBody] GrupoDto dto)
         {
             try
             {
-                int idUsuarioLogado = 1; // Simula usuário logado
+                // Agora pegamos o ID real de quem está no sistema
+                int idUsuarioLogado = ObterIdUsuarioLogado(); 
 
                 var novoGrupo = new Grupo
                 {
@@ -59,8 +71,8 @@ namespace TremBomApi.Controllers
                     Privacidade = dto.Privacidade,
                     Senha = dto.Privacidade?.ToLower() == "privado" ? dto.Senha : null, 
                     LocalId = dto.LocalId,
-                    ImagemUrl = dto.ImagemUrl, // GRAVA A IMAGEM!
-                    CriadorId = idUsuarioLogado // GRAVA O DONO!
+                    ImagemUrl = dto.ImagemUrl, 
+                    CriadorId = idUsuarioLogado // O usuário real é cravado como o dono!
                 };
 
                 _context.Grupos.Add(novoGrupo);
@@ -84,30 +96,34 @@ namespace TremBomApi.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                
-                // RETORNA UM OBJETO ANÔNIMO (Isso evita o Erro Crítico 500 de Loop de JSON)
                 return Ok(new { id = novoGrupo.Id, mensagem = "Criado com sucesso!" });
             }
             catch (Exception ex)
             {
-                // Devolve a mensagem real de erro para o Front-end
                 return StatusCode(500, $"Erro do Servidor: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
         // =======================================================
-        // EDITAR GRUPO (PERMITE MUDAR TÍTULO, CAPA, VAGAS, ETC)
+        // EDITAR GRUPO (APENAS O DONO PODE EDITAR)
         // =======================================================
         [HttpPut("{id}")]
+        [Authorize] // Bloqueia acessos sem cookie de login
         public async Task<IActionResult> EditarGrupo(int id, [FromBody] GrupoDto dto)
         {
             var grupo = await _context.Grupos.FirstOrDefaultAsync(g => g.Id == id);
             if (grupo == null) return NotFound("Grupo não encontrado para edição.");
 
-            // Verifica se é o dono editando
-            int idUsuarioLogado = 1; 
-            if (grupo.CriadorId != idUsuarioLogado && grupo.CriadorId != 0) 
-                return Forbid("Apenas o criador do grupo pode alterar as configurações.");
+            int idUsuarioLogado;
+            try {
+                idUsuarioLogado = ObterIdUsuarioLogado();
+            } catch {
+                return Unauthorized();
+            }
+
+            // A MÁGICA DE SEGURANÇA: Só passa dessa linha se o cara for realmente o dono.
+            if (grupo.CriadorId != idUsuarioLogado) 
+                return StatusCode(403, new { mensagem = "Apenas o criador do grupo pode alterar as configurações." }); // 403 = Forbid
 
             try
             {
@@ -120,7 +136,6 @@ namespace TremBomApi.Controllers
                 if (dto.Privacidade?.ToLower() == "privado") grupo.Senha = dto.Senha;
                 else grupo.Senha = null;
 
-                // Só substitui a imagem se o usuário escolheu uma nova
                 if (!string.IsNullOrWhiteSpace(dto.ImagemUrl))
                 {
                     grupo.ImagemUrl = dto.ImagemUrl;
@@ -137,7 +152,11 @@ namespace TremBomApi.Controllers
             }
         }
 
+        // =======================================================
+        // ENTRAR NO GRUPO
+        // =======================================================
         [HttpPost("{id}/entrar")]
+        [Authorize] // Qualquer usuário logado pode tentar entrar
         public async Task<IActionResult> EntrarNoGrupo(int id, [FromBody] EntradaGrupoDto pedido)
         {
             var grupo = await _context.Grupos.Include(g => g.Membros).FirstOrDefaultAsync(g => g.Id == id);
@@ -149,7 +168,13 @@ namespace TremBomApi.Controllers
                     return BadRequest("Senha de acesso incorreta.");
             }
 
-            int idUsuarioLogado = 1; 
+            int idUsuarioLogado;
+            try {
+                idUsuarioLogado = ObterIdUsuarioLogado();
+            } catch {
+                return Unauthorized();
+            }
+
             if (grupo.Membros.Any(m => m.UsuarioId == idUsuarioLogado)) return Ok("Já é membro.");
             if (grupo.Membros.Count >= grupo.LimiteMembros) return BadRequest("Limite de vagas atingido.");
 
@@ -159,18 +184,25 @@ namespace TremBomApi.Controllers
         }
 
         // =======================================================
-        // EXCLUIR GRUPO (APENAS O CRIADOR PODE REMOVER)
+        // EXCLUIR GRUPO (APENAS O DONO)
         // =======================================================
         [HttpDelete("{id}")]
+        [Authorize] 
         public async Task<IActionResult> ExcluirGrupo(int id)
         {
             var grupo = await _context.Grupos.FirstOrDefaultAsync(g => g.Id == id);
             if (grupo == null) return NotFound("Grupo não localizado para exclusão.");
 
-            // Validação de segurança no Servidor
-            int idUsuarioLogado = 1;
-            if (grupo.CriadorId != idUsuarioLogado && grupo.CriadorId != 0)
-                return Forbid("Acesso negado. Apenas o criador pode apagar este grupo.");
+            int idUsuarioLogado;
+            try {
+                idUsuarioLogado = ObterIdUsuarioLogado();
+            } catch {
+                return Unauthorized();
+            }
+
+            // A MÁGICA DE SEGURANÇA NOVAMENTE
+            if (grupo.CriadorId != idUsuarioLogado)
+                return StatusCode(403, new { mensagem = "Acesso negado. Apenas o criador pode apagar este grupo." });
 
             try
             {

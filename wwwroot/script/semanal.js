@@ -13,10 +13,14 @@ let imagemBase64Global = null;
 // Controles de Edição
 let modoEdicaoGlobal = false;
 let idGrupoEditandoGlobal = null;
-const ID_USUARIO_LOGADO = 1; // ID do Usuário Logado simulado
+let ID_USUARIO_LOGADO = 0; // Armazena a identidade real
 
-document.addEventListener("DOMContentLoaded", () => {
-    carregarGruposDoBanco();
+document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Descobre quem somos ANTES de carregar a lista de grupos
+    await carregarIdentidadeDoUsuario(); 
+    
+    // 2. Só depois carrega a lista
+    await carregarGruposDoBanco();
 
     const inputImagem = document.getElementById("grupoImagem");
     const labelNomeArquivo = document.getElementById("nome-arquivo-selecionado");
@@ -51,6 +55,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inputPesqLocal) inputPesqLocal.addEventListener('input', filtrarLocaisLista);
 });
 
+// NOVA FUNÇÃO BLINDADA: Busca a identidade
+async function carregarIdentidadeDoUsuario() {
+    try {
+        const resposta = await fetch('/api/usuario?logado=true', { credentials: 'include' });
+        if (resposta.ok) {
+            const usuario = await resposta.json();
+            // Pega o ID, ignorando se veio maiúsculo ou minúsculo, e força a ser um Número Inteiro
+            ID_USUARIO_LOGADO = parseInt(usuario.id ?? usuario.Id ?? 0);
+            console.log("✅ Usuário Logado Confirmado! ID:", ID_USUARIO_LOGADO);
+        } else {
+            console.warn("⚠️ Sessão não identificada. Acesso como visitante.");
+        }
+    } catch (erro) {
+        console.error("Erro ao descobrir quem está logado:", erro);
+    }
+}
+
 // ABRE MODAL ZERADO (CRIAR)
 function abrirModalGrupo() {
     modoEdicaoGlobal = false;
@@ -71,37 +92,41 @@ function abrirModalParaEdicao(idGrupo) {
 
     modoEdicaoGlobal = true;
     idGrupoEditandoGlobal = idGrupo;
-    imagemBase64Global = grupo.imagemUrl || null;
+    imagemBase64Global = grupo.imagemUrl || grupo.ImagemUrl || null;
 
     document.querySelector("#modalCriarGrupo h2").innerText = "Editar Configurações do Grupo";
     document.getElementById("btnCriarGrupoSubmit").innerText = "Salvar Alterações";
 
-    document.getElementById('grupoNome').value = grupo.nome || "";
-    document.getElementById('grupoDescricao').value = grupo.descricao || "";
-    document.getElementById('grupoLimite').value = grupo.limiteMembros || "";
-    document.getElementById('grupoPrivacidade').value = grupo.privacidade?.toLowerCase() === "privado" ? "privado" : "publico";
+    document.getElementById('grupoNome').value = grupo.nome || grupo.Nome || "";
+    document.getElementById('grupoDescricao').value = grupo.descricao || grupo.Descricao || "";
+    document.getElementById('grupoLimite').value = grupo.limiteMembros || grupo.LimiteMembros || "";
+    
+    const priv = (grupo.privacidade || grupo.Privacidade || "").toLowerCase();
+    document.getElementById('grupoPrivacidade').value = priv === "privado" ? "privado" : "publico";
     
     tratarMudancaPrivacidade();
-    if (grupo.privacidade?.toLowerCase() === "privado") {
-        document.getElementById('grupoSenha').value = grupo.senha || "";
+    if (priv === "privado") {
+        document.getElementById('grupoSenha').value = grupo.senha || grupo.Senha || "";
     }
 
-    if (grupo.localId) {
-        document.getElementById('grupoLocalSelecionadoId').value = grupo.localId;
-        atualizarElementoTexto('texto-local-vinculado', `Local: ${grupo.local?.nome || 'Vinculado'}`, '700');
+    const localId = grupo.localId ?? grupo.LocalId;
+    if (localId) {
+        document.getElementById('grupoLocalSelecionadoId').value = localId;
+        const nomeLocal = grupo.local?.nome ?? grupo.Local?.Nome ?? 'Vinculado';
+        atualizarElementoTexto('texto-local-vinculado', `Local: ${nomeLocal}`, '700');
     }
 
     const labelArquivo = document.getElementById("nome-arquivo-selecionado");
-    if (labelArquivo && grupo.imagemUrl) {
+    if (labelArquivo && imagemBase64Global) {
         labelArquivo.innerText = "📂 O grupo já possui uma foto de capa.";
     }
 
-    // GARANTIA EM EDIÇÃO: Força a conversão do ID mapeado para Inteiro puro
-    if (grupo.membros) {
-        membrosSelecionadosGlobal = grupo.membros.map(m => ({ 
-            id: parseInt(m.usuarioId), 
-            nome: `Membro ID ${m.usuarioId}` 
-        })).filter(m => !isNaN(m.id));
+    const membrosDoGrupo = grupo.membros || grupo.Membros;
+    if (membrosDoGrupo) {
+        membrosSelecionadosGlobal = membrosDoGrupo.map(m => {
+            const uid = parseInt(m.usuarioId ?? m.UsuarioId);
+            return { id: uid, nome: `Membro ID ${uid}` };
+        }).filter(m => !isNaN(m.id));
         
         atualizarElementoTexto('texto-membros-vinculados', `Membros: (${membrosSelecionadosGlobal.length})`, '700');
     }
@@ -143,6 +168,7 @@ async function carregarGruposDoBanco() {
         gruposDoBancoGlobal = await response.json();
         renderizarGrupos(gruposDoBancoGlobal);
     } catch (erro) {
+        console.error("Erro ao carregar grupos:", erro);
         gruposDoBancoGlobal = [];
         renderizarGrupos(gruposDoBancoGlobal);
     }
@@ -159,27 +185,40 @@ function renderizarGrupos(lista) {
     }
 
     lista.forEach(grupo => {
-        const totalMembros = grupo.membros ? grupo.membros.length : 0;
-        const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
-        const nomeLocal = grupo.local ? grupo.local.nome : "A Combinar";
-        const categoryLocal = grupo.local ? grupo.local.categoria : "Rolê";
-        const fotoCapa = grupo.imagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500"; 
+        // Blindagem contra variáveis vindas maiúsculas/minúsculas do banco
+        const membrosDoGrupo = grupo.membros || grupo.Membros || [];
+        const totalMembros = membrosDoGrupo.length;
+        const priv = (grupo.privacidade || grupo.Privacidade || "").toLowerCase();
+        const ePrivado = priv === "privado";
         
-        const eCriador = (grupo.criadorId === ID_USUARIO_LOGADO || grupo.criadorId === 0);
-        const souMembro = eCriador || (grupo.membros && grupo.membros.some(m => m.usuarioId === ID_USUARIO_LOGADO));
+        const localDoGrupo = grupo.local || grupo.Local;
+        const nomeLocal = localDoGrupo?.nome || localDoGrupo?.Nome || "A Combinar";
+        const categoryLocal = localDoGrupo?.categoria || localDoGrupo?.Categoria || "Rolê";
+        const fotoCapa = grupo.imagemUrl || grupo.ImagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500"; 
+        const limiteMax = grupo.limiteMembros ?? grupo.LimiteMembros ?? 10;
+        
+        // MÁGICA: Extração forçada como número inteiro!
+        const criadorId = parseInt(grupo.criadorId ?? grupo.CriadorId ?? 0);
+        const logadoId = parseInt(ID_USUARIO_LOGADO);
+
+        // Agora ele compara número com número com 100% de precisão
+        const eCriador = (criadorId === logadoId && logadoId !== 0);
+        
+        // Verifica se o usuário atual está na lista de participantes
+        const souMembro = eCriador || membrosDoGrupo.some(m => parseInt(m.usuarioId ?? m.UsuarioId) === logadoId);
 
         const item = document.createElement('div');
         item.className = 'trem-lista-item'; 
         item.innerHTML = `
             <div class="trem-lista-avatar-wrapper">
-                <img src="${fotoCapa}" alt="${grupo.nome}" class="trem-lista-img" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'">
+                <img src="${fotoCapa}" alt="${grupo.nome || grupo.Nome}" class="trem-lista-img" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'">
                 <div class="trem-lista-privacidade-badge">
                     <i class="${ePrivado ? 'fa-solid fa-lock' : 'fa-solid fa-users'}"></i>
                 </div>
             </div>
             <div class="trem-lista-info">
                 <div class="trem-lista-header-row">
-                    <h3 class="trem-lista-name">${grupo.nome}</h3>
+                    <h3 class="trem-lista-name">${grupo.nome || grupo.Nome}</h3>
                     <div style="display: flex; gap: 6px; align-items: center;">
                         ${eCriador ? `
                             <button class="btn-config-grupo" onclick="event.stopPropagation(); abrirModalParaEdicao(${grupo.id})" title="Editar Grupo">
@@ -189,11 +228,11 @@ function renderizarGrupos(lista) {
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         ` : ''}
-                        <span class="trem-lista-badge-membros"><i class="fa-solid fa-user-group"></i> ${totalMembros}/${grupo.limiteMembros}</span>
+                        <span class="trem-lista-badge-membros"><i class="fa-solid fa-user-group"></i> ${totalMembros}/${limiteMax}</span>
                     </div>
                 </div>
                 <p class="trem-lista-role"><i class="fa-solid fa-location-dot"></i> ${nomeLocal} • <span style="text-transform: uppercase; font-size: 11px;">${categoryLocal}</span></p>
-                <p class="trem-lista-desc">${grupo.descricao || 'Sem descrição.'}</p>
+                <p class="trem-lista-desc">${grupo.descricao || grupo.Descricao || 'Sem descrição.'}</p>
                 
                 ${souMembro 
                     ? `<button class="trem-lista-btn-entrar" style="background-color: #2D2E47;" onclick="abrirDetalhesGrupo(${grupo.id})">Ver Detalhes do Rolê</button>`
@@ -209,22 +248,28 @@ function abrirDetalhesGrupo(id) {
     const grupo = gruposDoBancoGlobal.find(g => g.id === id);
     if (!grupo) return;
 
-    document.getElementById('detalheGrupoNome').innerText = grupo.nome;
-    document.getElementById('detalheGrupoDescricao').innerText = grupo.descricao || 'Sem descrição.';
-    document.getElementById('detalheGrupoPrivacidade').innerText = grupo.privacidade;
-    document.getElementById('detalheGrupoMembrosQtd').innerText = grupo.membros ? grupo.membros.length : 0;
+    document.getElementById('detalheGrupoNome').innerText = grupo.nome || grupo.Nome;
+    document.getElementById('detalheGrupoDescricao').innerText = grupo.descricao || grupo.Descricao || 'Sem descrição.';
+    
+    const priv = (grupo.privacidade || grupo.Privacidade || "Público").toLowerCase();
+    document.getElementById('detalheGrupoPrivacidade').innerText = priv;
+    
+    const membrosDoGrupo = grupo.membros || grupo.Membros || [];
+    document.getElementById('detalheGrupoMembrosQtd').innerText = membrosDoGrupo.length;
     
     const img = document.getElementById('detalheGrupoImagem');
-    if (img) img.src = grupo.imagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
+    if (img) img.src = grupo.imagemUrl || grupo.ImagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
     
-    document.getElementById('detalheLocalNome').innerText = grupo.local ? grupo.local.nome : "A combinar com a galera";
-    document.getElementById('detalheLocalCategoria').innerText = grupo.local ? grupo.local.categoria : "Diversos";
+    const localDoGrupo = grupo.local || grupo.Local;
+    document.getElementById('detalheLocalNome').innerText = localDoGrupo?.nome || localDoGrupo?.Nome || "A combinar com a galera";
+    document.getElementById('detalheLocalCategoria').innerText = localDoGrupo?.categoria || localDoGrupo?.Categoria || "Diversos";
 
     const containerBotao = document.getElementById('container-botao-detalhe');
     if (containerBotao) {
-        const eCriador = (grupo.criadorId === ID_USUARIO_LOGADO || grupo.criadorId === 0);
-        const souMembro = eCriador || (grupo.membros && grupo.membros.some(m => m.usuarioId === ID_USUARIO_LOGADO));
-        const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
+        const criadorId = parseInt(grupo.criadorId ?? grupo.CriadorId ?? 0);
+        const logadoId = parseInt(ID_USUARIO_LOGADO);
+        const eCriador = (criadorId === logadoId && logadoId !== 0);
+        const souMembro = eCriador || membrosDoGrupo.some(m => parseInt(m.usuarioId ?? m.UsuarioId) === logadoId);
 
         if (souMembro) {
             containerBotao.innerHTML = `
@@ -233,7 +278,7 @@ function abrirDetalhesGrupo(id) {
                 </button>`;
         } else {
             containerBotao.innerHTML = `
-                <button class="trem-lista-btn-entrar" style="width: 100%; padding: 12px;" onclick="entrarNoGrupo(${grupo.id}, ${ePrivado})">
+                <button class="trem-lista-btn-entrar" style="width: 100%; padding: 12px;" onclick="entrarNoGrupo(${grupo.id}, ${priv === 'privado'})">
                     <i class="fa-solid fa-user-plus" style="margin-right: 6px;"></i> Entrar no Grupo
                 </button>`;
         }
@@ -252,6 +297,7 @@ async function entrarNoGrupo(id, ePrivado) {
     try {
         const response = await fetch(`/api/Grupos/${id}/entrar`, {
             method: 'POST',
+            credentials: 'include', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ senha: senhaDigitada })
         });
@@ -271,16 +317,12 @@ async function entrarNoGrupo(id, ePrivado) {
     }
 }
 
-// =========================================================================
-// SALVAR DADOS (CRIAÇÃO E EDIÇÃO) COM SANEAMENTO DE INTEIROS EXTRA SEGURO
-// =========================================================================
 async function salvarGrupo(event) {
     event.preventDefault();
     
     const inputLocalId = document.getElementById('grupoLocalSelecionadoId');
     const inputLimite = document.getElementById('grupoLimite');
 
-    // CORREÇÃO CRÍTICA: Filtra o array mapeando os IDs para inteiros puros e limpando valores nulos ou falsos (NaN)
     const idsSaneados = membrosSelecionadosGlobal
         .map(m => parseInt(m.id))
         .filter(id => !isNaN(id) && id > 0);
@@ -292,7 +334,7 @@ async function salvarGrupo(event) {
         privacidade: document.getElementById('grupoPrivacidade').value,
         senha: document.getElementById('grupoSenha').value || null,
         localId: (inputLocalId && inputLocalId.value) ? parseInt(inputLocalId.value) : null,
-        membrosIds: idsSaneados, // Envia o array limpo de inteiros puros para o C#
+        membrosIds: idsSaneados,
         imagemUrl: imagemBase64Global
     };
     
@@ -307,6 +349,7 @@ async function salvarGrupo(event) {
     try {
         const response = await fetch(url, {
             method: metodoHttp,
+            credentials: 'include', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dadosGrupo)
         });
@@ -316,7 +359,7 @@ async function salvarGrupo(event) {
             throw new Error(msgErroServidor); 
         }
         
-        alert(modoEdicaoGlobal ? 'Grupo aktualizado com sucesso!' : 'Grupo criado com sucesso!');
+        alert(modoEdicaoGlobal ? 'Grupo atualizado com sucesso!' : 'Grupo criado com sucesso!');
         fecharModalGrupo();
         await carregarGruposDoBanco();
         
@@ -333,6 +376,7 @@ async function excluirGrupo(id) {
     try {
         const response = await fetch(`/api/Grupos/${id}`, {
             method: 'DELETE',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         });
 
@@ -372,8 +416,8 @@ function filtrarGrupos() {
     
     const termo = input.value.toLowerCase();
     const filtrados = gruposDoBancoGlobal.filter(g => 
-        (g.nome && g.nome.toLowerCase().includes(termo)) || 
-        (g.descricao && g.descricao.toLowerCase().includes(termo))
+        ((g.nome || g.Nome) && (g.nome || g.Nome).toLowerCase().includes(termo)) || 
+        ((g.descricao || g.Descricao) && (g.descricao || g.Descricao).toLowerCase().includes(termo))
     );
     renderizarGrupos(filtrados);
 }
@@ -383,7 +427,7 @@ function filtrarLocaisLista() {
     if (!input) return;
     
     const termo = input.value.toLowerCase();
-    const filtrados = locaisDoBancoGlobal.filter(l => (l.nome || "").toLowerCase().includes(termo));
+    const filtrados = locaisDoBancoGlobal.filter(l => (l.nome || l.Nome || "").toLowerCase().includes(termo));
     renderizarListaLocais(filtrados);
 }
 
@@ -403,28 +447,24 @@ async function abrirSubModalMembros() {
 
 function fecharSubModalMembros() { document.getElementById('subModalMembros')?.classList.remove('active'); }
 
-// =========================================================================
-// MAPEAMENTO SEGURO DE ORIGEM DOS SEGUIDORES
-// =========================================================================
 async function carregarSeguidoresParaVinculo() {
     try {
-        const respostaUser = await fetch('/api/usuario?logado=true');
+        const respostaUser = await fetch('/api/usuario?logado=true', { credentials: 'include' }); 
         const usuarioLogado = await respostaUser.json();
-        const nickname = encodeURIComponent(usuarioLogado.nickname);
+        const nickname = encodeURIComponent(usuarioLogado.nickname || usuarioLogado.Nickname);
         const respostaSeguindo = await fetch(`/api/usuario/${nickname}/seguindo`);
         const dadosBrutos = await respostaSeguindo.json();
         
-        // CORREÇÃO CRÍTICA: Garante a varredura de campos id/usuarioId e converte na hora para Inteiro puro
         seguidoresDoBancoGlobal = dadosBrutos.map(dado => {
             const idBruto = dado.id ?? dado.usuarioId ?? dado.Id ?? 0;
             return { 
                 id: parseInt(idBruto), 
-                nome: dado.nome || dado.nickname 
+                nome: dado.nome || dado.nickname || dado.Nickname
             };
-        }).filter(s => !isNaN(s.id) && s.id > 0); // Remove falhas ou registros sem identificador válido
+        }).filter(s => !isNaN(s.id) && s.id > 0); 
 
     } catch {
-        seguidoresDoBancoGlobal = [{ id: 101, nome: "Uai Mateus" }, { id: 102, nome: "Chica da Silva" }];
+        seguidoresDoBancoGlobal = [];
     }
 }
 
@@ -467,8 +507,7 @@ async function carregarLocaisParaVinculo() {
         locaisDoBancoGlobal = await resposta.json(); 
         renderizarListaLocais(locaisDoBancoGlobal);
     } catch {
-        locaisDoBancoGlobal = [{ id: 110, nome: "Forno da Saudade", categoria: "bar" }];
-        renderizarListaLocais(locaisDoBancoGlobal);
+        locaisDoBancoGlobal = [];
     }
 }
 
@@ -478,10 +517,10 @@ function renderizarListaLocais(lista) {
     lista.forEach(local => {
         const div = document.createElement('div');
         div.className = 'item-local-linha';
-        div.innerHTML = `<div><i class="fa-solid fa-location-dot"></i> <span>${local.nome}</span></div>`;
+        div.innerHTML = `<div><i class="fa-solid fa-location-dot"></i> <span>${local.nome || local.Nome}</span></div>`;
         div.onclick = () => {
-            document.getElementById('grupoLocalSelecionadoId').value = local.id;
-            atualizarElementoTexto('texto-local-vinculado', `Local: ${local.nome}`, '700');
+            document.getElementById('grupoLocalSelecionadoId').value = local.id ?? local.Id;
+            atualizarElementoTexto('texto-local-vinculado', `Local: ${local.nome || local.Nome}`, '700');
             fecharSubModalLocais();
         };
         container.appendChild(div);
