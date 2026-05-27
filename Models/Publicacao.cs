@@ -5,15 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TremBomApi.Models
 {
-    /*
-     * PROPÓSITO DA MODEL:
-     * Classe central do Feed. Une o usuário que postou ao local comentado, gerenciando o texto da legenda.
-     * Contém também a classe complementar PublicacaoFoto para suportar posts com múltiplas imagens.
-     * * PRINCIPAIS ROTAS/FUNÇÕES ATRIBUÍDAS:
-     * - PublicacaoController (GET /feed): Entrega as informações estruturadas da linha do tempo.
-     * - PublicacaoController (POST /criar): Salva os dados textuais informados no formulário do front-end.
-     */
-
     [Table("publicacoes")]
     public class Publicacao
     {
@@ -22,7 +13,9 @@ namespace TremBomApi.Models
         public int Id { get; set; }
         
         public int UsuarioId { get; set; }
-        public int LocalId { get; set; }    
+        
+        // CORREÇÃO CRÍTICA: Adicionado o "?" para permitir que um post exista sem local!
+        public int? LocalId { get; set; }    
 
         [Column("descricao")]
         public required string Descricao { get; set; }
@@ -30,14 +23,12 @@ namespace TremBomApi.Models
         [Column("data_publicacao")]
         public DateTime DataPublicacao { get; set; } = DateTime.Now;
 
-        // RELACIONAMENTOS (Propriedades de navegação pai)
         [ForeignKey("UsuarioId")]
         public virtual Usuario? Usuario { get; set; }
         
         [ForeignKey("LocalId")]
         public virtual Local? Local { get; set; }
 
-        // RELACIONAMENTOS INVERSOS (Filhos) - RESOLVE O ERRO DA CONTROLLER!
         public virtual ICollection<Likes> Likes { get; set; } = new List<Likes>();
         public virtual ICollection<PublicacaoFoto> Fotos { get; set; } = new List<PublicacaoFoto>();
         public virtual ICollection<Comentarios> Comentarios { get; set; } = new List<Comentarios>();
