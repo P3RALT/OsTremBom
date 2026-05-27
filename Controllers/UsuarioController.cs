@@ -141,6 +141,7 @@ namespace TremBomApi.Controllers
         {
             _context = context;
         }
+        
 
         /// <summary>
         /// Coleta os dados completos de perfil da conta autenticada logada.
@@ -190,6 +191,17 @@ namespace TremBomApi.Controllers
                 publicacoesCount = totalPublicacoes.FormatarQuantidade(),
                 publicacoes = ultimasPublicacoes
             });
+        }
+
+        /// <summary>
+        /// Realiza o logout, removendo o cookie de autenticação do navegador.
+        /// </summary>
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Remove o cookie "JwtToken"
+            Response.Cookies.Delete("JwtToken");
+            return Ok(new { mensagem = "Logout efetuado com sucesso!" });
         }
 
         /// <summary>

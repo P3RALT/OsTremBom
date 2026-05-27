@@ -113,14 +113,23 @@ window.addEventListener('DOMContentLoaded', async () => {
                 .join('');
         }
         
+        // ==========================================
+        // CONFIGURAÇÃO DOS BOTÕES E VISIBILIDADE
+        // ==========================================
+        const btnLogoutDoHtml = document.getElementById("btn-logout");
+
         if (isOwner) {
             editProfile.innerHTML = `<button class="btn-edit" id="edit">Editar perfil</button>`;
+            // Se for o dono da conta, exibe o botão Sair ao lado do botão Editar
+            if (btnLogoutDoHtml) btnLogoutDoHtml.style.display = "inline-block";
         } else {
             if (usuario.segue) {
                 editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
             } else {
                 editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
             }
+            // Se for um visitante vendo o perfil, esconde o botão Sair completamente
+            if (btnLogoutDoHtml) btnLogoutDoHtml.style.display = "none";
         }
     } 
 
@@ -160,6 +169,32 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // ==========================================
+    // ESCUTADOR DE CLIQUE: EVENTO DE LOGOUT (SAIR)
+    // ==========================================
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            try {
+                const resposta = await fetch('/api/usuario/logout', {
+                    method: 'POST',
+                    credentials: 'include', // IMPORTANTE: Envia os cookies HttpOnly necessários para a remoção no Back-end
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (resposta.ok) {
+                    // Limpa a navegação e manda o usuário de volta para o login
+                    window.location.replace("/page/login.html");
+                } else {
+                    alert(`Erro ao tentar sair. Status: ${resposta.status}`);
+                }
+            } catch (error) {
+                console.error("Erro no logout:", error);
+                alert("Erro de conexão ao tentar sair.");
+            }
+        });
+    }
+
     // --- NOVA FUNÇÃO: BUSCA E RENDERIZA OS GRUPOS DO USUÁRIO NO PERFIL ---
     async function carregarGruposDoPerfil() {
         const mainGrid = document.getElementById("main-grid");
@@ -174,7 +209,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 if (grupos.length > 0) {
                     mainGrid.innerHTML = "";
                     grupos.forEach(grupo => {
-                        const totalMembros = grupo.membros ? grupo.membros.length + 1 : 1;
+                        const totalMembros = group.membros ? grupo.membros.length + 1 : 1;
                         const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
                         const nomeLocal = grupo.local ? grupo.local.nome : "Belo Horizonte";
                         const fotoCapa = grupo.imagemUrl || grupo.fotoUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";

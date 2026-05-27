@@ -157,6 +157,32 @@ namespace TremBomApi.Controllers
             await _context.SaveChangesAsync();
             return Ok("Inscrito com sucesso!");
         }
+
+        // =======================================================
+        // EXCLUIR GRUPO (APENAS O CRIADOR PODE REMOVER)
+        // =======================================================
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> ExcluirGrupo(int id)
+        {
+            var grupo = await _context.Grupos.FirstOrDefaultAsync(g => g.Id == id);
+            if (grupo == null) return NotFound("Grupo não localizado para exclusão.");
+
+            // Validação de segurança no Servidor
+            int idUsuarioLogado = 1;
+            if (grupo.CriadorId != idUsuarioLogado && grupo.CriadorId != 0)
+                return Forbid("Acesso negado. Apenas o criador pode apagar este grupo.");
+
+            try
+            {
+                _context.Grupos.Remove(grupo);
+                await _context.SaveChangesAsync();
+                return Ok(new { mensagem = "Grupo excluído permanentemente com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro do Servidor ao tentar excluir: {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
     }
 
     public class EntradaGrupoDto { public string? Senha { get; set; } }

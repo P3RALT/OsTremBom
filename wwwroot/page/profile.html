@@ -51,6 +51,20 @@
                         <h1 class="username" id="nickname"></h1>
                         <!-- O JavaScript vai injetar dinamicamente o botão correto aqui dentro -->
                         <div id="edit-profile"></div>
+
+                        <div class="profile-user-settings">
+                            <h1 class="username" id="nickname"></h1>
+                        
+                        <!-- NOVA DIV DE AGRUPAMENTO: Mantém os botões sempre juntos e alinhados -->
+                            <div class="profile-actions-group" style="display: flex; gap: 10px; align-items: center;">
+                             <!-- O JavaScript vai injetar dinamicamente o botão de Edição/Seguir aqui -->
+                                <div id="edit-profile"></div>
+                            
+                             <!-- Botão de Sair configurado com display: none por padrão (o JS decide quando exibir) -->
+                                <button class="btn-edit" id="btn-logout" style="background-color: #ff4757; color: white; display: none;">Sair</button>
+                            </div>
+                        </div>
+
                     </div>
                     <ul class="profile-stats">
                         <li><span id="total-publicacoes"></span> publicações</li>

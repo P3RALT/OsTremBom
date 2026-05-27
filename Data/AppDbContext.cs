@@ -45,6 +45,8 @@ namespace TremBomApi.Data
         
         // Mapeia a tabela intermediária 'GrupoMembros' (Controle N:N de usuários inseridos em grupos)
         public DbSet<GrupoMembro> GrupoMembros { get; set; }
+        // Mapeia a tabela 'GruposFotos' (Armazena os caminhos físicos /wwwroot das mídias dos grupos)
+        
 
         // ==========================================================================
         // 2. CONFIGURAÇÃO DAS REGRAS E RELACIONAMENTOS DO MODELO (ON MODEL CREATING)

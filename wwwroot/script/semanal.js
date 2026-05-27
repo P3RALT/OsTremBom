@@ -177,8 +177,15 @@ function renderizarGrupos(lista) {
             <div class="trem-lista-info">
                 <div class="trem-lista-header-row">
                     <h3 class="trem-lista-name">${grupo.nome}</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        ${eCriador ? `<button class="btn-config-grupo" onclick="event.stopPropagation(); abrirModalParaEdicao(${grupo.id})" title="Editar Grupo"><i class="fa-solid fa-gear"></i></button>` : ''}
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        ${eCriador ? `
+                            <button class="btn-config-grupo" onclick="event.stopPropagation(); abrirModalParaEdicao(${grupo.id})" title="Editar Grupo">
+                                <i class="fa-solid fa-gear"></i>
+                            </button>
+                            <button class="btn-config-grupo" style="background-color: #ff4757; color: white;" onclick="event.stopPropagation(); excluirGrupo(${grupo.id})" title="Excluir Grupo">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        ` : ''}
                         <span class="trem-lista-badge-membros"><i class="fa-solid fa-user-group"></i> ${totalMembros}/${grupo.limiteMembros}</span>
                     </div>
                 </div>
@@ -299,6 +306,33 @@ async function salvarGrupo(event) {
     }
 }
 
+// =========================================================================
+// DELETE: EXCLUIR COMUNIDADE PERMANENTEMENTE (APENAS CRIADOR)
+// =========================================================================
+async function excluirGrupo(id) {
+    // Alerta de confirmação nativo antes de realizar a exclusão no banco
+    const confirmarExclusao = confirm("Uai! Tem certeza que deseja apagar este grupo permanentemente? Todos os membros serão removidos e essa ação não pode ser desfeita.");
+    if (!confirmarExclusao) return; // Se clicar em Cancelar, interrompe o processo imediatamente
+
+    try {
+        const response = await fetch(`/api/Grupos/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            const detalheDoErro = await response.text();
+            throw new Error(detalheDoErro);
+        }
+
+        alert("Grupo excluído com sucesso uai!");
+        await carregarGruposDoBanco(); // Recarrega a listagem atualizada sem dar refresh na página inteira
+    } catch (erro) {
+        console.error("Erro ao deletar grupo:", erro);
+        alert(`Não foi possível deletar o grupo: ${erro.message}`);
+    }
+}
+
 function tratarMudancaPrivacidade() {
     const selectPrivacidade = document.getElementById('grupoPrivacidade');
     const containerSenha = document.getElementById('container-senha-grupo');
@@ -403,7 +437,7 @@ function fecharSubModalLocais() { document.getElementById('subModalLocais')?.cla
 async function carregarLocaisParaVinculo() {
     try {
         const resposta = await fetch('/api/Locais');
-        locaisDoBancoGlobal = await resposta.json(); 
+        locaisDoBancoGlobal = await response.json(); 
         renderizarListaLocais(locaisDoBancoGlobal);
     } catch {
         locaisDoBancoGlobal = [{ id: 110, nome: "Forno da Saudade", categoria: "bar" }];
@@ -426,3 +460,6 @@ function renderizarListaLocais(lista) {
         container.appendChild(div);
     });
 }
+
+// Vincula a função de exclusão globalmente ao escopo da janela do navegador
+window.excluirGrupo = excluirGrupo;
