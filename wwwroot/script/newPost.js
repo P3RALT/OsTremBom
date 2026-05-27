@@ -9,6 +9,8 @@ const buttonSubmit = document.getElementById('btn-postar');
 const btnCriarLocalSubmit = document.getElementById("btnCriarLocalSubmit");
 const descricaoInput = document.getElementById('descricao');
 const nomeEstabelecimentoInput = document.getElementById('nome-estabelecimento');
+const buscaInput = document.getElementById("nome-estabelecimento");
+const resultadosDiv = document.getElementById("resultados");
 let cepEndereco = document.getElementById("cepEndereco");
 let enderecoTemp = null;
 let enderecoId = null;
@@ -56,7 +58,7 @@ buttonSubmit.addEventListener("click", async (e) => {
     // Se for um local inédito criado pelo modal, passa os blocos de endereço para o C#
     if (!enderecoId && enderecoTemp) {
         formData.append("rua", enderecoTemp.logradouro || inputsObrigatorios.rua.value.trim());
-        formData.append("numero", inputsObrigatorios.numero.value.trim());
+        formData.append("numero", enderecoTemp.numero || inputsObrigatorios.numero.value.trim());
         formData.append("bairro", enderecoTemp.bairro || "");
         formData.append("cidade", enderecoTemp.localidade || "Belo Horizonte");
     }
@@ -233,8 +235,7 @@ btnPrev.onclick = (e) => {
     updatePreview(currentIndex);
 };
 
-const buscaInput = document.getElementById("nome-estabelecimento");
-const resultadosDiv = document.getElementById("resultados");
+
 
 // Lógica de busca de locais para o post
 buscaInput.addEventListener("input", async () => {
@@ -248,8 +249,9 @@ buscaInput.addEventListener("input", async () => {
         const resposta = await fetch(`/api/locais/buscar-criar-post?termo=${encodeURIComponent(termo)}`);
         const locais = await resposta.json();
         resultadosDiv.innerHTML = "";
+        resultadosDiv.style.display = "block"
         
-        if (locais.length === 0) {
+        if (locais.length == 0) {
             const item = document.createElement("div");
             item.classList.add("resultado-item");
             item.innerHTML = `
@@ -268,21 +270,33 @@ buscaInput.addEventListener("input", async () => {
             resultadosDiv.appendChild(item);
             return;
         }
-        
         locais.forEach(local => {
+            const nome = local.nome || local.Nome;
+            const rua = local.rua || local.Rua;
+            const numero = local.numero || local.Numero;
+            const bairro = local.bairro || local.Bairro;
+            const cidade = local.cidade || local.Cidade;
+            const id = local.id || local.Id;
+
             const item = document.createElement("div");
             item.classList.add("resultado-item");
+
             item.innerHTML = `
-                <strong>${local.nome}</strong>
-                <p>${local.rua || local.Rua} ${local.numero || local.Numero}, ${local.bairro || local.Bairro} - ${local.cidade || local.Cidade}</p>
+                <strong>${nome}</strong>
+                <p>${rua || ""} ${numero || ""}, ${bairro || ""} - ${cidade || ""}</p>
             `;
+
             item.addEventListener("click", () => {
-                buscaInput.value = local.nome;
+                buscaInput.value = nome;
+
                 resultadosDiv.innerHTML = "";
                 resultadosDiv.style.display = "none";
-                enderecoId = local.id; // Vincula o ID do local existente
+
+                enderecoId = id;
+
                 validarFormulario();
             });
+
             resultadosDiv.appendChild(item);
         });
         resultadosDiv.style.display = "block";
@@ -302,6 +316,5 @@ function fecharModalGrupo() {
     if (modal) {
         modal.classList.remove('active');
         document.getElementById('formCriarGrupo').reset();
-        document.getElementById('container-senha-grupo').style.display = 'none';
     }
 }

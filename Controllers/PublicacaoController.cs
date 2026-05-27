@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 using TremBomApi.Data;
 using TremBomApi.Extensions;
 using TremBomApi.Models;
@@ -164,28 +167,90 @@ namespace TremBomApi.Controllers
         }
         
         /// <summary>
-        /// Cria postagem. Se o endereço não existir na base, o post é criado sem local, evitando sujeira.
+        /// Cria uma publicação enviando imagens (via Multipart Form) e registrando coordenadas geográficas.
         /// </summary>
         [HttpPost("criar")]
         public async Task<IActionResult> CriarPost(
             [FromForm] List<IFormFile> imagens,
             [FromForm] string descricao,
             [FromForm] string nomeEstabelecimento,
-            [FromForm] int? enderecoId)
+            [FromForm] int? enderecoId,
+            [FromForm] string? rua,
+            [FromForm] int? numero,
+            [FromForm] string? bairro,
+            [FromForm] string? cidade)
         {
             try
             {
                 var usuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(usuario)) return Unauthorized();
-                
-                if (string.IsNullOrEmpty(descricao))
+                if (string.IsNullOrEmpty(nomeEstabelecimento) || string.IsNullOrEmpty(descricao))
                 {
-                    return BadRequest("A descrição (legenda) da publicação é obrigatória.");
+                    return BadRequest("Nome do estabelecimento e descrição são obrigatórios.");
                 }
 
-                // Se mandou um ID maior que zero, a gente vincula. Se não, o post fica sem Local!
-                int? idLocalFinal = null;
-                if (enderecoId.HasValue && enderecoId.Value > 0)
+                int idLocalFinal = 0;
+
+                if (enderecoId == null || enderecoId <= 0)
+                {
+                    double? latitude = null;
+                    double? longitude = null;
+
+                    if (!string.IsNullOrEmpty(rua))
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            client.DefaultRequestHeaders.Add("User-Agent", "OsTremDeBH_Backend/1.0 (email@teste.com)");
+
+                            var ruaCompleta = $"{rua}, {numero}";
+                            var cityBusca = !string.IsNullOrEmpty(cidade) ? cidade : "Belo Horizonte";
+                            var urlNominatim = $"https://nominatim.openstreetmap.org/search?street={HttpUtility.UrlEncode(ruaCompleta)}&city={HttpUtility.UrlEncode(cityBusca)}&country=Brazil&format=jsonv2&limit=1";
+
+                            try
+                            {
+                                var respostaMap = await client.GetAsync(urlNominatim);
+                                if (respostaMap.IsSuccessStatusCode)
+                                {
+                                    var jsonString = await respostaMap.Content.ReadAsStringAsync();
+                                    using (var doc = JsonDocument.Parse(jsonString))
+                                    {
+                                        var root = doc.RootElement;
+                                        if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
+                                        {
+                                            var primeiroResultado = root[0];
+                                            if (primeiroResultado.TryGetProperty("lat", out var latProp) && primeiroResultado.TryGetProperty("lon", out var lonProp))
+                                            {
+                                                if (double.TryParse(latProp.GetString(), CultureInfo.InvariantCulture, out double lat)) latitude = lat;
+                                                if (double.TryParse(lonProp.GetString(), CultureInfo.InvariantCulture, out double lon)) longitude = lon;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception mapEx)
+                            {
+                                Console.WriteLine($"Erro Nominatim: {mapEx.Message}");
+                            }
+                        }
+                    }
+
+                    var novoLocal = new Local
+                    {
+                        Nome = nomeEstabelecimento,
+                        Rua = rua,
+                        Numero = numero,
+                        Bairro = bairro,
+                        Cidade = !string.IsNullOrEmpty(cidade) ? cidade : "Belo Horizonte",
+                        Latitude = latitude ?? 0,
+                        Longitude = longitude ?? 0,
+                        Resumo = null
+                    };
+
+                    _context.Locais.Add(novoLocal);
+                    await _context.SaveChangesAsync(); 
+                    idLocalFinal = novoLocal.Id; 
+                }
+                else
                 {
                     idLocalFinal = enderecoId.Value;
                 }
@@ -194,10 +259,9 @@ namespace TremBomApi.Controllers
                 {
                     Descricao = descricao,
                     UsuarioId = int.Parse(usuario),
-                    LocalId = idLocalFinal, 
+                    LocalId = idLocalFinal,
                     DataPublicacao = DateTime.UtcNow
                 };
-                
                 _context.Publicacoes.Add(novaPublicacao);
                 await _context.SaveChangesAsync();
 
@@ -210,8 +274,7 @@ namespace TremBomApi.Controllers
                     {
                         if (image.Length > 0)
                         {
-                            string prefixoLocal = idLocalFinal.HasValue ? idLocalFinal.Value.ToString() : "sem-local";
-                            var nomeArquivo = $"{prefixoLocal}-" + Guid.NewGuid() + Path.GetExtension(image.FileName);
+                            var nomeArquivo = $"{idLocalFinal}-" + Guid.NewGuid() + Path.GetExtension(image.FileName);
                             var caminhoCompleto = Path.Combine(pasta, nomeArquivo);
 
                             using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
@@ -231,11 +294,11 @@ namespace TremBomApi.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                return Ok(new { mensagem = "Post publicado com sucesso!", publicacaoId = novaPublicacao.Id });
+                return Ok(new { mensagem = "Post processado com sucesso!", publicacaoId = novaPublicacao.Id });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro interno no servidor ao criar post: {ex.Message}");
+                return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
             }
         }
 

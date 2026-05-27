@@ -12,7 +12,6 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="../css/estiloregister.css">
     <link rel="stylesheet" href="../css/estilologin.css">
     <link rel="stylesheet" href="../css/estilopage.css">
@@ -22,7 +21,7 @@
 <body>
 
     <div class="register-box">
-        <button type="button" class="btn-voltar" onclick="window.history.back()">&lt; Voltar</button>
+        <button type="button" class="btn-voltar" onclick="window.history.back()">&lt;</button>
         <img src="../img/android-chrome-192x192.png" id="logo" alt="Logo" class="logo-register">
         
         <h2>Compartilhar Experiência</h2>
@@ -43,7 +42,7 @@
                     <input type="text" id="cepEndereco" maxlength="9" placeholder="Ex: 30120-010" required>
                     
                     <label for="ruaEndereco">Rua / Logradouro</label>
-                    <input type="text" id="ruaEndereco" placeholder="Logradouro autocompletado pela API" required>
+                    <input type="text" id="ruaEndereco" placeholder="Logradouro autocompletado pela API" required disabled>
                     
                     <label for="numeroEndereco">Número</label>
                     <input type="number" id="numeroEndereco" placeholder="Ex: 450" required>
