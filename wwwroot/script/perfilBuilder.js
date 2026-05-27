@@ -204,36 +204,25 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    /**
-     * SOLUÇÃO INTELIGENTE CORRIGIDA: carregarGruposDoPerfil
-     * Coleta os dados diretamente da rota mestre de Grupos (que funciona perfeitamente)
-     * e aplica o filtro no Front-end para contornar divergências de ID simulado no banco.
-     */
     async function carregarGruposDoPerfil() {
         const mainGrid = document.getElementById("main-grid");
         mainGrid.className = "grupos-grid-container"; 
         mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Buscando seus grupos, uai...</p>`;
 
         try {
-            // Buscamos a rota mestre que retorna todos os grupos ativos com Local e Membros inclusos
             const resposta = await fetch('/api/Grupos');
             if (resposta.ok) {
                 const todosGrupos = await resposta.json();
                 
-                // Mapeia e filtra apenas os grupos onde o usuário logado é o criador ou participante ativo
                 const gruposDoUsuario = todosGrupos.filter(grupo => {
                     const idAlvo = usuarioAtual?.id || 1;
-                    
-                    // Validação flexível: aceita se bater com o ID do perfil OU com o ID simulado padrão (1)
                     const souDono = (grupo.criadorId === idAlvo || grupo.criadorId === 1 || grupo.criadorId === 0);
                     const souIntegrante = grupo.membros && grupo.membros.some(m => m.usuarioId === idAlvo || m.usuarioId === 1);
-                    
                     return souDono || souIntegrante;
                 });
 
                 if (gruposDoUsuario.length > 0) {
                     mainGrid.innerHTML = "";
-                    
                     gruposDoUsuario.forEach(grupo => {
                         const totalMembros = grupo.membros ? grupo.membros.length : 0;
                         const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
@@ -290,7 +279,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     if (target.id === "unfollow") {
                         const resposta = await fetch(`/api/usuario/unfollow/${encodeURIComponent(usuarioAtual.nickname)}`, {
                             method: 'DELETE',
-                            credentials: 'include'
+                            credentials: 'include' // O cookie é passado aqui corretamente
                         });
                         if (resposta.ok) {
                             editProfile.innerHTML = `<button class="btn-edit" id="follow">Seguir</button>`;
@@ -305,7 +294,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     } else {
                         const resposta = await fetch(`/api/usuario/seguir/${encodeURIComponent(usuarioAtual.nickname)}`, {
                             method: 'POST',
-                            credentials: 'include'
+                            credentials: 'include' // O cookie é passado aqui corretamente
                         });
                         if (resposta.ok) {
                             editProfile.innerHTML = `<button class="btn-edit" id="unfollow">Deixar de seguir</button>`;
@@ -427,6 +416,11 @@ window.atualizarPreviaImagem = function(input) {
         leitor.readAsDataURL(input.files[0]);
     }
 };
+
+/**
+ * CORREÇÃO PRINCIPAL
+ * Adicionado o credentials: "include" e tratamento para ler a resposta de erro detalhada do C#.
+ */
 window.salvarPerfil = async function(event) {
     event.preventDefault(); 
     const badgesSelecionados = document.querySelectorAll(".tag-opcao.selecionada");
@@ -439,15 +433,23 @@ window.salvarPerfil = async function(event) {
     try {
         const response = await fetch("/api/usuario/atualizar", {
             method: "PUT",
+            credentials: "include", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dadosEdicao)
         });
+        
         if (response.ok) {
             alert("Perfil salvo com sucesso!");
             fecharModal();
             window.location.reload(); 
+        } else {
+            // CORREÇÃO AQUI: Em vez de um alerta genérico, vamos ler o que o C# reclamou!
+            const erroNoServidor = await response.json();
+            console.error("Erro do servidor:", erroNoServidor);
+            alert(`Falha ao salvar: ${erroNoServidor.detalhe || erroNoServidor.mensagem || 'Erro desconhecido.'}`);
         }
     } catch (error) {
         console.error(error);
+        alert("Falha na comunicação com o servidor. Veja o console para detalhes.");
     }
 };

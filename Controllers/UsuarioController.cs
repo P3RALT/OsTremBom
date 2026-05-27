@@ -11,11 +11,12 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using TremBomApi.Extensions;
+using Microsoft.AspNetCore.Authorization; 
 
 namespace TremBomApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] 
+    [Route("api/usuario")] 
     public class UsuarioController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -77,36 +78,32 @@ namespace TremBomApi.Controllers
         [HttpPost("login")]  
         public async Task<IActionResult> Login([FromBody] UsuarioLoginDto dto)
         {
-        // Procura o utilizador na base de dados pelo E-mail
-        // Usamos Include(u => u.Sessoes) caso queiras manipular a lista de sessões diretamente
-        var usuario = await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.Email == dto.Email);
-        
-        if (usuario == null)
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+            
+            if (usuario == null)
             {
                 return BadRequest(new { mensagem = "E-mail ou senha incorretos." });
             }
 
-        // Senha compara a senha com o hash guardado, verifica o trabaho pra ver se as senhas batem
-        bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + _pepper, usuario.SenhaHash);
-        if (!senhaCorreta)
+            bool senhaCorreta = BCrypt.Net.BCrypt.Verify(dto.Senha + _pepper, usuario.SenhaHash);
+            if (!senhaCorreta)
             {
                 return BadRequest(new { message = "E-mail ou senha incorretos." }); 
             }
 
-        var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenHandler = new JwtSecurityTokenHandler();
             var chaveSecreta = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                    // ADICIONANDO AS COORDENADAS DENTRO DO JWT
                     new Claim("latitude", dto.lat??"".ToString()),
                     new Claim("longitude", dto.lon??"".ToString()),
                     new Claim("nickname", usuario.Nickname)
                 }),
-                Expires = DateTime.UtcNow.AddDays(1), // O token expira em 1 dia
+                Expires = DateTime.UtcNow.AddDays(1), 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(chaveSecreta), SecurityAlgorithms.HmacSha256Signature)
             };
             
@@ -129,19 +126,6 @@ namespace TremBomApi.Controllers
             
             return Ok(new { mensagem = "Login efetuado com sucesso!" });
         }
-    }
-
-    [ApiController]
-    [Route("api/usuario")]
-    public class PerfilController : ControllerBase
-    {
-        private readonly AppDbContext _context;
-
-        public PerfilController(AppDbContext context)
-        {
-            _context = context;
-        }
-        
 
         /// <summary>
         /// Coleta os dados completos de perfil da conta autenticada logada.
@@ -199,9 +183,118 @@ namespace TremBomApi.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            // Remove o cookie "JwtToken"
             Response.Cookies.Delete("JwtToken");
             return Ok(new { mensagem = "Logout efetuado com sucesso!" });
+        }
+
+        /// <summary>
+        /// Atualiza informações parciais de perfil (Biografia e Preferências).
+        /// </summary>
+        [HttpPut("atualizar")]
+        [Authorize]
+        public async Task<IActionResult> AtualizarPerfil([FromBody] UsuarioEdicaoDto dto)
+        {
+            try 
+            {
+                var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdStr)) return Unauthorized("Sessão inválida.");
+
+                var userId = int.Parse(userIdStr);
+                
+                // CORREÇÃO AQUI: Removido o .Include(u => u.Preferencias) para evitar erro no EF Core.
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+                    
+                if (usuario == null) return NotFound("Usuário não cadastrado.");
+
+                if (!string.IsNullOrEmpty(dto.FotoPerfilUrl)) 
+                {
+                    usuario.FotoPerfilUrl = dto.FotoPerfilUrl;
+                }
+                
+                usuario.Descricao = dto.DescricaoBio; 
+
+                // Atualização segura das preferências para uma propriedade mapeada em banco
+                if (dto.Preferencias != null)
+                {
+                    if (usuario.Preferencias != null)
+                    {
+                        usuario.Preferencias.Clear();
+                    }
+                    else 
+                    {
+                        // Se por algum motivo a lista estava null no objeto C#, a gente instancia ela antes
+                        usuario.Preferencias = new System.Collections.Generic.List<string>();
+                    }
+
+                    foreach (var pref in dto.Preferencias) 
+                    {
+                        usuario.Preferencias.Add(pref);
+                    }
+                }
+
+                _context.Usuarios.Update(usuario);
+                await _context.SaveChangesAsync();
+                
+                return Ok(new { mensagem = "Perfil atualizado com sucesso uai!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    mensagem = "Erro interno no servidor ao salvar.", 
+                    detalhe = ex.InnerException?.Message ?? ex.Message 
+                });
+            }
+        }
+
+        /// <summary>
+        /// Segue uma conta de usuário.
+        /// </summary>
+        [HttpPost("seguir/{name}")]
+        [Authorize]
+        public async Task<IActionResult> SeguirUsuario(string name)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound();
+
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null) return Unauthorized();
+
+            var parsedUserIdStr = int.Parse(userIdStr);
+            if (parsedUserIdStr == usuario.Id) return BadRequest("Você não pode seguir a si mesmo.");
+
+            var jaSegue = await _context.Seguidores.AnyAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
+            if (jaSegue) return BadRequest("Você já segue essa conta.");
+
+            var novoSeguidor = new Seguidores { AlvoUsuarioId = usuario.Id, UsuarioId = parsedUserIdStr };
+            _context.Seguidores.Add(novoSeguidor);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensagem = "Conta seguida com sucesso." });
+        }
+
+        /// <summary>
+        /// Deixa de seguir uma conta (Unfollow).
+        /// </summary>
+        [HttpDelete("unfollow/{name}")]
+        [Authorize]
+        public async Task<IActionResult> UnfollowUsuario(string name)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
+            if (usuario == null) return NotFound();
+
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdStr == null) return Unauthorized();
+
+            var parsedUserIdStr = int.Parse(userIdStr);
+            
+            var registro = await _context.Seguidores
+                .FirstOrDefaultAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
+            
+            if (registro == null) return BadRequest("Você não segue este usuário.");
+
+            _context.Seguidores.Remove(registro);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
         /// <summary>
@@ -297,103 +390,24 @@ namespace TremBomApi.Controllers
         }
 
         /// <summary>
-        /// Segue uma conta de usuário.
-        /// </summary>
-        [HttpPost("seguir/{name}")]
-        public async Task<IActionResult> SeguirUsuario(string name)
-        {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
-            if (usuario == null) return NotFound();
-
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdStr == null) return Unauthorized();
-
-            var parsedUserIdStr = int.Parse(userIdStr);
-            if (parsedUserIdStr == usuario.Id) return BadRequest("Você não pode seguir a si mesmo.");
-
-            var jaSegue = await _context.Seguidores.AnyAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
-            if (jaSegue) return BadRequest("Você já segue essa conta.");
-
-            var novoSeguidor = new Seguidores { AlvoUsuarioId = usuario.Id, UsuarioId = parsedUserIdStr };
-            _context.Seguidores.Add(novoSeguidor);
-            await _context.SaveChangesAsync();
-            return Ok(new { mensagem = "Conta seguida com sucesso." });
-        }
-
-        /// <summary>
-        /// Deixa de seguir uma conta (Unfollow).
-        /// </summary>
-        [HttpDelete("unfollow/{name}")]
-        public async Task<IActionResult> UnfollowUsuario(string name)
-        {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Nickname == name);
-            if (usuario == null) return NotFound();
-
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdStr == null) return Unauthorized();
-
-            var parsedUserIdStr = int.Parse(userIdStr);
-            
-            var registro = await _context.Seguidores
-                .FirstOrDefaultAsync(s => s.UsuarioId == parsedUserIdStr && s.AlvoUsuarioId == usuario.Id);
-            
-            if (registro == null) return BadRequest("Você não segue este usuário.");
-
-            _context.Seguidores.Remove(registro);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Atualiza informações parciais de perfil (Biografia e Preferências).
-        /// </summary>
-        [HttpPut("atualizar")]
-        public async Task<IActionResult> AtualizarPerfil([FromBody] UsuarioEdicaoDto dto)
-        {
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
-
-            var userId = int.Parse(userIdStr);
-            var usuario = await _context.Usuarios.Include(u => u.Preferencias).FirstOrDefaultAsync(u => u.Id == userId);
-            if (usuario == null) return NotFound("Usuário não cadastrado.");
-
-            if (!string.IsNullOrEmpty(dto.FotoPerfilUrl)) usuario.FotoPerfilUrl = dto.FotoPerfilUrl;
-            usuario.Descricao = dto.DescricaoBio; 
-
-            if (dto.Preferencias != null)
-            {
-                usuario.Preferencias.Clear();
-                foreach (var pref in dto.Preferencias) usuario.Preferencias.Add(pref);
-            }
-
-            _context.Usuarios.Update(usuario);
-            await _context.SaveChangesAsync();
-            return Ok(new { mensagem = "Perfil atualizado com sucesso uai!" });
-        }
-
-        /// <summary>
-        /// Retorna a lista de todos os grupos vinculados a um usuário específico (tanto os que ele criou quanto os que ele entrou).
+        /// Retorna a lista de todos os grupos vinculados a um usuário específico.
         /// </summary>
         [HttpGet("{name}/grupos")]
         public async Task<IActionResult> GetGruposUsuario(string name)
         {
-            // Validação inicial caso o nome venha vazio
             if (string.IsNullOrEmpty(name)) return BadRequest("Nome não informado.");
 
-            // 1. Busca o usuário no banco de dados usando o Nickname vindo da URL
             var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound("Usuário não cadastrado no sistema.");
 
-            // 2. Busca os grupos aplicando a regra: ser o Criador OU ser um dos Membros inscritos
             var gruposDoUsuario = await _context.Grupos
                 .AsNoTracking()
-                .Include(g => g.Local)   // Carrega os dados do Ponto de Encontro (evita vir nulo no front)
-                .Include(g => g.Membros) // Carrega os membros para sabermos o total de participantes
+                .Include(g => g.Local)  
+                .Include(g => g.Membros) 
                 .Where(g => g.CriadorId == usuario.Id || g.Membros.Any(m => m.UsuarioId == usuario.Id))
-                .OrderByDescending(g => g.Id) // Organiza para mostrar os mais novos primeiro
+                .OrderByDescending(g => g.Id) 
                 .ToListAsync();
 
-            // Retorna a lista de grupos com o status 200 OK
             return Ok(gruposDoUsuario);
         }
 
@@ -403,11 +417,9 @@ namespace TremBomApi.Controllers
         [HttpGet("{name}/seguidores")]
         public async Task<IActionResult> GetSeguidores(string name)
         {
-            // 1. Busca o usuário dono do perfil para pegar o ID dele
             var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound("Usuário não encontrado.");
 
-            // 2. CORREÇÃO: Busca usando a propriedade de navegação 'SeguidorUsuario' que mapeia quem seguiu
             var lista = await _context.Seguidores
                 .AsNoTracking()
                 .Where(s => s.AlvoUsuarioId == usuario.Id)
@@ -425,11 +437,9 @@ namespace TremBomApi.Controllers
         [HttpGet("{name}/seguindo")]
         public async Task<IActionResult> GetSeguindo(string name)
         {
-            // Busca o usuário dono do perfil para obter o ID dele
             var usuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Nickname == name);
             if (usuario == null) return NotFound("Utilizador não encontrado.");
 
-            // CORREÇÃO: Busca usando a propriedade 'AlvoUsuario' para saber quem foi seguido
             var lista = await _context.Seguidores
                 .AsNoTracking()
                 .Where(s => s.UsuarioId == usuario.Id)
@@ -442,5 +452,4 @@ namespace TremBomApi.Controllers
 
             return Ok(lista);
         }
-    }
-}
+    }}

@@ -1,4 +1,4 @@
-namespace TremBomApi.Models
+namespace TremBomApi.Models.DTOs
 {
     public class LoginResponseDto
     {
