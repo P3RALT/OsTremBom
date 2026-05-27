@@ -204,64 +204,158 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    async function carregarGruposDoPerfil() {
-        const mainGrid = document.getElementById("main-grid");
-        mainGrid.className = "grupos-grid-container"; 
-        mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Buscando seus grupos, uai...</p>`;
+async function carregarGruposDoPerfil() {
+    const mainGrid = document.getElementById("main-grid");
 
-        try {
-            const resposta = await fetch('/api/Grupos');
-            if (resposta.ok) {
-                const todosGrupos = await resposta.json();
-                
-                const gruposDoUsuario = todosGrupos.filter(grupo => {
-                    const idAlvo = usuarioAtual?.id || 1;
-                    const souDono = (grupo.criadorId === idAlvo || grupo.criadorId === 1 || grupo.criadorId === 0);
-                    const souIntegrante = grupo.membros && grupo.membros.some(m => m.usuarioId === idAlvo || m.usuarioId === 1);
-                    return souDono || souIntegrante;
-                });
+    // GRID NOVA DOS GRUPOS
+    mainGrid.className = "grupos-grid-container";
 
-                if (gruposDoUsuario.length > 0) {
-                    mainGrid.innerHTML = "";
-                    gruposDoUsuario.forEach(grupo => {
-                        const totalMembros = grupo.membros ? grupo.membros.length : 0;
-                        const ePrivado = grupo.privacidade?.toLowerCase() === "privado";
-                        const nomeLocal = grupo.local ? grupo.local.nome : "Belo Horizonte";
-                        const fotoCapa = grupo.imagemUrl || "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
+    mainGrid.innerHTML = `
+        <p class="ajuda-texto" 
+           style="text-align:center; grid-column: 1/-1; padding:20px;">
+            Buscando seus grupos, uai...
+        </p>
+    `;
 
-                        const card = document.createElement('div');
-                        card.className = 'Card';
-                        
-                        card.innerHTML = `
-                            <div class="card-image">
-                                <img src="${fotoCapa}" alt="${grupo.nome}" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'">
-                                <div class="btn-favorito">
-                                    <i class="${ePrivado ? 'fa-solid fa-lock' : 'fa-solid fa-users'}"></i>
-                                </div>
-                                <span class="badge-membros-layout">${totalMembros}/${grupo.limiteMembros || 10} membros</span>
-                            </div>
-                            <div class="card-content">
-                                <div class="card-rating">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                </div>
-                                <h3>${grupo.nome}</h3>
-                                <span class="card-category">${nomeLocal}</span>
-                                <button class="btn-reservar" onclick="window.location.href='/page/Groups.html'">
-                                    Ver no Painel
-                                </button>
-                            </div>
-                        `;
-                        mainGrid.appendChild(card);
-                    });
-                } else {
-                    mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px;">Você ainda não criou ou entrou em nenhum grupo, uai.</p>`;
-                }
+    try {
+        const resposta = await fetch('/api/Grupos');
+
+        if (resposta.ok) {
+            const todosGrupos = await resposta.json();
+
+            const gruposDoUsuario = todosGrupos.filter(grupo => {
+
+                const idAlvo = usuarioAtual?.id || 1;
+
+                const souDono =
+                    grupo.criadorId === idAlvo ||
+                    grupo.criadorId === 1 ||
+                    grupo.criadorId === 0;
+
+                const souIntegrante =
+                    grupo.membros &&
+                    grupo.membros.some(m =>
+                        m.usuarioId === idAlvo ||
+                        m.usuarioId === 1
+                    );
+
+                return souDono || souIntegrante;
+            });
+
+            // LIMPA GRID
+            mainGrid.innerHTML = "";
+
+            // SEM GRUPOS
+            if (gruposDoUsuario.length <= 0) {
+
+                mainGrid.innerHTML = `
+                    <p class="ajuda-texto"
+                       style="text-align:center; grid-column: 1/-1; padding:20px;">
+                        Você ainda não criou ou entrou em nenhum grupo, uai.
+                    </p>
+                `;
+
+                return;
             }
-        } catch (error) {
-            console.error("Erro ao buscar grupos do perfil:", error);
-            mainGrid.innerHTML = `<p class="ajuda-texto" style="text-align:center; grid-column: 1/-1; padding:20px; color:red;">Erro ao conectar.</p>`;
+
+            // RENDERIZA CARDS
+            gruposDoUsuario.forEach(grupo => {
+
+                const totalMembros =
+                    grupo.membros ? grupo.membros.length : 0;
+
+                const ePrivado =
+                    grupo.privacidade?.toLowerCase() === "privado";
+
+                const nomeLocal =
+                    grupo.local
+                        ? grupo.local.nome
+                        : "Belo Horizonte";
+
+                const fotoCapa =
+                    grupo.imagemUrl ||
+                    "https://images.unsplash.com/photo-1620987278429-ca1745549794?w=500";
+
+                // CARD
+                const card = document.createElement("div");
+
+                // NOVA CLASSE ÚNICA
+                card.className = "grupo-card";
+
+                card.innerHTML = `
+                    <div class="grupo-card-image">
+
+                        <img 
+                            src="${fotoCapa}" 
+                            alt="${grupo.nome}"
+
+                            onerror="
+                                this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'
+                            "
+                        >
+
+                        <div class="grupo-card-favorito">
+                            <i class="${
+                                ePrivado
+                                    ? 'fa-solid fa-lock'
+                                    : 'fa-solid fa-users'
+                            }"></i>
+                        </div>
+
+                        <span class="grupo-card-badge">
+                            ${totalMembros}/${grupo.limiteMembros || 10} membros
+                        </span>
+
+                    </div>
+
+                    <div class="grupo-card-content">
+
+                        <div class="grupo-card-rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+
+                        <h3>${grupo.nome}</h3>
+
+                        <span class="grupo-card-local">
+                            ${nomeLocal}
+                        </span>
+
+                        <button 
+                            class="grupo-btn"
+                            onclick="window.location.href='/page/Groups.html'"
+                        >
+                            Ver no Painel
+                        </button>
+
+                    </div>
+                `;
+
+                mainGrid.appendChild(card);
+            });
+
         }
+
+    } catch (error) {
+
+        console.error("Erro ao buscar grupos do perfil:", error);
+
+        mainGrid.innerHTML = `
+            <p class="ajuda-texto"
+               style="
+                    text-align:center;
+                    grid-column: 1/-1;
+                    padding:20px;
+                    color:red;
+               ">
+                Erro ao conectar.
+            </p>
+        `;
     }
+}
 
     // Gerenciador de cliques para operações de relacionamento (Follow/Unfollow)
     if (editProfile) {
